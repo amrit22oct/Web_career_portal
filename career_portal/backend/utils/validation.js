@@ -3,9 +3,10 @@ import Joi from 'joi';
 // Signup validation schema
 export const validateSignup = (req, res, next) => {
   const schema = Joi.object({
-    username: Joi.string().min(3).required(),
+    name: Joi.string().min(3).required(),
     email: Joi.string().email().required(),
     password: Joi.string().min(6).required(),
+    role: Joi.string().valid('student', 'recruiter').required(),
   });
 
   const { error } = schema.validate(req.body);
