@@ -1,126 +1,140 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import API from '../services/api';
-import { FaPlus, FaEdit, FaTrash } from "react-icons/fa";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import JobCard from "../components/JobCard";
+import StudentListModal from "../components/Modal";
+import AddJobModal from "../components/AddjobModal"; // Corrected the import
 
-const RecruiterDashboardPage = () => {
+const RecruiterDashboard = () => {
   const [jobs, setJobs] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const navigate = useNavigate();
-
+  const [showStudentModal, setShowStudentModal] = useState(false);
+  const [showAddJobModal, setShowAddJobModal] = useState(false);
+  const [selectedJob, setSelectedJob] = useState(null);
+  
+  // Fetch jobs data when the component mounts
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-        const token = localStorage.getItem('token');
-        if (!token) {
-          navigate('/login', { replace: true });
-          return;
-        }
-
-        const { data } = await API.get('/recruiter/my-jobs', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        setJobs(data);
-      } catch (err) {
-        console.error('Error fetching jobs:', err);
-        if (err.response?.status === 401) {
-          navigate('/login', { replace: true });
-        } else {
-          setError(err.response?.data?.message || 'Failed to fetch jobs. Please try again later.');
-        }
-      } finally {
-        setLoading(false);
+        const response = await axios.get("/api/jobs");
+        console.log(response.data); // Log the response to check its structure
+        
+        // Ensure we are setting the jobs as an array
+        setJobs(Array.isArray(response.data) ? response.data : []);
+      } catch (error) {
+        console.error("Error fetching jobs:", error);
+        setJobs([]); // Set jobs to an empty array on error
       }
     };
 
     fetchJobs();
-  }, [navigate]);
+  }, []);
 
-  const totalApplicants = jobs.reduce((acc, job) => acc + (job.applicants?.length || 0), 0);
-  const activeJobs = jobs.filter(job => job.status === 'active').length;
+  const user = {
+    name: "Recruiter",
+    email: "recruiter@example.com",
+    role: "recruiter",
+  };
 
   return (
-    <div className="p-8 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 min-h-screen text-white">
-      <h1 className="text-4xl font-extrabold mb-8 text-center">Recruiter Dashboard</h1>
-
-      {/* Stats */}
-      <div className="flex flex-wrap justify-center gap-8 mb-8">
-        <StatCard title="Total Jobs Posted" value={jobs.length} />
-        <StatCard title="Active Listings" value={activeJobs} />
-        <StatCard title="Applicants" value={totalApplicants} />
+    <div className="min-h-screen flex bg-gray-100">
+      {/* Sidebar */}
+      <div className="w-64 bg-white shadow-lg p-6 flex flex-col justify-between rounded-r-2xl">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-6">Recruiter Panel</h2>
+          <nav className="space-y-4">
+            <button className="text-gray-700 hover:text-blue-600 w-full text-left">Explore Jobs</button>
+            <button className="text-gray-700 hover:text-blue-600 w-full text-left">My Applications</button>
+            <button className="text-gray-700 hover:text-blue-600 w-full text-left">Profile</button>
+            <button className="text-gray-700 hover:text-blue-600 w-full text-left">Settings</button>
+          </nav>
+        </div>
+        <button className="text-red-600 hover:text-red-800 w-full text-left mt-6">Logout</button>
       </div>
 
-      {/* Loading & Error */}
-      {loading ? (
-        <div className="flex justify-center items-center py-20">
-          <div className="w-12 h-12 border-4 border-t-4 border-t-transparent border-white rounded-full animate-spin"></div>
-          <p className="ml-4">Loading jobs...</p>
+      {/* Main Content */}
+      <div className="flex-1 p-8 overflow-y-auto">
+        {/* Welcome */}
+        <div className="bg-white rounded-2xl shadow p-6 mb-8">
+          <h1 className="text-3xl font-bold text-gray-800">Welcome, {user.name}!</h1>
+          <p className="text-lg text-gray-600 mt-1">
+            You're logged in as a {user.role.charAt(0).toUpperCase() + user.role.slice(1)}.
+          </p>
+          <div className="mt-4 space-y-2">
+            <p><span className="font-semibold text-gray-700">Email:</span> {user.email}</p>
+            <p><span className="font-semibold text-gray-700">Role:</span> {user.role}</p>
+          </div>
         </div>
-      ) : error ? (
-        <div className="text-red-500 text-center">{error}</div>
-      ) : jobs.length === 0 ? (
-        <p className="text-center text-gray-200">No jobs available. Post your first job!</p>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {jobs.map((job) => (
-            <JobCard key={job._id} job={job} navigate={navigate} />
-          ))}
+
+        {/* Dashboard Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          <div className="bg-blue-600 text-white p-6 rounded-2xl shadow hover:bg-blue-700">
+            <h3 className="text-xl font-semibold">Explore Jobs</h3>
+            <p>Browse and post job openings.</p>
+            <button
+              onClick={() => setShowAddJobModal(true)}
+              className="mt-4 bg-white text-blue-600 px-4 py-2 rounded-full font-semibold hover:bg-blue-100"
+            >
+              Post a Job
+            </button>
+          </div>
+          <div className="bg-purple-600 text-white p-6 rounded-2xl shadow hover:bg-purple-700">
+            <h3 className="text-xl font-semibold">My Applications</h3>
+            <p>Manage received applications.</p>
+          </div>
+          <div className="bg-green-600 text-white p-6 rounded-2xl shadow hover:bg-green-700">
+            <h3 className="text-xl font-semibold">Profile</h3>
+            <p>Update your personal information.</p>
+          </div>
         </div>
+
+        {/* Analytics */}
+        <div className="bg-white rounded-2xl shadow p-6 mb-8">
+          <h2 className="text-xl font-bold text-gray-800 mb-4">Analytics</h2>
+          <p className="text-gray-600">Total Jobs Posted: {jobs.length}</p>
+          <p className="text-gray-600">Applicants Received: 24</p>
+          <p className="text-gray-600">Interviews Scheduled: 8</p>
+        </div>
+
+        {/* Posted Jobs */}
+        <div className="mt-10">
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Posted Jobs</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Array.isArray(jobs) && jobs.length > 0 ? (
+              jobs.map((job) => (
+                <JobCard
+                  key={job._id}
+                  job={job}
+                  onViewApplicants={() => {
+                    setSelectedJob(job);
+                    setShowStudentModal(true);
+                  }}
+                  onDelete={() => {}}
+                />
+              ))
+            ) : (
+              <p className="text-gray-600">No jobs posted yet.</p>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Modals */}
+      {showStudentModal && selectedJob && (
+        <StudentListModal
+          job={selectedJob}
+          onClose={() => setShowStudentModal(false)}
+        />
       )}
-
-      {/* Floating Add Button */}
-      <div className="fixed bottom-8 right-8">
-        <button
-          onClick={() => navigate('/recruiter/create-job')}
-          className="bg-teal-600 text-white rounded-full p-4 shadow-lg hover:bg-teal-700 transition duration-300"
-        >
-          <FaPlus className="text-2xl" />
-        </button>
-      </div>
+      {showAddJobModal && (
+        <AddJobModal
+          onClose={() => setShowAddJobModal(false)}
+          onJobPosted={() => {
+            // Optional: Refetch the jobs after posting a new job
+            fetchJobs();
+          }}
+        />
+      )}
     </div>
   );
 };
 
-// Small Reusable Components
-const StatCard = ({ title, value }) => (
-  <div className="bg-white text-gray-800 p-6 rounded-xl shadow-lg w-72 text-center hover:scale-105 transform transition-all duration-300 ease-in-out">
-    <h3 className="text-xl font-semibold">{title}</h3>
-    <p className="text-3xl font-bold">{value}</p>
-  </div>
-);
-
-const JobCard = ({ job, navigate }) => (
-  <div className="bg-white rounded-lg shadow-lg p-6 hover:shadow-2xl transition-transform transform hover:scale-105">
-    <h2 className="text-2xl font-bold text-indigo-600">{job.title}</h2>
-    <p className="text-gray-700 mt-2">{job.company}</p>
-    <p className="text-gray-500 mt-1">{job.location}</p>
-    <p className="text-gray-600 mt-4">{job.description.slice(0, 100)}...</p>
-
-    <div className="mt-4 flex justify-between items-center">
-      <button
-        onClick={() => navigate(`/jobs/${job._id}`)}
-        className="text-blue-500 hover:underline"
-      >
-        View Details
-      </button>
-      <div className="flex gap-4">
-        <button
-          onClick={() => navigate(`/recruiter/edit-job/${job._id}`)}
-          className="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition duration-300"
-        >
-          <FaEdit className="inline-block mr-2" /> Edit
-        </button>
-        <button
-          onClick={() => navigate(`/recruiter/delete-job/${job._id}`)}
-          className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition duration-300"
-        >
-          <FaTrash className="inline-block mr-2" /> Delete
-        </button>
-      </div>
-    </div>
-  </div>
-);
-
-export default RecruiterDashboardPage;
+export default RecruiterDashboard;

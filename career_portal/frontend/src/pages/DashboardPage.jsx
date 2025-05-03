@@ -83,9 +83,9 @@ const DashboardPage = () => {
             </div>
 
             {/* Dashboard Footer */}
-            <div className="mt-8">
+            {/* <div className="mt-8">
               <p className="text-center text-gray-600">© 2025 Web Career Portal. All rights reserved.</p>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>
