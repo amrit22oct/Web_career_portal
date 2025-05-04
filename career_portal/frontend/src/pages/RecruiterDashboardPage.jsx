@@ -9,14 +9,14 @@ const RecruiterDashboard = () => {
   const [showStudentModal, setShowStudentModal] = useState(false);
   const [showAddJobModal, setShowAddJobModal] = useState(false);
   const [selectedJob, setSelectedJob] = useState(null);
-  
+
   // Fetch jobs data when the component mounts
   useEffect(() => {
     const fetchJobs = async () => {
       try {
         const response = await axios.get("/api/jobs");
         console.log(response.data); // Log the response to check its structure
-        
+
         // Ensure we are setting the jobs as an array
         setJobs(Array.isArray(response.data) ? response.data : []);
       } catch (error) {
@@ -39,28 +39,49 @@ const RecruiterDashboard = () => {
       {/* Sidebar */}
       <div className="w-64 bg-white shadow-lg p-6 flex flex-col justify-between rounded-r-2xl">
         <div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-6">Recruiter Panel</h2>
+          <h2 className="text-2xl font-bold text-gray-800 mb-6">
+            Recruiter Panel
+          </h2>
           <nav className="space-y-4">
-            <button className="text-gray-700 hover:text-blue-600 w-full text-left">Explore Jobs</button>
-            <button className="text-gray-700 hover:text-blue-600 w-full text-left">My Applications</button>
-            <button className="text-gray-700 hover:text-blue-600 w-full text-left">Profile</button>
-            <button className="text-gray-700 hover:text-blue-600 w-full text-left">Settings</button>
+            <button className="text-gray-700 hover:text-blue-600 w-full text-left">
+              Explore Jobs
+            </button>
+            <button className="text-gray-700 hover:text-blue-600 w-full text-left">
+              My Applications
+            </button>
+            <button className="text-gray-700 hover:text-blue-600 w-full text-left">
+              Profile
+            </button>
+            <button className="text-gray-700 hover:text-blue-600 w-full text-left">
+              Settings
+            </button>
           </nav>
         </div>
-        <button className="text-red-600 hover:text-red-800 w-full text-left mt-6">Logout</button>
+        <button className="text-red-600 hover:text-red-800 w-full text-left mt-6">
+          Logout
+        </button>
       </div>
 
       {/* Main Content */}
       <div className="flex-1 p-8 overflow-y-auto">
         {/* Welcome */}
         <div className="bg-white rounded-2xl shadow p-6 mb-8">
-          <h1 className="text-3xl font-bold text-gray-800">Welcome, {user.name}!</h1>
+          <h1 className="text-3xl font-bold text-gray-800">
+            Welcome, {user.name}!
+          </h1>
           <p className="text-lg text-gray-600 mt-1">
-            You're logged in as a {user.role.charAt(0).toUpperCase() + user.role.slice(1)}.
+            You're logged in as a{" "}
+            {user.role.charAt(0).toUpperCase() + user.role.slice(1)}.
           </p>
           <div className="mt-4 space-y-2">
-            <p><span className="font-semibold text-gray-700">Email:</span> {user.email}</p>
-            <p><span className="font-semibold text-gray-700">Role:</span> {user.role}</p>
+            <p>
+              <span className="font-semibold text-gray-700">Email:</span>{" "}
+              {user.email}
+            </p>
+            <p>
+              <span className="font-semibold text-gray-700">Role:</span>{" "}
+              {user.role}
+            </p>
           </div>
         </div>
 

@@ -30,33 +30,77 @@ export const createJob = async (req, res) => {
 };
 
 
-// GET: Fetch all jobs posted by the recruiter
-export const getJobs = async (req, res) => {
+// GET: Get all jobs (for job listing page)
+export const getAllJobs = async (req, res) => {
   try {
-    const jobs = await Job.find({ recruiterId: req.user.id });
-    return res.status(200).json(jobs);
+    const jobs = await Job.find({}).populate("recruiter", "name email");
+
+    if (!jobs || jobs.length === 0) {
+      return res.status(404).json({ message: "No jobs available at the moment." });
+    }
+
+    return res.status(200).json({ success: true, jobs });
   } catch (error) {
-    console.error("Error fetching jobs:", error);
+    console.error("Error fetching all jobs:", error.message);
     return res.status(500).json({ message: "Server error" });
   }
 };
+
+
+// GET: Fetch all jobs posted by the recruiter
+
+export const getJobs = async (req, res) => {
+  try {
+    const recruiterId = req.user?._id;
+
+    if (!recruiterId) {
+      return res.status(401).json({ message: "Unauthorized: Recruiter ID not found" });
+    }
+
+    const jobs = await Job.find({ recruiterId });
+
+    return res.status(200).json({ success: true, jobs });
+  } catch (error) {
+    console.error("Error fetching jobs:", error.message);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
+
 
 // GET: Get job by ID (for viewing applicants or job details)
 export const getJobById = async (req, res) => {
   const { jobId } = req.params;
 
   try {
+    // Ensure jobId is valid
+    if (!jobId) {
+      return res.status(400).json({ message: "Job ID is required" });
+    }
+
+    // Fetch job by ID
     const job = await Job.findById(jobId).populate('applicants');
+    
+    // Check if the job exists
     if (!job) {
       return res.status(404).json({ message: "Job not found" });
     }
 
     return res.status(200).json(job);
   } catch (error) {
+    // Log the full error for debugging
     console.error("Error fetching job details:", error);
-    return res.status(500).json({ message: "Server error" });
+
+    // Return a more detailed error message
+    return res.status(500).json({
+      message: "Server error",
+      error: error.message, // Include the specific error message
+      stack: error.stack,   // Optionally, include the stack trace for debugging
+    });
   }
 };
+
+
 
 // PUT: Update a job post
 export const updateJob = async (req, res) => {

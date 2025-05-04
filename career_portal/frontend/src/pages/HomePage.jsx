@@ -2,9 +2,10 @@ import { Link } from 'react-router-dom';
 import { useEffect, useState, useContext } from 'react';
 import JobCard from '../components/JobCard';
 import { AuthContext } from '../context/AuthContext';
+import API from '../services/api';
 
 const HomePage = () => {
-  const [jobs, setJobs] = useState([]);
+  const [jobs, setJobs] = useState([]); // Ensure jobs is initialized as an empty array
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -13,13 +14,17 @@ const HomePage = () => {
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-        const response = await fetch('/api/jobs');
-        if (!response.ok) {
-          throw new Error('Failed to fetch jobs');
+        const response = await API.get('/jobs'); // Using API helper
+        console.log(response.data); // Log the entire response to check the structure
+        
+        // Check if the response has a jobs array (adjust based on the actual response structure)
+        if (Array.isArray(response.data.jobs)) {
+          setJobs(response.data.jobs); // Assuming jobs are nested inside `data.jobs`
+        } else {
+          throw new Error('Expected an array of jobs inside response.data.jobs, but got ' + typeof response.data.jobs);
         }
-        const data = await response.json();
-        setJobs(data);
       } catch (error) {
+        console.error('Error fetching jobs:', error);
         setError(error.message);
       } finally {
         setLoading(false);
@@ -56,7 +61,7 @@ const HomePage = () => {
               <p className="text-center text-gray-500">No job listings available at the moment.</p>
             ) : (
               jobs.map((job) => (
-                <JobCard key={job.id} job={job} />
+                <JobCard key={job._id} job={job} />
               ))
             )}
           </div>

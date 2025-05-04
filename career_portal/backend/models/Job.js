@@ -7,6 +7,7 @@ const jobSchema = new mongoose.Schema({
   location: { type: String, required: true },
   salary: { type: String },
   recruiter: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  applicants: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],  // Add this line for applicants
 }, { timestamps: true });
 
 const Job = mongoose.model('Job', jobSchema);
