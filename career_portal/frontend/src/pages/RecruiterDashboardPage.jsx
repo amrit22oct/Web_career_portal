@@ -10,29 +10,28 @@ const RecruiterDashboard = () => {
   const [showAddJobModal, setShowAddJobModal] = useState(false);
   const [selectedJob, setSelectedJob] = useState(null);
 
-  // Fetch jobs data when the component mounts
-  useEffect(() => {
-    const fetchJobs = async () => {
-      try {
-        const response = await axios.get("/api/jobs");
-        console.log(response.data); // Log the response to check its structure
-
-        // Ensure we are setting the jobs as an array
-        setJobs(Array.isArray(response.data) ? response.data : []);
-      } catch (error) {
-        console.error("Error fetching jobs:", error);
-        setJobs([]); // Set jobs to an empty array on error
-      }
-    };
-
-    fetchJobs();
-  }, []);
-
   const user = {
     name: "Recruiter",
     email: "recruiter@example.com",
     role: "recruiter",
   };
+
+  // ✅ Move fetchJobs outside useEffect
+  const fetchJobs = async () => {
+    try {
+      const response = await axios.get("/api/jobs");
+      console.log(response.data); // Log to verify structure
+      setJobs(Array.isArray(response.data) ? response.data : []);
+    } catch (error) {
+      console.error("Error fetching jobs:", error);
+      setJobs([]); // Avoid breaking UI
+    }
+  };
+
+  // Fetch jobs on component mount
+  useEffect(() => {
+    fetchJobs();
+  }, []);
 
   return (
     <div className="min-h-screen flex bg-gray-100">
@@ -148,10 +147,7 @@ const RecruiterDashboard = () => {
       {showAddJobModal && (
         <AddJobModal
           onClose={() => setShowAddJobModal(false)}
-          onJobPosted={() => {
-            // Optional: Refetch the jobs after posting a new job
-            fetchJobs();
-          }}
+          onJobPosted={fetchJobs} // ✅ Re-fetch jobs after adding a new one
         />
       )}
     </div>

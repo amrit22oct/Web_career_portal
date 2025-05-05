@@ -18,6 +18,7 @@ export const createJob = async (req, res) => {
       company,
       location,
       salary,
+      skills, // Add skills here
       recruiter: req.user._id, // Assuming the recruiter info is in req.user
     });
 
@@ -30,6 +31,7 @@ export const createJob = async (req, res) => {
 };
 
 
+
 // GET: Get all jobs (for job listing page)
 export const getAllJobs = async (req, res) => {
   try {
@@ -39,12 +41,15 @@ export const getAllJobs = async (req, res) => {
       return res.status(404).json({ message: "No jobs available at the moment." });
     }
 
+    console.log("Fetched jobs:", jobs); // Log to verify the structure of the returned jobs
+
     return res.status(200).json({ success: true, jobs });
   } catch (error) {
     console.error("Error fetching all jobs:", error.message);
     return res.status(500).json({ message: "Server error" });
   }
 };
+
 
 
 // GET: Fetch all jobs posted by the recruiter
