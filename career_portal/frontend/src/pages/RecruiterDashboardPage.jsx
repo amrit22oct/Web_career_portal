@@ -2,34 +2,42 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import JobCard from "../components/JobCard";
 import StudentListModal from "../components/Modal";
-import AddJobModal from "../components/AddjobModal"; // Corrected the import
+import AddJobModal from "../components/AddjobModal";
 
 const RecruiterDashboard = () => {
   const [jobs, setJobs] = useState([]);
   const [showStudentModal, setShowStudentModal] = useState(false);
   const [showAddJobModal, setShowAddJobModal] = useState(false);
   const [selectedJob, setSelectedJob] = useState(null);
+  const [recruiter, setRecruiter] = useState(null);
 
-  const user = {
-    name: "Recruiter",
-    email: "recruiter@example.com",
-    role: "recruiter",
+  const fetchRecruiter = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const { data } = await axios.get('/api/auth/profile', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setRecruiter(data);
+    } catch (error) {
+      console.error("Error fetching recruiter info:", error);
+    }
   };
+  
 
-  // ✅ Move fetchJobs outside useEffect
   const fetchJobs = async () => {
     try {
-      const response = await axios.get("/api/jobs");
-      console.log(response.data); // Log to verify structure
-      setJobs(Array.isArray(response.data) ? response.data : []);
+      const { data } = await axios.get("/api/jobs");
+      setJobs(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("Error fetching jobs:", error);
-      setJobs([]); // Avoid breaking UI
+      setJobs([]);
     }
   };
 
-  // Fetch jobs on component mount
   useEffect(() => {
+    fetchRecruiter();
     fetchJobs();
   }, []);
 
@@ -42,18 +50,16 @@ const RecruiterDashboard = () => {
             Recruiter Panel
           </h2>
           <nav className="space-y-4">
-            <button className="text-gray-700 hover:text-blue-600 w-full text-left">
-              Explore Jobs
-            </button>
-            <button className="text-gray-700 hover:text-blue-600 w-full text-left">
-              My Applications
-            </button>
-            <button className="text-gray-700 hover:text-blue-600 w-full text-left">
-              Profile
-            </button>
-            <button className="text-gray-700 hover:text-blue-600 w-full text-left">
-              Settings
-            </button>
+            {["Explore Jobs", "My Applications", "Profile", "Settings"].map(
+              (item, index) => (
+                <button
+                  key={index}
+                  className="text-gray-700 hover:text-blue-600 w-full text-left"
+                >
+                  {item}
+                </button>
+              )
+            )}
           </nav>
         </div>
         <button className="text-red-600 hover:text-red-800 w-full text-left mt-6">
@@ -63,23 +69,27 @@ const RecruiterDashboard = () => {
 
       {/* Main Content */}
       <div className="flex-1 p-8 overflow-y-auto">
-        {/* Welcome */}
+        {/* Welcome Card */}
         <div className="bg-white rounded-2xl shadow p-6 mb-8">
           <h1 className="text-3xl font-bold text-gray-800">
-            Welcome, {user.name}!
+            Welcome, {recruiter?.name || "Loading..."}!
           </h1>
           <p className="text-lg text-gray-600 mt-1">
             You're logged in as a{" "}
-            {user.role.charAt(0).toUpperCase() + user.role.slice(1)}.
+            {recruiter?.role
+              ? recruiter.role.charAt(0).toUpperCase() +
+                recruiter.role.slice(1)
+              : "Recruiter"}
+            .
           </p>
           <div className="mt-4 space-y-2">
             <p>
               <span className="font-semibold text-gray-700">Email:</span>{" "}
-              {user.email}
+              {recruiter?.email || "Loading..."}
             </p>
             <p>
               <span className="font-semibold text-gray-700">Role:</span>{" "}
-              {user.role}
+              {recruiter?.role || "Loading..."}
             </p>
           </div>
         </div>
@@ -116,9 +126,11 @@ const RecruiterDashboard = () => {
 
         {/* Posted Jobs */}
         <div className="mt-10">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Posted Jobs</h2>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">
+            Posted Jobs
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {Array.isArray(jobs) && jobs.length > 0 ? (
+            {jobs.length > 0 ? (
               jobs.map((job) => (
                 <JobCard
                   key={job._id}
@@ -147,7 +159,7 @@ const RecruiterDashboard = () => {
       {showAddJobModal && (
         <AddJobModal
           onClose={() => setShowAddJobModal(false)}
-          onJobPosted={fetchJobs} // ✅ Re-fetch jobs after adding a new one
+          onJobPosted={fetchJobs}
         />
       )}
     </div>
