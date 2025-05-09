@@ -10,6 +10,28 @@ export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Separate fetchUser function to expose in context
+  const fetchUser = async () => {
+    const token = localStorage.getItem('token');
+    const tokenExpiry = localStorage.getItem('tokenExpiry');
+
+    if (!token || !tokenExpiry || Date.now() > tokenExpiry) {
+      return;
+    }
+
+    try {
+      const { data } = await API.get('/auth/profile', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setUser(data);
+    } catch (err) {
+      console.error('Error fetching user:', err);
+      localStorage.removeItem('token');
+      localStorage.removeItem('tokenExpiry');
+      setUser(null);
+    }
+  };
+
   useEffect(() => {
     const loadUser = async () => {
       const token = localStorage.getItem('token');
@@ -78,7 +100,7 @@ export const AuthProvider = ({ children }) => {
   const updateUser = updatedUser => setUser(updatedUser);
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, updateUser }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, updateUser, fetchUser }}>
       {loading ? (
         <div className="w-full h-screen flex justify-center items-center bg-gray-100">
           <div className="text-lg text-gray-500">Loading...</div>

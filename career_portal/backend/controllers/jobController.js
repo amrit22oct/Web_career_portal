@@ -1,6 +1,6 @@
 import Job from '../models/Job.js'; // Assuming you have a Job model set up
 import Application from '../models/Application.js'; // Assuming you have an Application model set up
-
+import User from '../models/User.js';
 // POST: Create a new job post
 
 
@@ -54,22 +54,8 @@ export const getAllJobs = async (req, res) => {
 
 // GET: Fetch all jobs posted by the recruiter
 
-export const getJobs = async (req, res) => {
-  try {
-    const recruiterId = req.user?._id;
 
-    if (!recruiterId) {
-      return res.status(401).json({ message: "Unauthorized: Recruiter ID not found" });
-    }
 
-    const jobs = await Job.find({ recruiterId });
-
-    return res.status(200).json({ success: true, jobs });
-  } catch (error) {
-    console.error("Error fetching jobs:", error.message);
-    return res.status(500).json({ message: "Server error" });
-  }
-};
 
 
 

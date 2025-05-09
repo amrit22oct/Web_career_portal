@@ -1,33 +1,35 @@
 import express from 'express';
 import {
   createJob,
-  getJobs,
-  getAllJobs,
+  getAllJobs, // Public
   getJobById,
   updateJob,
-  deleteJob,
-  addApplicant,
-  updateApplicantStatus,
-  removeApplicant
+  deleteJob
 } from '../controllers/jobController.js';
 
 import { authenticate } from '../middleware/authenticate.js';
+import { recruiterOnly } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-// Public route for job listings
-router.get('/', getAllJobs); // Everyone can access all jobs
+// 🔓 Public Routes
+// Fetch all jobs visible to the public
+router.get('/', getAllJobs); // All users can see available jobs
 
-// Recruiter-authenticated routes
-router.post('/', authenticate, createJob); // Create job (Recruiter only)
-router.get('/recruiter', authenticate, getJobs); // Get recruiter's jobs
-router.get('/:jobId', getJobById); // View job details (public route for all users)
-router.put('/:jobId', authenticate, updateJob); // Update job (Recruiter only)
-router.delete('/:jobId', authenticate, deleteJob); // Delete job (Recruiter only)
+// View job details (accessible by anyone)
+router.get('/:jobId', getJobById);
 
-// Application routes (Recruiter and student authentication)
-router.post('/:jobId/apply', authenticate, addApplicant); // Student applies for a job
-router.put('/:jobId/applicants/:studentId/status', authenticate, updateApplicantStatus); // Recruiter updates status
-router.delete('/:jobId/applicants/:studentId', authenticate, removeApplicant); // Recruiter removes applicant
+// 🔐 Recruiter Routes
+// Create a new job posting (accessible only by recruiters)
+router.post('/', authenticate, recruiterOnly, createJob); // Recruiter can create a job
+
+// Get all jobs posted by the recruiter (accessible only by recruiters)
+
+
+// Update a job (accessible only by recruiters)
+router.put('/:jobId', authenticate, recruiterOnly, updateJob); // Recruiter can update a job
+
+// Delete a job (accessible only by recruiters)
+router.delete('/:jobId', authenticate, recruiterOnly, deleteJob); // Recruiter can delete a job
 
 export default router;

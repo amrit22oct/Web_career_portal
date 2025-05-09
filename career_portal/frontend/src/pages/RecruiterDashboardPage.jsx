@@ -1,44 +1,59 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import JobCard from "../components/JobCard";
 import StudentListModal from "../components/Modal";
 import AddJobModal from "../components/AddjobModal";
+import { AuthContext } from "../context/AuthContext";
+import API from "../services/api";
 
 const RecruiterDashboard = () => {
   const [jobs, setJobs] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [showStudentModal, setShowStudentModal] = useState(false);
   const [showAddJobModal, setShowAddJobModal] = useState(false);
   const [selectedJob, setSelectedJob] = useState(null);
-  const [recruiter, setRecruiter] = useState(null);
+  const { user: recruiter, fetchUser } = useContext(AuthContext);
 
-  const fetchRecruiter = async () => {
+  const fetchJobs = async () => {
+    setLoading(true);
     try {
-      const token = localStorage.getItem('token');
-      const { data } = await axios.get('/api/auth/profile', {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${API}/recruiter/my-jobs`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      setRecruiter(data);
-    } catch (error) {
-      console.error("Error fetching recruiter info:", error);
-    }
-  };
-  
-
-  const fetchJobs = async () => {
-    try {
-      const { data } = await axios.get("/api/jobs");
-      setJobs(Array.isArray(data) ? data : []);
+      setJobs(response.data.jobs || []);
     } catch (error) {
       console.error("Error fetching jobs:", error);
       setJobs([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteJob = async (jobId) => {
+    if (!window.confirm("Are you sure you want to delete this job?")) return;
+
+    try {
+      const token = localStorage.getItem("token");
+      await axios.delete(`${API}/recruiter/delete-job/${jobId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      fetchJobs(); // Refresh jobs
+    } catch (error) {
+      console.error("Error deleting job:", error);
     }
   };
 
   useEffect(() => {
-    fetchRecruiter();
-    fetchJobs();
+    const initialize = async () => {
+      await fetchUser();
+      await fetchJobs();
+    };
+    initialize();
   }, []);
 
   return (
@@ -46,23 +61,26 @@ const RecruiterDashboard = () => {
       {/* Sidebar */}
       <div className="w-64 bg-white shadow-lg p-6 flex flex-col justify-between rounded-r-2xl">
         <div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-6">
-            Recruiter Panel
-          </h2>
+          <h2 className="text-2xl font-bold text-gray-800 mb-6">Recruiter Panel</h2>
           <nav className="space-y-4">
-            {["Explore Jobs", "My Applications", "Profile", "Settings"].map(
-              (item, index) => (
-                <button
-                  key={index}
-                  className="text-gray-700 hover:text-blue-600 w-full text-left"
-                >
-                  {item}
-                </button>
-              )
-            )}
+            {["Explore Jobs", "My Applications", "Profile", "Settings"].map((item, index) => (
+              <button
+                key={index}
+                className="text-gray-700 hover:text-blue-600 w-full text-left"
+                onClick={() => console.log(`${item} clicked`)}
+              >
+                {item}
+              </button>
+            ))}
           </nav>
         </div>
-        <button className="text-red-600 hover:text-red-800 w-full text-left mt-6">
+        <button
+          className="text-red-600 hover:text-red-800 w-full text-left mt-6"
+          onClick={() => {
+            localStorage.removeItem("token");
+            window.location.reload();
+          }}
+        >
           Logout
         </button>
       </div>
@@ -77,8 +95,7 @@ const RecruiterDashboard = () => {
           <p className="text-lg text-gray-600 mt-1">
             You're logged in as a{" "}
             {recruiter?.role
-              ? recruiter.role.charAt(0).toUpperCase() +
-                recruiter.role.slice(1)
+              ? recruiter.role.charAt(0).toUpperCase() + recruiter.role.slice(1)
               : "Recruiter"}
             .
           </p>
@@ -126,12 +143,12 @@ const RecruiterDashboard = () => {
 
         {/* Posted Jobs */}
         <div className="mt-10">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">
-            Posted Jobs
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {jobs.length > 0 ? (
-              jobs.map((job) => (
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Posted Jobs</h2>
+          {loading ? (
+            <p className="text-gray-600">Loading jobs...</p>
+          ) : jobs.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {jobs.map((job) => (
                 <JobCard
                   key={job._id}
                   job={job}
@@ -139,13 +156,21 @@ const RecruiterDashboard = () => {
                     setSelectedJob(job);
                     setShowStudentModal(true);
                   }}
-                  onDelete={() => {}}
+                  onDelete={() => handleDeleteJob(job._id)}
                 />
-              ))
-            ) : (
+              ))}
+            </div>
+          ) : (
+            <div>
               <p className="text-gray-600">No jobs posted yet.</p>
-            )}
-          </div>
+              <button
+                onClick={() => setShowAddJobModal(true)}
+                className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-full font-semibold hover:bg-blue-700"
+              >
+                Post a Job
+              </button>
+            </div>
+          )}
         </div>
       </div>
 

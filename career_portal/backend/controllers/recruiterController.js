@@ -1,128 +1,123 @@
+import User from '../models/User.js';
 import Job from '../models/Job.js';
+import Application from '../models/Application.js';
 
-// POST: Create a new job post
-export const createJob = async (req, res, next) => {
+
+export const createJob = async (req, res) => {
   try {
     const { title, description, company, location, salary, skills } = req.body;
-
-    // Validate required fields
-    if (!title || !description || !company || !location || !salary || !skills) {
-      return res.status(400).json({ message: "All fields are required" });
+    
+    if (!title || !description || !company || !location || !skills) {
+      return res.status(400).json({ message: 'All fields are required' });
     }
 
-    // Create the job post
-    const job = await Job.create({
+    const newJob = new Job({
       title,
       description,
       company,
       location,
       salary,
-      skills,
-      recruiter: req.user._id, // Associate the recruiter with the job post
+      skills, // Add skills here
+      recruiter: req.user._id, // Assuming the recruiter info is in req.user
     });
 
-    res.status(201).json(job); // Return the created job
+    const savedJob = await newJob.save();
+    res.status(201).json(savedJob);
   } catch (error) {
-    console.error("Error creating job:", error);
-    next(error); // Forward the error to the next middleware for better handling
+    console.error('Error creating job:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
 
-// GET: Fetch all jobs posted by the recruiter (with pagination)
+// ✅ Get recruiter profile
+export const getRecruiterProfile = async (req, res) => {
+  try {
+    const recruiter = await User.findById(req.user._id).select('-password');
+    if (!recruiter) {
+      return res.status(404).json({ success: false, message: 'Recruiter not found' });
+    }
+    res.status(200).json({ success: true, recruiter });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to fetch recruiter profile', error });
+  }
+};
+
+// ✅ Get all jobs posted by the recruiter
 export const getJobs = async (req, res) => {
   try {
-    const { page = 1, limit = 10 } = req.query; // Pagination defaults
-    const jobs = await Job.find({ recruiter: req.user._id }) // Fetch jobs for the logged-in recruiter
-                         .skip((page - 1) * limit)
-                         .limit(limit)
-                         .exec();
+    console.log('req.user:', req.user);
 
-    return res.status(200).json(jobs); // Return the list of jobs
+    const recruiterId = req.user?._id;
+    if (!recruiterId) {
+      return res.status(401).json({ message: "Unauthorized: Recruiter ID not found" });
+    }
+
+    const jobs = await Job.find({ recruiter: recruiterId });
+
+    console.log('Jobs found:', jobs);
+    return res.status(200).json({ success: true, jobs });
   } catch (error) {
-    console.error("Error fetching jobs:", error);
+    console.error("Error fetching jobs:", error.message);
     return res.status(500).json({ message: "Server error" });
   }
 };
 
-// GET: Fetch a single job by its ID (with applicants populated)
-export const getJobById = async (req, res) => {
-  const { jobId } = req.params;
 
+// ✅ Get recruiter stats (total jobs posted, total applicants)
+export const getRecruiterStats = async (req, res) => {
   try {
-    const job = await Job.findById(jobId)
-                         .populate('applicants') // Populate applicants (if applicable)
-                         .exec();
+    const jobCount = await Job.countDocuments({ recruiter: req.user._id });
 
-    if (!job) {
-      return res.status(404).json({ message: "Job not found" });
-    }
+    const applications = await Application.find({}).populate('job', 'recruiter');
+    const recruiterApplications = applications.filter(app => app.job.recruiter.equals(req.user._id));
+    const applicantCount = recruiterApplications.length;
 
-    // Check if the logged-in recruiter is the owner of the job
-    if (job.recruiter.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ message: "You do not have permission to access this job" });
-    }
-
-    return res.status(200).json(job);
+    res.status(200).json({
+      success: true,
+      stats: {
+        jobCount,
+        applicantCount,
+      },
+    });
   } catch (error) {
-    console.error("Error fetching job details:", error);
-    return res.status(500).json({ message: "Server error" });
+    res.status(500).json({ success: false, message: 'Failed to fetch stats', error });
   }
 };
 
-// PUT: Update a job post
-export const updateJob = async (req, res) => {
-  const { jobId } = req.params;
-  const { title, description, company, location, salary, skills } = req.body;
-
+// 📝 Update recruiter profile
+export const editRecruiterProfile = async (req, res) => {
   try {
-    const job = await Job.findById(jobId);
+    const recruiterId = req.user._id;
+    const updates = req.body;
 
-    if (!job) {
-      return res.status(404).json({ message: "Job not found" });
-    }
+    const updatedRecruiter = await User.findByIdAndUpdate(recruiterId, updates, {
+      new: true,
+      runValidators: true,
+    }).select('-password');
 
-    // Ensure the logged-in recruiter owns the job before allowing updates
-    if (job.recruiter.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ message: "You do not have permission to update this job" });
-    }
-
-    // Update the job fields
-    job.title = title || job.title;
-    job.description = description || job.description;
-    job.company = company || job.company;
-    job.location = location || job.location;
-    job.salary = salary || job.salary;
-    job.skills = skills || job.skills;
-
-    // Save the updated job
-    await job.save();
-    return res.status(200).json(job); // Return the updated job
+    res.status(200).json({ success: true, message: 'Profile updated', recruiter: updatedRecruiter });
   } catch (error) {
-    console.error("Error updating job:", error);
-    return res.status(500).json({ message: "Server error" });
+    res.status(500).json({ success: false, message: 'Failed to update recruiter profile', error });
   }
 };
 
-// DELETE: Delete a job post
-export const deleteJob = async (req, res) => {
-  const { jobId } = req.params;
-
+// ❌ Delete recruiter account and associated jobs + applications
+export const deleteRecruiterAccount = async (req, res) => {
   try {
-    const job = await Job.findById(jobId);
+    const recruiterId = req.user._id;
 
-    if (!job) {
-      return res.status(404).json({ message: "Job not found" });
-    }
+    // Delete jobs and applications related to the recruiter
+    const jobs = await Job.find({ recruiter: recruiterId });
+    const jobIds = jobs.map(job => job._id);
 
-    // Ensure the logged-in recruiter owns the job before allowing deletion
-    if (job.recruiter.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ message: "You do not have permission to delete this job" });
-    }
+    await Application.deleteMany({ job: { $in: jobIds } });
+    await Job.deleteMany({ recruiter: recruiterId });
 
-    await Job.findByIdAndDelete(jobId); // Delete the job
-    return res.status(200).json({ message: "Job deleted successfully" });
+    // Delete recruiter
+    await User.findByIdAndDelete(recruiterId);
+
+    res.status(200).json({ success: true, message: 'Recruiter account and all related data deleted' });
   } catch (error) {
-    console.error("Error deleting job:", error);
-    return res.status(500).json({ message: "Server error" });
+    res.status(500).json({ success: false, message: 'Failed to delete account', error });
   }
 };

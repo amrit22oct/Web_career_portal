@@ -1,13 +1,13 @@
 import express from 'express';
-import { createJob, getJobs, updateJob, deleteJob } from '../controllers/jobController.js';
-import { protect, recruiterOnly } from '../middleware/authMiddleware.js';
+import { createJob, getJobs } from '../controllers/recruiterController.js';
+import { isAuthenticated, recruiterOnly } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-// Protect routes and allow only recruiters to create and manage jobs
-router.post('/', protect, recruiterOnly, createJob);  // Recruiter can create a job
-router.get('/', protect, recruiterOnly, getJobs);     // Recruiter can view their jobs
-router.put('/:jobId', protect, recruiterOnly, updateJob);  // Recruiter can update a job
-router.delete('/:jobId', protect, recruiterOnly, deleteJob);  // Recruiter can delete a job
+// Route to create a job
+router.post('/jobs', isAuthenticated, recruiterOnly, createJob);
+
+// Route to get jobs by the recruiter
+router.get('/my-jobs', isAuthenticated, recruiterOnly, getJobs);
 
 export default router;
