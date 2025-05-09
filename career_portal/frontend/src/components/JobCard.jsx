@@ -1,6 +1,7 @@
 import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 import JobContext from "../context/JobContext";
+import API from "../services/api"; // Assuming you have this service for API calls
 
 const JobCard = ({ job }) => {
   const { user } = useContext(JobContext); // Get user role
@@ -15,10 +16,10 @@ const JobCard = ({ job }) => {
           headers: { Authorization: `Bearer ${user.token}` },
         });
         alert("Job deleted successfully");
-        // Optionally refetch or update context
+        // Optionally refetch or update context to reflect changes
       } catch (error) {
         console.error("Error deleting job:", error);
-        alert("Failed to delete job");
+        alert("Failed to delete job. Please try again.");
       }
     }
   };

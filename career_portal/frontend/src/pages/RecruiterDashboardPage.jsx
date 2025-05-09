@@ -23,14 +23,17 @@ const RecruiterDashboard = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-      setJobs(response.data.jobs || []);
+  
+      console.log(response.data); // Debugging: log the response to check the structure
+      setJobs(response.data?.jobs || []);  // Ensure that jobs are correctly set
     } catch (error) {
       console.error("Error fetching jobs:", error);
-      setJobs([]);
+      setJobs([]);  // Set an empty array in case of error
     } finally {
       setLoading(false);
     }
   };
+  
 
   const handleDeleteJob = async (jobId) => {
     if (!window.confirm("Are you sure you want to delete this job?")) return;
@@ -42,7 +45,7 @@ const RecruiterDashboard = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-      fetchJobs(); // Refresh jobs
+      fetchJobs();  // Refresh jobs list after deletion
     } catch (error) {
       console.error("Error deleting job:", error);
     }
@@ -50,8 +53,8 @@ const RecruiterDashboard = () => {
 
   useEffect(() => {
     const initialize = async () => {
-      await fetchUser();
-      await fetchJobs();
+      await fetchUser();  // Ensure recruiter data is fetched
+      fetchJobs();        // Then fetch jobs
     };
     initialize();
   }, []);
@@ -96,8 +99,7 @@ const RecruiterDashboard = () => {
             You're logged in as a{" "}
             {recruiter?.role
               ? recruiter.role.charAt(0).toUpperCase() + recruiter.role.slice(1)
-              : "Recruiter"}
-            .
+              : "Recruiter"}.
           </p>
           <div className="mt-4 space-y-2">
             <p>
@@ -184,7 +186,7 @@ const RecruiterDashboard = () => {
       {showAddJobModal && (
         <AddJobModal
           onClose={() => setShowAddJobModal(false)}
-          onJobPosted={fetchJobs}
+          onJobPosted={fetchJobs} // Ensure jobs list is refreshed after posting a job
         />
       )}
     </div>

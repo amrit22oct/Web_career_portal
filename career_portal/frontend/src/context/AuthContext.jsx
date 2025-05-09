@@ -7,6 +7,7 @@ export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null); // Error state to handle errors
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -16,6 +17,7 @@ export const AuthProvider = ({ children }) => {
     const tokenExpiry = localStorage.getItem('tokenExpiry');
 
     if (!token || !tokenExpiry || Date.now() > tokenExpiry) {
+      setUser(null); // Ensure user is set to null if no token or token is expired
       return;
     }
 
@@ -29,6 +31,7 @@ export const AuthProvider = ({ children }) => {
       localStorage.removeItem('token');
       localStorage.removeItem('tokenExpiry');
       setUser(null);
+      setError('Session expired, please log in again.');
     }
   };
 
@@ -60,6 +63,7 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem('token');
         localStorage.removeItem('tokenExpiry');
         setUser(null);
+        setError('Session expired, please log in again.'); // Provide error message on failure
         navigate('/login');
       } finally {
         setLoading(false);
@@ -87,6 +91,7 @@ export const AuthProvider = ({ children }) => {
       }
     } catch (err) {
       console.error('Login error:', err);
+      setError('Invalid credentials, please try again.');
     }
   };
 
@@ -97,13 +102,17 @@ export const AuthProvider = ({ children }) => {
     navigate('/login');
   };
 
-  const updateUser = updatedUser => setUser(updatedUser);
+  const updateUser = (updatedUser) => setUser(updatedUser);
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, updateUser, fetchUser }}>
+    <AuthContext.Provider value={{ user, loading, error, login, logout, updateUser, fetchUser }}>
       {loading ? (
         <div className="w-full h-screen flex justify-center items-center bg-gray-100">
           <div className="text-lg text-gray-500">Loading...</div>
+        </div>
+      ) : error ? (
+        <div className="w-full h-screen flex justify-center items-center bg-gray-100">
+          <div className="text-lg text-red-500">{error}</div>
         </div>
       ) : (
         children

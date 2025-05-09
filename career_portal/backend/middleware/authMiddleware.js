@@ -3,22 +3,17 @@ import User from '../models/User.js';
 
 // Middleware to check if the user is authenticated
 export const isAuthenticated = async (req, res, next) => {
-  // Extract token from the authorization header
-  const token = req.headers.authorization?.split(' ')[1];
+  const token = req.headers.authorization?.split(' ')[1]; // Extract token from the authorization header
   if (!token) return res.status(401).json({ message: 'Not authorized' });
 
   try {
-    // Verify token and extract user ID
-    const { id } = jwt.verify(token, process.env.JWT_SECRET);
+    const { id } = jwt.verify(token, process.env.JWT_SECRET); // Decode the token and get the user ID
     
-    // Find user by ID and attach to req.user
-    req.user = await User.findById(id);
+    req.user = await User.findById(id); // Find user by ID
     if (!req.user) throw new Error('User not found');
     
-    // Proceed to the next middleware
-    next();
+    next(); // Proceed to the next middleware
   } catch (error) {
-    // If any error occurs, return Unauthorized response
     return res.status(401).json({ message: 'Invalid token' });
   }
 };

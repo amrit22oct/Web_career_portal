@@ -52,7 +52,7 @@ export const getJobs = async (req, res) => {
       return res.status(401).json({ message: "Unauthorized: Recruiter ID not found" });
     }
 
-    const jobs = await Job.find({ recruiter: recruiterId });
+    const jobs = await Job.find({ recruiter: recruiterId }).populate("recruiter", "name email"); // Populating recruiter details if needed
 
     console.log('Jobs found:', jobs);
     return res.status(200).json({ success: true, jobs });
@@ -61,6 +61,7 @@ export const getJobs = async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 };
+
 
 
 // ✅ Get recruiter stats (total jobs posted, total applicants)
