@@ -17,47 +17,29 @@ const RecruiterDashboard = () => {
   const fetchJobs = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem("token");
-      const response = await axios.get(`${API}/recruiter/my-jobs`, {
+      const response = await axios.get(`${API}jobs/recruiter/jobs`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-  
-      console.log(response.data); // Debugging: log the response to check the structure
-      setJobs(response.data?.jobs || []);  // Ensure that jobs are correctly set
+      
+      console.log(response.data); // Debug: inspect structure
+      setJobs(response.data?.jobs || []);
     } catch (error) {
       console.error("Error fetching jobs:", error);
-      setJobs([]);  // Set an empty array in case of error
+      setJobs([]); // Empty job list on error
     } finally {
       setLoading(false);
     }
   };
   
-
-  const handleDeleteJob = async (jobId) => {
-    if (!window.confirm("Are you sure you want to delete this job?")) return;
-
-    try {
-      const token = localStorage.getItem("token");
-      await axios.delete(`${API}/recruiter/delete-job/${jobId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      fetchJobs();  // Refresh jobs list after deletion
-    } catch (error) {
-      console.error("Error deleting job:", error);
-    }
-  };
-
   useEffect(() => {
     const initialize = async () => {
       await fetchUser();  // Ensure recruiter data is fetched
       fetchJobs();        // Then fetch jobs
     };
     initialize();
-  }, []);
+  }, [fetchUser]);  // Dependency on fetchUser to re-fetch if needed
 
   return (
     <div className="min-h-screen flex bg-gray-100">
@@ -158,7 +140,7 @@ const RecruiterDashboard = () => {
                     setSelectedJob(job);
                     setShowStudentModal(true);
                   }}
-                  onDelete={() => handleDeleteJob(job._id)}
+                  // onDelete={() => handleDeleteJob(job._id)} // ❌ Removed delete
                 />
               ))}
             </div>

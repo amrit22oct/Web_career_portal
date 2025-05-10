@@ -1,10 +1,10 @@
 import jwt from 'jsonwebtoken';
-import User from '../models/User.js'; // adjust the path as needed
+import User from '../models/User.js';
 
 export const authenticate = async (req, res, next) => {
-  const authHeader = req.headers.authorization;
+  const authHeader = req.headers.authorization || '';
 
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+  if (!authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ message: 'Authorization token missing or invalid' });
   }
 

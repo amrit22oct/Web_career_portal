@@ -45,20 +45,32 @@ export const getRecruiterProfile = async (req, res) => {
 // ✅ Get all jobs posted by the recruiter
 export const getJobs = async (req, res) => {
   try {
-    console.log('req.user:', req.user);
-
-    const recruiterId = req.user?._id;
-    if (!recruiterId) {
+    // Check if the user is authenticated and `req.user` is populated
+    if (!req.user || !req.user._id) {
       return res.status(401).json({ message: "Unauthorized: Recruiter ID not found" });
     }
 
-    const jobs = await Job.find({ recruiter: recruiterId }).populate("recruiter", "name email"); // Populating recruiter details if needed
+    // Extract recruiter ID from the `req.user` object (populated by auth middleware)
+    const recruiterId = req.user._id;
 
+    // Fetch jobs posted by this recruiter from the database
+    const jobs = await Job.find({ recruiter: recruiterId }).populate("recruiter", "name email"); // Populate recruiter details if needed
+
+    if (!jobs || jobs.length === 0) {
+      return res.status(404).json({ message: "No jobs found" });
+    }
+
+    // Log found jobs for debugging (can be removed in production)
     console.log('Jobs found:', jobs);
+
+    // Return the jobs in the response
     return res.status(200).json({ success: true, jobs });
   } catch (error) {
+    // Log error message for debugging
     console.error("Error fetching jobs:", error.message);
-    return res.status(500).json({ message: "Server error" });
+
+    // Return a server error response
+    return res.status(500).json({ message: "Server error while fetching jobs" });
   }
 };
 

@@ -8,6 +8,6 @@ const router = express.Router();
 router.post('/jobs', isAuthenticated, recruiterOnly, createJob);
 
 // Route to get jobs by the recruiter
-router.get('/my-jobs', isAuthenticated, recruiterOnly, getJobs);
+// router.get('/my-jobs', isAuthenticated, recruiterOnly, getJobs);
 
 export default router;

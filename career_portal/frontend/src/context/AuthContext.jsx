@@ -1,3 +1,4 @@
+// src/context/AuthContext.js
 import { createContext, useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import API from '../services/api';
@@ -7,17 +8,16 @@ export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null); // Error state to handle errors
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Separate fetchUser function to expose in context
   const fetchUser = async () => {
     const token = localStorage.getItem('token');
     const tokenExpiry = localStorage.getItem('tokenExpiry');
 
     if (!token || !tokenExpiry || Date.now() > tokenExpiry) {
-      setUser(null); // Ensure user is set to null if no token or token is expired
+      setUser(null);
       return;
     }
 
@@ -49,9 +49,9 @@ export const AuthProvider = ({ children }) => {
         const { data } = await API.get('/auth/profile', {
           headers: { Authorization: `Bearer ${token}` },
         });
+
         setUser(data);
 
-        // only redirect if currently at login or register page
         if (location.pathname === '/login' || location.pathname === '/register') {
           if (data.role === 'recruiter') {
             navigate('/recruiter/dashboard');
@@ -63,7 +63,7 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem('token');
         localStorage.removeItem('tokenExpiry');
         setUser(null);
-        setError('Session expired, please log in again.'); // Provide error message on failure
+        setError('Session expired, please log in again.');
         navigate('/login');
       } finally {
         setLoading(false);
@@ -82,7 +82,6 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem('tokenExpiry', expiryTime);
         setUser(data.user);
 
-        // redirect immediately after login
         if (data.user.role === 'recruiter') {
           navigate('/recruiter/dashboard');
         } else {
