@@ -1,6 +1,6 @@
 import { useState, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
-
+import '../styles/profile.css'
 const ProfilePage = () => {
   const { user, updateUser } = useContext(AuthContext);
   const [editing, setEditing] = useState(false);
@@ -55,7 +55,7 @@ const ProfilePage = () => {
   if (!user) return <p className="p-6 text-center text-gray-600">Loading profile…</p>;
 
   return (
-    <div className="max-w-4xl mx-auto p-8 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-3xl shadow-2xl">
+    <div className="max-w-4xl mx-auto p-8 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-3xl shadow-2xl profile-container">
       <h2 className="text-4xl font-extrabold text-center text-white mb-8">My Profile</h2>
 
       {error && <p className="text-red-500 text-center mb-4">{error}</p>}
