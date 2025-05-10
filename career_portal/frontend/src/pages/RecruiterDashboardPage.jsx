@@ -140,7 +140,6 @@ const RecruiterDashboard = () => {
           <h2 className="text-xl font-bold text-gray-800 mb-4">Analytics</h2>
           <p className="text-gray-600">Total Jobs Posted: {jobs.length}</p>
           <p className="text-gray-600">Applicants Received: 24</p>
-          <p className="text-gray-600">Interviews Scheduled: 8</p>
         </div>
 
         {/* Posted Jobs */}
@@ -164,7 +163,9 @@ const RecruiterDashboard = () => {
             </div>
           ) : (
             <div>
-              <p className="text-gray-600">No jobs posted yet.</p>
+              <p className="text-gray-600">
+                Total Jobs Posted: {jobs.length > 0 ? jobs.length : "No jobs available"}
+              </p>
               <button
                 onClick={() => setShowAddJobModal(true)}
                 className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-full font-semibold hover:bg-blue-700"
