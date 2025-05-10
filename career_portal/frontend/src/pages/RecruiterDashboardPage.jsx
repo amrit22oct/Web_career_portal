@@ -16,18 +16,17 @@ const RecruiterDashboard = () => {
 
   const fetchJobs = async () => {
     setLoading(true);
+    const token = localStorage.getItem("token");
     try {
       const response = await axios.get(`${API}jobs/recruiter/jobs`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      
-      console.log(response.data); // Debug: inspect structure
       setJobs(response.data?.jobs || []);
     } catch (error) {
       console.error("Error fetching jobs:", error);
-      setJobs([]); // Empty job list on error
+      setJobs([]);
     } finally {
       setLoading(false);
     }
