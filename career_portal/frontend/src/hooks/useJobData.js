@@ -1,42 +1,40 @@
 import { useState, useEffect } from 'react';
-import API from '../services/api';
+import JobService from '../services/jobService'; // make sure path is correct
 
 const useJobData = () => {
   const [jobs, setJobs] = useState([]);
+  const [myJobs, setMyJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    let isMounted = true;
+    const controller = new AbortController();
 
     const fetchJobs = async () => {
       try {
-        const response = await API.get('/jobs/');
-        const jobData = Array.isArray(response.data)
-          ? response.data
-          : response.data.jobs || [];
+        const publicJobs = await JobService.getAllJobs();
+        setJobs(Array.isArray(publicJobs) ? publicJobs : publicJobs.jobs || []);
 
-        if (isMounted) {
-          setJobs(jobData);
-          console.table(jobData); // Helpful for debugging
+        const token = localStorage.getItem('token');
+        if (token) {
+          const recruiterJobs = await JobService.getRecruiterJobs();
+          setMyJobs(Array.isArray(recruiterJobs) ? recruiterJobs : recruiterJobs.jobs || []);
         }
       } catch (err) {
-        if (isMounted) {
-          setError(err.response ? err.response.data : err.message);
+        if (err.name !== 'CanceledError') {
+          setError(err.message || 'Failed to load jobs');
           console.error('Error fetching jobs:', err);
         }
       } finally {
-        if (isMounted) setLoading(false);
+        setLoading(false);
       }
     };
 
     fetchJobs();
-    return () => {
-      isMounted = false;
-    };
+    return () => controller.abort();
   }, []);
 
-  return { jobs, loading, error };
+  return { jobs, myJobs, loading, error };
 };
 
 export default useJobData;

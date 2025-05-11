@@ -7,35 +7,42 @@ const useAuth = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-  const location = useLocation();  // 👈 New: to know current path
+  const location = useLocation();
+
+  const redirectUser = (role) => {
+    const expectedPath = role === 'recruiter' ? '/recruiter/dashboard' : '/dashboard';
+    if (location.pathname !== expectedPath) {
+      navigate(expectedPath);
+    }
+  };
 
   useEffect(() => {
     const fetchUser = async () => {
       const token = localStorage.getItem('token');
+      const expiry = localStorage.getItem('tokenExpiry');
 
-      if (!token) {
+      if (!token || !expiry || Date.now() > parseInt(expiry)) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('tokenExpiry');
         setLoading(false);
         return;
       }
 
       try {
-        const response = await API.get('/auth/profile', {
+        const { data } = await API.get('/auth/profile', {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        if (response.data) {
-          setUser(response.data);
-
-          // Redirect only if not already at the correct dashboard
-          if (response.data.role === 'recruiter' && location.pathname !== '/recruiter/dashboard') {
-            navigate('/recruiter/dashboard');
-          } else if (response.data.role === 'student' && location.pathname !== '/dashboard') {
-            navigate('/dashboard');
-          }
+        if (data && data.role) {
+          setUser(data);
+          redirectUser(data.role);
+        } else {
+          throw new Error('Invalid user data');
         }
-      } catch (error) {
-        console.error('Authentication error:', error);
+      } catch (err) {
+        console.error('Authentication error:', err);
         localStorage.removeItem('token');
+        localStorage.removeItem('tokenExpiry');
         setUser(null);
         setError('Failed to authenticate. Please log in again.');
         navigate('/login');

@@ -1,25 +1,29 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import JobContext from "../context/JobContext";
 import API from "../services/api"; // Assuming you have this service for API calls
 
-const JobCard = ({ job }) => {
+const JobCard = ({ job, refreshJobs }) => {
   const { user } = useContext(JobContext); // Get user role
+  const [isDeleting, setIsDeleting] = useState(false); // State to handle loading during delete
 
   const formatSalary = (salary) =>
     salary ? `$${parseInt(salary).toLocaleString()}` : "Not specified";
 
   const handleDelete = async () => {
     if (window.confirm("Are you sure you want to delete this job?")) {
+      setIsDeleting(true); // Set deleting state to true to indicate loading
       try {
         await API.delete(`/jobs/${job._id}`, {
           headers: { Authorization: `Bearer ${user.token}` },
         });
         alert("Job deleted successfully");
-        // Optionally refetch or update context to reflect changes
+        if (refreshJobs) refreshJobs(); // Optionally call the refresh function to update the job list
       } catch (error) {
         console.error("Error deleting job:", error);
         alert("Failed to delete job. Please try again.");
+      } finally {
+        setIsDeleting(false); // Reset deleting state after operation
       }
     }
   };
@@ -89,9 +93,10 @@ const JobCard = ({ job }) => {
             </Link>
             <button
               onClick={handleDelete}
-              className="bg-red-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-600"
+              className={`bg-red-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-600 ${isDeleting ? 'opacity-50 cursor-not-allowed' : ''}`}
+              disabled={isDeleting} // Disable button while deleting
             >
-              Delete
+              {isDeleting ? "Deleting..." : "Delete"}
             </button>
           </>
         )}

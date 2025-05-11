@@ -10,7 +10,7 @@ const handleError = (error) => {
 };
 
 const JobService = {
-  // Get all jobs
+  // Get all public jobs
   getAllJobs: async () => {
     try {
       const response = await API.get('/jobs');
@@ -33,7 +33,10 @@ const JobService = {
   // Create a new job post (for recruiters)
   createJob: async (jobData) => {
     try {
-      const response = await API.post('/jobs', jobData);
+      const token = localStorage.getItem('token');
+      const response = await API.post('/jobs', jobData, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       return response.data;
     } catch (error) {
       handleError(error);
@@ -43,12 +46,28 @@ const JobService = {
   // Apply to a job (for students)
   applyToJob: async (jobId) => {
     try {
-      const response = await API.post(`/jobs/${jobId}/apply`);
+      const token = localStorage.getItem('token');
+      const response = await API.post(`/jobs/${jobId}/apply`, {}, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       return response.data;
     } catch (error) {
       handleError(error);
     }
   },
+
+  // ✅ Get jobs created by the recruiter
+  getRecruiterJobs: async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await API.get('/jobs/recruiter/jobs', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return response.data;
+    } catch (error) {
+      handleError(error);
+    }
+  }
 };
 
 export default JobService;

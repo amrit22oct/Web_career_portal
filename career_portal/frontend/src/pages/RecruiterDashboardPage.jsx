@@ -17,28 +17,36 @@ const RecruiterDashboard = () => {
   const fetchJobs = async () => {
     setLoading(true);
     const token = localStorage.getItem("token");
+    console.log("Fetching jobs with token:", token); // Debugging line
+
     try {
       const response = await axios.get(`${API}jobs/recruiter/jobs`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
+      console.log("Response data:", response.data); // Debugging line
       setJobs(response.data?.jobs || []);
     } catch (error) {
-      console.error("Error fetching jobs:", error);
+      console.error("Error fetching jobs:", error.response?.data || error.message);
       setJobs([]);
     } finally {
       setLoading(false);
     }
   };
-  
+
   useEffect(() => {
     const initialize = async () => {
       await fetchUser();  // Ensure recruiter data is fetched
       fetchJobs();        // Then fetch jobs
     };
     initialize();
-  }, [fetchUser]);  // Dependency on fetchUser to re-fetch if needed
+  }, []); // ✅ Removed fetchUser from dependencies to prevent re-fetch loop
+
+  const totalApplicants = jobs.reduce(
+    (sum, job) => sum + (job.applicants?.length || 0),
+    0
+  );
 
   return (
     <div className="min-h-screen flex bg-gray-100">
@@ -120,7 +128,7 @@ const RecruiterDashboard = () => {
         <div className="bg-white rounded-2xl shadow p-6 mb-8">
           <h2 className="text-xl font-bold text-gray-800 mb-4">Analytics</h2>
           <p className="text-gray-600">Total Jobs Posted: {jobs.length}</p>
-          <p className="text-gray-600">Applicants Received: 24</p>
+          <p className="text-gray-600">Applicants Received: {totalApplicants}</p>
         </div>
 
         {/* Posted Jobs */}
@@ -138,7 +146,7 @@ const RecruiterDashboard = () => {
                     setSelectedJob(job);
                     setShowStudentModal(true);
                   }}
-                  // onDelete={() => handleDeleteJob(job._id)} // ❌ Removed delete
+                  // onDelete={() => handleDeleteJob(job._id)} // Uncomment if delete logic is added
                 />
               ))}
             </div>
@@ -168,7 +176,7 @@ const RecruiterDashboard = () => {
       {showAddJobModal && (
         <AddJobModal
           onClose={() => setShowAddJobModal(false)}
-          onJobPosted={fetchJobs} // Ensure jobs list is refreshed after posting a job
+          onJobPosted={fetchJobs}
         />
       )}
     </div>
