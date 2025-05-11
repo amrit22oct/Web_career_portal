@@ -1,12 +1,15 @@
-import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import React, { useEffect, useState, useContext } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import API from "../services/api";
+import { AuthContext } from "../context/AuthContext"; // Import the AuthContext
 
 const JobDetailsPage = () => {
   const { jobId } = useParams(); // Access the job ID from the URL
+  const { user } = useContext(AuthContext); // Get user role from AuthContext
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate(); // Hook for redirection
 
   useEffect(() => {
     const fetchJobDetails = async () => {
@@ -23,6 +26,31 @@ const JobDetailsPage = () => {
     fetchJobDetails();
   }, [jobId]);
 
+  const handleDelete = async () => {
+    if (window.confirm("Are you sure you want to delete this job?")) {
+      try {
+        await API.delete(`/jobs/${job._id}`, {
+          headers: { Authorization: `Bearer ${user.token}` },
+        });
+        alert("Job deleted successfully");
+        navigate('/jobs');  // Redirect to jobs list after deletion
+      } catch (err) {
+        alert("Failed to delete job. Please try again.");
+      }
+    }
+  };
+
+  const handleApply = async () => {
+    try {
+      await API.post(`/jobs/${job._id}/apply`, {}, {
+        headers: { Authorization: `Bearer ${user.token}` },
+      });
+      alert("Applied successfully!");
+    } catch (err) {
+      alert("Failed to apply. Please try again.");
+    }
+  };
+
   if (loading) return <div className="p-6 text-lg">Loading job details...</div>;
   if (error) return <div className="p-6 text-red-500">Error: {error}</div>;
 
@@ -33,20 +61,47 @@ const JobDetailsPage = () => {
       <p className="text-lg text-gray-600">Location: {job.location}</p>
       <p className="text-lg text-gray-600">Salary: ${job.salary}</p>
       <p className="text-lg text-gray-600">{job.description}</p>
-      
+
       <div className="mt-4">
         <p className="font-semibold text-gray-800">Required Skills:</p>
         <ul className="list-disc pl-5">
-          {job.skills && job.skills.map((skill, index) => (
-            <li key={index} className="text-gray-600">{skill}</li>
-          ))}
+          {Array.isArray(job.skills) ? (
+            job.skills.map((skill, index) => (
+              <li key={index} className="text-gray-600">{skill}</li>
+            ))
+          ) : (
+            <li className="text-gray-600">{job.skills}</li>
+          )}
         </ul>
       </div>
-      
+
       <div className="mt-6">
-        <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
-          Apply Now
-        </button>
+        {/* Check if the user is the recruiter */}
+        {user?.role === "recruiter" && user._id === job.recruiter && (
+          <div className="flex gap-4">
+            <Link
+              to={`/jobs/edit/${job._id}`}
+              className="bg-yellow-500 text-white px-6 py-2 rounded-lg hover:bg-yellow-600 transition"
+            >
+              Edit
+            </Link>
+            <button
+              onClick={handleDelete}
+              className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition"
+            >
+              Delete
+            </button>
+          </div>
+        )}
+
+        {user?.role === "student" && (
+          <button
+            onClick={handleApply}
+            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition"
+          >
+            Apply Now
+          </button>
+        )}
       </div>
     </div>
   );

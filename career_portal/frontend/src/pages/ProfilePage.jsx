@@ -1,6 +1,7 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
-import '../styles/profile.css'
+import '../styles/profile.css';
+
 const ProfilePage = () => {
   const { user, updateUser } = useContext(AuthContext);
   const [editing, setEditing] = useState(false);
@@ -10,10 +11,12 @@ const ProfilePage = () => {
   const [success, setSuccess] = useState('');
   const [profilePic, setProfilePic] = useState(user?.profilePic || ''); // Store the user's profile picture
 
+  // Handle form field change
   const handleChange = (e) => {
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
   };
 
+  // Handle profile picture change
   const handleProfilePicChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -25,6 +28,7 @@ const ProfilePage = () => {
     }
   };
 
+  // Submit the profile update
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -42,7 +46,7 @@ const ProfilePage = () => {
       });
       if (!res.ok) throw new Error('Update failed');
       const updated = await res.json();
-      updateUser(updated); // update AuthContext
+      updateUser(updated); // Update AuthContext
       setEditing(false);
       setSuccess('Profile updated successfully!');
     } catch (err) {
@@ -52,6 +56,7 @@ const ProfilePage = () => {
     }
   };
 
+  // If user is loading or hasn't loaded yet, show a loading message
   if (!user) return <p className="p-6 text-center text-gray-600">Loading profile…</p>;
 
   return (

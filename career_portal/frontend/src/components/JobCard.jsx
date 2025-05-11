@@ -1,11 +1,22 @@
 import React, { useContext, useState } from "react";
 import { Link } from "react-router-dom";
-import JobContext from "../context/JobContext";
+import JobContext from "../context/JobContext"; // Import JobContext
+import { AuthContext } from "../context/AuthContext"; // Import AuthContext
 import API from "../services/api"; // Assuming you have this service for API calls
 
-const JobCard = ({ job, refreshJobs }) => {
-  const { user } = useContext(JobContext); // Get user role
+const JobCard = ({ job }) => {
+  const { user } = useContext(AuthContext); // Get user from AuthContext to access the role
+  const { refetchJobs } = useContext(JobContext); // Get refetchJobs function from JobContext
   const [isDeleting, setIsDeleting] = useState(false); // State to handle loading during delete
+
+  // Fallback in case the user context is still loading
+  if (!user) {
+    return (
+      <div className="w-full h-screen flex justify-center items-center">
+        <div className="text-lg text-gray-500">Loading...</div>
+      </div>
+    );
+  }
 
   const formatSalary = (salary) =>
     salary ? `$${parseInt(salary).toLocaleString()}` : "Not specified";
@@ -18,7 +29,7 @@ const JobCard = ({ job, refreshJobs }) => {
           headers: { Authorization: `Bearer ${user.token}` },
         });
         alert("Job deleted successfully");
-        if (refreshJobs) refreshJobs(); // Optionally call the refresh function to update the job list
+        if (refetchJobs) refetchJobs(); // Refresh the job list after deletion
       } catch (error) {
         console.error("Error deleting job:", error);
         alert("Failed to delete job. Please try again.");
@@ -83,14 +94,18 @@ const JobCard = ({ job, refreshJobs }) => {
           View Details
         </Link>
 
+        {/* Render Edit and Delete options for the recruiter who created the job */}
         {user?.role === "recruiter" && user._id === job.recruiter && (
           <>
+            {/* Edit Button: Only visible for the recruiter who created the job */}
             <Link
               to={`/jobs/edit/${job._id}`}
               className="bg-yellow-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-yellow-600"
             >
               Edit
             </Link>
+
+            {/* Delete Button: Only visible for the recruiter who created the job */}
             <button
               onClick={handleDelete}
               className={`bg-red-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-600 ${isDeleting ? 'opacity-50 cursor-not-allowed' : ''}`}
@@ -101,6 +116,7 @@ const JobCard = ({ job, refreshJobs }) => {
           </>
         )}
 
+        {/* Render Apply button for students */}
         {user?.role === "student" && (
           <button
             onClick={handleApply}

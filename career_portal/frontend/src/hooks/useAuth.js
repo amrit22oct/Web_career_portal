@@ -1,60 +1,27 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import API from '../services/api';
+import { useContext, useState, useEffect } from 'react';
+import { AuthContext } from '../context/AuthContext';
 
 const useAuth = () => {
+  const context = useContext(AuthContext);
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  const redirectUser = (role) => {
-    const expectedPath = role === 'recruiter' ? '/recruiter/dashboard' : '/dashboard';
-    if (location.pathname !== expectedPath) {
-      navigate(expectedPath);
-    }
-  };
+  const [token, setToken] = useState(null);
 
   useEffect(() => {
-    const fetchUser = async () => {
-      const token = localStorage.getItem('token');
-      const expiry = localStorage.getItem('tokenExpiry');
+    // Get user and token from localStorage
+    const storedUser = JSON.parse(localStorage.getItem('user'));
+    const storedToken = localStorage.getItem('token');
 
-      if (!token || !expiry || Date.now() > parseInt(expiry)) {
-        localStorage.removeItem('token');
-        localStorage.removeItem('tokenExpiry');
-        setLoading(false);
-        return;
-      }
+    if (storedUser && storedToken) {
+      setUser(storedUser);
+      setToken(storedToken);
+    }
+  }, []);
 
-      try {
-        const { data } = await API.get('/auth/profile', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
 
-        if (data && data.role) {
-          setUser(data);
-          redirectUser(data.role);
-        } else {
-          throw new Error('Invalid user data');
-        }
-      } catch (err) {
-        console.error('Authentication error:', err);
-        localStorage.removeItem('token');
-        localStorage.removeItem('tokenExpiry');
-        setUser(null);
-        setError('Failed to authenticate. Please log in again.');
-        navigate('/login');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUser();
-  }, [navigate, location]);
-
-  return { user, loading, error };
+  return { ...context, user, token };
 };
 
 export default useAuth;

@@ -45,6 +45,7 @@ export const registerUser = async (req, res, next) => {
 };
 
 // Login User
+// Login User
 export const loginUser = async (req, res, next) => {
   try {
     const { email, password } = req.body;
@@ -65,7 +66,7 @@ export const loginUser = async (req, res, next) => {
       const token = generateToken(user._id);
       return res.json({
         user: {
-          _id: user._id,
+          _id: user._id,      // Ensuring user ID is included
           name: user.name,
           email: user.email,
           role: user.role,
@@ -79,6 +80,7 @@ export const loginUser = async (req, res, next) => {
     next(error);
   }
 };
+
 
 // Logout User
 export const logoutUser = async (req, res) => {

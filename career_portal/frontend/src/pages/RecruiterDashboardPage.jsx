@@ -6,9 +6,12 @@ import AddJobModal from "../components/AddjobModal";
 import { AuthContext } from "../context/AuthContext";
 import API from "../services/api";
 
+// ... (imports remain unchanged)
+
 const RecruiterDashboard = () => {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [showStudentModal, setShowStudentModal] = useState(false);
   const [showAddJobModal, setShowAddJobModal] = useState(false);
   const [selectedJob, setSelectedJob] = useState(null);
@@ -16,8 +19,14 @@ const RecruiterDashboard = () => {
 
   const fetchJobs = async () => {
     setLoading(true);
+    setError(null);
     const token = localStorage.getItem("token");
-    console.log("Fetching jobs with token:", token); // Debugging line
+
+    if (!token) {
+      setError("No token found. Please log in again.");
+      setLoading(false);
+      return;
+    }
 
     try {
       const response = await axios.get(`${API}jobs/recruiter/jobs`, {
@@ -25,28 +34,60 @@ const RecruiterDashboard = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log("Response data:", response.data); // Debugging line
-      setJobs(response.data?.jobs || []);
+
+      const jobsData = response.data?.jobs;
+      if (Array.isArray(jobsData)) {
+        const filteredJobs = jobsData.filter(
+          (job) => job.createdBy === recruiter._id
+        );
+        setJobs(filteredJobs);
+      } else {
+        setError("No jobs found.");
+      }
     } catch (error) {
-      console.error("Error fetching jobs:", error.response?.data || error.message);
-      setJobs([]);
+      setError(error.response?.data?.message || error.message);
     } finally {
       setLoading(false);
     }
   };
 
+  const handleDeleteJob = async (jobId) => {
+    if (window.confirm("Are you sure you want to delete this job?")) {
+      const token = localStorage.getItem("token");
+      try {
+        await axios.delete(`${API}jobs/${jobId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        alert("Job deleted successfully.");
+        fetchJobs();
+      } catch (error) {
+        alert("Failed to delete the job. Please try again.");
+      }
+    }
+  };
+
   useEffect(() => {
     const initialize = async () => {
-      await fetchUser();  // Ensure recruiter data is fetched
-      fetchJobs();        // Then fetch jobs
+      await fetchUser();
+      fetchJobs();
     };
     initialize();
-  }, []); // ✅ Removed fetchUser from dependencies to prevent re-fetch loop
+  }, []);
 
   const totalApplicants = jobs.reduce(
     (sum, job) => sum + (job.applicants?.length || 0),
     0
   );
+
+  if (!recruiter) {
+    return (
+      <div className="flex items-center justify-center min-h-screen text-gray-500">
+        <p>Loading recruiter details...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex bg-gray-100">
@@ -55,7 +96,7 @@ const RecruiterDashboard = () => {
         <div>
           <h2 className="text-2xl font-bold text-gray-800 mb-6">Recruiter Panel</h2>
           <nav className="space-y-4">
-            {["Explore Jobs", "My Applications", "Profile", "Settings"].map((item, index) => (
+            {["Explore Jobs", "Profile", "Settings"].map((item, index) => (
               <button
                 key={index}
                 className="text-gray-700 hover:text-blue-600 w-full text-left"
@@ -82,22 +123,22 @@ const RecruiterDashboard = () => {
         {/* Welcome Card */}
         <div className="bg-white rounded-2xl shadow p-6 mb-8">
           <h1 className="text-3xl font-bold text-gray-800">
-            Welcome, {recruiter?.name || "Loading..."}!
+            Welcome, {recruiter.name}!
           </h1>
-          <p className="text-lg text-gray-600 mt-1">
+          <p className="text-lg text-gray-500 mt-1">
             You're logged in as a{" "}
-            {recruiter?.role
+            {recruiter.role
               ? recruiter.role.charAt(0).toUpperCase() + recruiter.role.slice(1)
               : "Recruiter"}.
           </p>
           <div className="mt-4 space-y-2">
-            <p>
-              <span className="font-semibold text-gray-700">Email:</span>{" "}
-              {recruiter?.email || "Loading..."}
+            <p className="text-blue-500">
+              <span className="font-semibold text-gray-400">Email:</span>{" "}
+              {recruiter.email}
             </p>
-            <p>
+            <p className="text-green-500">
               <span className="font-semibold text-gray-700">Role:</span>{" "}
-              {recruiter?.role || "Loading..."}
+              {recruiter.role}
             </p>
           </div>
         </div>
@@ -114,13 +155,13 @@ const RecruiterDashboard = () => {
               Post a Job
             </button>
           </div>
-          <div className="bg-purple-600 text-white p-6 rounded-2xl shadow hover:bg-purple-700">
-            <h3 className="text-xl font-semibold">My Applications</h3>
-            <p>Manage received applications.</p>
-          </div>
           <div className="bg-green-600 text-white p-6 rounded-2xl shadow hover:bg-green-700">
             <h3 className="text-xl font-semibold">Profile</h3>
             <p>Update your personal information.</p>
+          </div>
+          <div className="bg-gray-600 text-white p-6 rounded-2xl shadow hover:bg-gray-700">
+            <h3 className="text-xl font-semibold">Settings</h3>
+            <p>Manage your account settings.</p>
           </div>
         </div>
 
@@ -129,40 +170,6 @@ const RecruiterDashboard = () => {
           <h2 className="text-xl font-bold text-gray-800 mb-4">Analytics</h2>
           <p className="text-gray-600">Total Jobs Posted: {jobs.length}</p>
           <p className="text-gray-600">Applicants Received: {totalApplicants}</p>
-        </div>
-
-        {/* Posted Jobs */}
-        <div className="mt-10">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Posted Jobs</h2>
-          {loading ? (
-            <p className="text-gray-600">Loading jobs...</p>
-          ) : jobs.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {jobs.map((job) => (
-                <JobCard
-                  key={job._id}
-                  job={job}
-                  onViewApplicants={() => {
-                    setSelectedJob(job);
-                    setShowStudentModal(true);
-                  }}
-                  // onDelete={() => handleDeleteJob(job._id)} // Uncomment if delete logic is added
-                />
-              ))}
-            </div>
-          ) : (
-            <div>
-              <p className="text-gray-600">
-                Total Jobs Posted: {jobs.length > 0 ? jobs.length : "No jobs available"}
-              </p>
-              <button
-                onClick={() => setShowAddJobModal(true)}
-                className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-full font-semibold hover:bg-blue-700"
-              >
-                Post a Job
-              </button>
-            </div>
-          )}
         </div>
       </div>
 
@@ -184,3 +191,4 @@ const RecruiterDashboard = () => {
 };
 
 export default RecruiterDashboard;
+

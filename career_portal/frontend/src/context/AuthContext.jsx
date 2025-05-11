@@ -1,4 +1,3 @@
-// src/context/AuthContext.js
 import { createContext, useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import API from '../services/api';
@@ -12,12 +11,13 @@ export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Fetch current user using token
   const fetchUser = async () => {
     const token = localStorage.getItem('token');
     const tokenExpiry = localStorage.getItem('tokenExpiry');
 
-    if (!token || !tokenExpiry || Date.now() > tokenExpiry) {
-      setUser(null);
+    if (!token || !tokenExpiry || Date.now() > parseInt(tokenExpiry)) {
+      logout();
       return;
     }
 
@@ -27,20 +27,18 @@ export const AuthProvider = ({ children }) => {
       });
       setUser(data);
     } catch (err) {
-      console.error('Error fetching user:', err);
-      localStorage.removeItem('token');
-      localStorage.removeItem('tokenExpiry');
-      setUser(null);
-      setError('Session expired, please log in again.');
+      logout();
+      setError('Error fetching user data.');
     }
   };
 
+  // Initial auth check
   useEffect(() => {
     const loadUser = async () => {
       const token = localStorage.getItem('token');
       const tokenExpiry = localStorage.getItem('tokenExpiry');
 
-      if (!token || !tokenExpiry || Date.now() > tokenExpiry) {
+      if (!token || !tokenExpiry || Date.now() > parseInt(tokenExpiry)) {
         setLoading(false);
         return;
       }
@@ -52,6 +50,7 @@ export const AuthProvider = ({ children }) => {
 
         setUser(data);
 
+        // Redirect user based on their role if on login/register page
         if (location.pathname === '/login' || location.pathname === '/register') {
           if (data.role === 'recruiter') {
             navigate('/recruiter/dashboard');
@@ -59,12 +58,8 @@ export const AuthProvider = ({ children }) => {
             navigate('/dashboard');
           }
         }
-      } catch {
-        localStorage.removeItem('token');
-        localStorage.removeItem('tokenExpiry');
-        setUser(null);
-        setError('Session expired, please log in again.');
-        navigate('/login');
+      } catch (err) {
+        logout();
       } finally {
         setLoading(false);
       }
@@ -73,9 +68,11 @@ export const AuthProvider = ({ children }) => {
     loadUser();
   }, [navigate, location.pathname]);
 
+  // Login handler
   const login = async (email, password) => {
     try {
       const { data } = await API.post('/auth/login', { email, password });
+
       if (data?.user && data?.token) {
         const expiryTime = Date.now() + data.expiresIn * 1000;
         localStorage.setItem('token', data.token);
@@ -89,11 +86,12 @@ export const AuthProvider = ({ children }) => {
         }
       }
     } catch (err) {
-      console.error('Login error:', err);
       setError('Invalid credentials, please try again.');
+      throw err;
     }
   };
 
+  // Logout handler
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('tokenExpiry');
@@ -101,10 +99,13 @@ export const AuthProvider = ({ children }) => {
     navigate('/login');
   };
 
+  // Update user details in state
   const updateUser = (updatedUser) => setUser(updatedUser);
 
   return (
-    <AuthContext.Provider value={{ user, loading, error, login, logout, updateUser, fetchUser }}>
+    <AuthContext.Provider
+      value={{ user, loading, error, login, logout, fetchUser, updateUser }}
+    >
       {loading ? (
         <div className="w-full h-screen flex justify-center items-center bg-gray-100">
           <div className="text-lg text-gray-500">Loading...</div>

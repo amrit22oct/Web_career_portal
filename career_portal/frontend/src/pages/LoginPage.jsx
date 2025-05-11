@@ -6,6 +6,7 @@ const Login = () => {
   const { login } = useContext(AuthContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
@@ -39,21 +40,27 @@ const Login = () => {
             placeholder="Enter your email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="border border-gray-300 rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
+            className="border border-gray-300 rounded-lg p-3 w-full placeholder-gray-500 text-black bg-white focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
             required
           />
         </div>
 
-        <div className="mb-6">
+        <div className="mb-6 relative">
           <label className="block text-gray-700 mb-2">Password</label>
           <input
-            type="password"
+            type={showPassword ? "text" : "password"}
             placeholder="Enter your password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="border border-gray-300 rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
+            className="border border-gray-300 rounded-lg p-3 w-full placeholder-gray-500 text-black bg-white focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
             required
           />
+          <span
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3 top-11 text-sm text-indigo-600 cursor-pointer"
+          >
+            {showPassword ? "Hide" : "Show"}
+          </span>
         </div>
 
         <button

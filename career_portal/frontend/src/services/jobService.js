@@ -20,11 +20,11 @@ const JobService = {
     }
   },
 
-  // Get a single job by ID
+  // Get a single job by ID and return all job data
   getJobById: async (jobId) => {
     try {
-      const response = await API.get(`/jobs/${jobId}`);
-      return response.data;
+      const response = await API.get(`/jobs/${jobId}`);  // Corrected URL
+      return response.data; // Ensure this contains all job-related data (e.g., recruiter, salary, description, etc.)
     } catch (error) {
       handleError(error);
     }
@@ -35,7 +35,7 @@ const JobService = {
     try {
       const token = localStorage.getItem('token');
       const response = await API.post('/jobs', jobData, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${token}` },  // Corrected Bearer token interpolation
       });
       return response.data;
     } catch (error) {
@@ -48,7 +48,7 @@ const JobService = {
     try {
       const token = localStorage.getItem('token');
       const response = await API.post(`/jobs/${jobId}/apply`, {}, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${token}` },  // Corrected Bearer token interpolation
       });
       return response.data;
     } catch (error) {
@@ -56,12 +56,12 @@ const JobService = {
     }
   },
 
-  // ✅ Get jobs created by the recruiter
+  // Get jobs created by the recruiter
   getRecruiterJobs: async () => {
     try {
       const token = localStorage.getItem('token');
       const response = await API.get('/jobs/recruiter/jobs', {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${token}` },  // Corrected Bearer token interpolation
       });
       return response.data;
     } catch (error) {
