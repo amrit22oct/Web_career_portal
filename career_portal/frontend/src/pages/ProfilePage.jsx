@@ -11,12 +11,10 @@ const ProfilePage = () => {
   const [success, setSuccess] = useState('');
   const [profilePic, setProfilePic] = useState(user?.profilePic || ''); // Store the user's profile picture
 
-  // Handle form field change
   const handleChange = (e) => {
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
   };
 
-  // Handle profile picture change
   const handleProfilePicChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -28,7 +26,6 @@ const ProfilePage = () => {
     }
   };
 
-  // Submit the profile update
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -56,12 +53,11 @@ const ProfilePage = () => {
     }
   };
 
-  // If user is loading or hasn't loaded yet, show a loading message
   if (!user) return <p className="p-6 text-center text-gray-600">Loading profile…</p>;
 
   return (
-    <div className="max-w-4xl mx-auto p-8 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-3xl shadow-2xl profile-container">
-      <h2 className="text-4xl font-extrabold text-center text-white mb-8">My Profile</h2>
+    <div className="max-w-4xl mx-auto p-8 bg-gradient-to-br from-blue-600 to-indigo-500 rounded-3xl shadow-xl profile-container">
+      <h2 className="text-3xl font-bold text-center text-white mb-8">My Profile</h2>
 
       {error && <p className="text-red-500 text-center mb-4">{error}</p>}
       {success && <p className="text-green-500 text-center mb-4">{success}</p>}
@@ -72,7 +68,7 @@ const ProfilePage = () => {
           <img
             src={profilePic || 'https://via.placeholder.com/150'}
             alt="Profile"
-            className="w-40 h-40 rounded-full border-8 border-gradient-to-r from-teal-400 to-teal-600 shadow-xl transform transition duration-300 hover:scale-105 object-cover"
+            className="w-36 h-36 rounded-full border-4 border-gradient-to-r from-teal-400 to-teal-600 shadow-lg transition-transform transform hover:scale-110 object-cover"
           />
           <label
             htmlFor="profilePic"
@@ -93,19 +89,19 @@ const ProfilePage = () => {
       {/* Personal Information */}
       {!editing ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
-          <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-2xl transition duration-300">
+          <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition duration-300">
             <strong className="text-xl text-teal-600">Name:</strong>
             <p className="text-gray-700">{user.name}</p>
           </div>
-          <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-2xl transition duration-300">
+          <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition duration-300">
             <strong className="text-xl text-teal-600">Email:</strong>
             <p className="text-gray-700">{user.email}</p>
           </div>
-          <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-2xl transition duration-300">
+          <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition duration-300">
             <strong className="text-xl text-teal-600">Role:</strong>
             <p className="text-gray-700 capitalize">{user.role}</p>
           </div>
-          <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-2xl transition duration-300">
+          <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition duration-300">
             <strong className="text-xl text-teal-600">Joined:</strong>
             <p className="text-gray-700">{new Date(user.createdAt).toLocaleDateString()}</p>
           </div>
@@ -170,7 +166,7 @@ const ProfilePage = () => {
                 setProfilePic(user?.profilePic || '');
                 setSuccess('');
               }}
-              className="w-full bg-gray-300 text-gray-700 py-3 rounded-lg shadow-lg hover:bg-gray-400 transition duration-300"
+              className="w-full bg-gray-200 text-gray-700 py-3 rounded-lg shadow-lg hover:bg-gray-300 transition duration-300"
             >
               Cancel
             </button>

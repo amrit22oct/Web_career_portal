@@ -97,6 +97,7 @@ export const getJobById = async (req, res) => {
 };
 
 // PUT: Update a job post
+
 export const updateJob = async (req, res) => {
   const { jobId } = req.params;
   const { title, description, location, salary, skills } = req.body;
@@ -107,25 +108,28 @@ export const updateJob = async (req, res) => {
       return res.status(404).json({ message: "Job not found" });
     }
 
+    // Check if the logged-in user is the job's recruiter
     if (job.recruiter.toString() !== req.user._id.toString()) {
-      return res
-        .status(403)
-        .json({ message: "You do not have permission to update this job" });
+      return res.status(403).json({
+        message: "You do not have permission to update this job",
+      });
     }
 
-    job.title = title || job.title;
-    job.description = description || job.description;
-    job.location = location || job.location;
-    job.salary = salary || job.salary;
-    job.skills = skills || job.skills;
+    // Update fields only if they are provided
+    if (title !== undefined) job.title = title;
+    if (description !== undefined) job.description = description;
+    if (location !== undefined) job.location = location;
+    if (salary !== undefined) job.salary = salary;
+    if (skills !== undefined && Array.isArray(skills)) job.skills = skills;
 
-    await job.save();
-    return res.status(200).json(job);
+    const updatedJob = await job.save();
+    return res.status(200).json(updatedJob);
   } catch (error) {
     console.error("Error updating job:", error);
     return res.status(500).json({ message: "Server error" });
   }
 };
+
 
 // DELETE: Delete a job post
 export const deleteJob = async (req, res) => {

@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useContext } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import API from "../services/api";
 import { AuthContext } from "../context/AuthContext";
 import { BriefcaseIcon, MapPinIcon, CurrencyDollarIcon, SparklesIcon } from "@heroicons/react/24/outline";
+import EditJobModal from "../components/EditJobModal";  // Import the modal
 
 const JobDetailsPage = () => {
   const { jobId } = useParams();
@@ -10,6 +11,7 @@ const JobDetailsPage = () => {
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);  // State to manage modal visibility
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -50,6 +52,10 @@ const JobDetailsPage = () => {
     } catch (err) {
       alert("Failed to apply. Please try again.");
     }
+  };
+
+  const refreshJobDetails = (updatedJob) => {
+    setJob(updatedJob);
   };
 
   if (loading) return <div className="p-6 text-lg">Loading job details...</div>;
@@ -113,12 +119,12 @@ const JobDetailsPage = () => {
       <div className="mt-6 flex flex-wrap gap-4">
         {isJobOwner && (
           <>
-            <Link
-              to={`/jobs/edit/${job._id}`}
+            <button
+              onClick={() => setIsModalOpen(true)}  // Open modal when clicked
               className="bg-amber-500 hover:bg-amber-600 text-white px-6 py-2 rounded-lg transition"
             >
               Edit
-            </Link>
+            </button>
             <button
               onClick={handleDelete}
               className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg transition"
@@ -137,6 +143,9 @@ const JobDetailsPage = () => {
           </button>
         )}
       </div>
+
+      {/* Render EditJobModal if it's open */}
+      {isModalOpen && <EditJobModal job={job} closeModal={() => setIsModalOpen(false)} refreshJobDetails={refreshJobDetails} />}
     </div>
   );
 };
