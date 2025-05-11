@@ -15,7 +15,7 @@ const JobsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const JOBS_PER_PAGE = 10;
+  const JOBS_PER_PAGE = 9;
   const MY_JOBS_PER_PAGE = 3;
 
   const getJobs = async () => {

@@ -1,15 +1,15 @@
 import React, { useEffect, useState, useContext } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import API from "../services/api";
-import { AuthContext } from "../context/AuthContext"; // Import the AuthContext
+import { AuthContext } from "../context/AuthContext";
 
 const JobDetailsPage = () => {
-  const { jobId } = useParams(); // Access the job ID from the URL
-  const { user } = useContext(AuthContext); // Get user role from AuthContext
+  const { jobId } = useParams();
+  const { user } = useContext(AuthContext);
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const navigate = useNavigate(); // Hook for redirection
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchJobDetails = async () => {
@@ -33,7 +33,7 @@ const JobDetailsPage = () => {
           headers: { Authorization: `Bearer ${user.token}` },
         });
         alert("Job deleted successfully");
-        navigate('/jobs');  // Redirect to jobs list after deletion
+        navigate("/jobs");
       } catch (err) {
         alert("Failed to delete job. Please try again.");
       }
@@ -53,6 +53,10 @@ const JobDetailsPage = () => {
 
   if (loading) return <div className="p-6 text-lg">Loading job details...</div>;
   if (error) return <div className="p-6 text-red-500">Error: {error}</div>;
+
+  const isJobOwner =
+    user?.role === "recruiter" &&
+    (job.recruiter === user._id || job.recruiter?._id === user._id);
 
   return (
     <div className="job-details-container p-6 max-w-4xl mx-auto">
@@ -76,8 +80,7 @@ const JobDetailsPage = () => {
       </div>
 
       <div className="mt-6">
-        {/* Check if the user is the recruiter */}
-        {user?.role === "recruiter" && user._id === job.recruiter && (
+        {isJobOwner && (
           <div className="flex gap-4">
             <Link
               to={`/jobs/edit/${job._id}`}
