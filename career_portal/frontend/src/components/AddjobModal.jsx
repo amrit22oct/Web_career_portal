@@ -47,7 +47,7 @@ const AddJobModal = ({ onClose, onJobPosted }) => {
             placeholder="Job Title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="w-full border border-gray-300 rounded px-3 py-2"
+            className="w-full border border-gray-300 rounded px-3 py-2 placeholder-black text-black"
             required
           />
           <input
@@ -55,7 +55,7 @@ const AddJobModal = ({ onClose, onJobPosted }) => {
             placeholder="Company"
             value={company}
             onChange={(e) => setCompany(e.target.value)}
-            className="w-full border border-gray-300 rounded px-3 py-2"
+            className="w-full border border-gray-300 rounded px-3 py-2 placeholder-black text-black"
             required
           />
           <input
@@ -63,7 +63,7 @@ const AddJobModal = ({ onClose, onJobPosted }) => {
             placeholder="Location"
             value={location}
             onChange={(e) => setLocation(e.target.value)}
-            className="w-full border border-gray-300 rounded px-3 py-2"
+            className="w-full border border-gray-300 rounded px-3 py-2 placeholder-black text-black"
             required
           />
           <input
@@ -71,14 +71,14 @@ const AddJobModal = ({ onClose, onJobPosted }) => {
             placeholder="Salary"
             value={salary}
             onChange={(e) => setSalary(e.target.value)}
-            className="w-full border border-gray-300 rounded px-3 py-2"
+            className="w-full border border-gray-300 rounded px-3 py-2 placeholder-black text-black"
             required
           />
           <textarea
             placeholder="Job Description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="w-full border border-gray-300 rounded px-3 py-2 h-28"
+            className="w-full border border-gray-300 rounded px-3 py-2 h-28 placeholder-black text-black"
             required
           />
           <input
@@ -86,7 +86,7 @@ const AddJobModal = ({ onClose, onJobPosted }) => {
             placeholder="Skills (comma-separated)"
             value={skills}
             onChange={(e) => setSkills(e.target.value)}
-            className="w-full border border-gray-300 rounded px-3 py-2"
+            className="w-full border border-gray-300 rounded px-3 py-2 placeholder-black text-black"
             required
           />
           <div className="flex justify-end gap-3 pt-2">

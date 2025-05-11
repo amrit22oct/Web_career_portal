@@ -7,12 +7,16 @@ const JobsPage = () => {
   const { user, loading: authLoading } = useContext(AuthContext);
   const [jobs, setJobs] = useState([]);
   const [myJobs, setMyJobs] = useState([]);
+  const [visibleMyJobs, setVisibleMyJobs] = useState([]);
+  const [myPage, setMyPage] = useState(1);
   const [page, setPage] = useState(1);
+  const [hasMoreMyJobs, setHasMoreMyJobs] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   const JOBS_PER_PAGE = 10;
+  const MY_JOBS_PER_PAGE = 3;
 
   const getJobs = async () => {
     setLoading(true);
@@ -23,7 +27,11 @@ const JobsPage = () => {
       // Recruiter-specific jobs
       if (user.role === 'recruiter') {
         const recruiterJobs = await JobService.getRecruiterJobs();
-        setMyJobs(Array.isArray(recruiterJobs) ? recruiterJobs : recruiterJobs.jobs || []);
+        const recruiterJobsList = Array.isArray(recruiterJobs) ? recruiterJobs : recruiterJobs.jobs || [];
+        setMyJobs(recruiterJobsList);
+        setVisibleMyJobs(recruiterJobsList.slice(0, MY_JOBS_PER_PAGE));
+        setHasMoreMyJobs(recruiterJobsList.length > MY_JOBS_PER_PAGE);
+        setMyPage(1);
       }
 
       // Initial public jobs
@@ -47,13 +55,11 @@ const JobsPage = () => {
       const newJobsData = await JobService.getAllJobs(nextPage);
       const newJobs = Array.isArray(newJobsData) ? newJobsData : newJobsData.jobs || [];
 
-      // Filter out duplicates
       const existingJobIds = new Set(jobs.map((job) => job._id || job.id));
       const uniqueNewJobs = newJobs.filter((job) => !existingJobIds.has(job._id || job.id));
 
       setJobs((prevJobs) => [...prevJobs, ...uniqueNewJobs]);
       setPage(nextPage);
-
       if (uniqueNewJobs.length < JOBS_PER_PAGE) setHasMore(false);
     } catch (err) {
       setError('Error loading more jobs.');
@@ -61,6 +67,14 @@ const JobsPage = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const loadMoreMyJobs = () => {
+    const nextPage = myPage + 1;
+    const nextJobs = myJobs.slice(0, nextPage * MY_JOBS_PER_PAGE);
+    setVisibleMyJobs(nextJobs);
+    setMyPage(nextPage);
+    if (nextJobs.length >= myJobs.length) setHasMoreMyJobs(false);
   };
 
   useEffect(() => {
@@ -91,13 +105,23 @@ const JobsPage = () => {
       {user?.role === 'recruiter' && (
         <>
           <h2 className="text-2xl font-semibold mb-4">Your Posted Jobs</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
-            {myJobs.length > 0 ? (
-              myJobs.map((job) => <JobCard key={job._id || job.id} job={job} />)
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+            {visibleMyJobs.length > 0 ? (
+              visibleMyJobs.map((job) => <JobCard key={job._id || job.id} job={job} />)
             ) : (
               <div className="text-gray-500">You haven't posted any jobs yet.</div>
             )}
           </div>
+          {hasMoreMyJobs && (
+            <div className="text-center mb-10">
+              <button
+                onClick={loadMoreMyJobs}
+                className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+              >
+                Load More of Your Jobs
+              </button>
+            </div>
+          )}
         </>
       )}
 
