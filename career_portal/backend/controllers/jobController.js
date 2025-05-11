@@ -100,7 +100,7 @@ export const getJobById = async (req, res) => {
 
 export const updateJob = async (req, res) => {
   const { jobId } = req.params;
-  const { title, description, location, salary, skills } = req.body;
+  const { title, company, description, location, salary, skills } = req.body;
 
   try {
     const job = await Job.findById(jobId);
@@ -115,8 +115,9 @@ export const updateJob = async (req, res) => {
       });
     }
 
-    // Update fields only if they are provided
+    // Update fields if they are provided
     if (title !== undefined) job.title = title;
+    if (company !== undefined) job.company = company;
     if (description !== undefined) job.description = description;
     if (location !== undefined) job.location = location;
     if (salary !== undefined) job.salary = salary;
@@ -129,6 +130,7 @@ export const updateJob = async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 };
+
 
 
 // DELETE: Delete a job post
