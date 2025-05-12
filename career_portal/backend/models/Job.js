@@ -8,7 +8,18 @@ const jobSchema = new mongoose.Schema({
   salary: { type: String },
   recruiter: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   applicants: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-  skills: [{ type: String }],  // Add this line for skills
+  skills: [{ type: String }],
+  applyBy: { type: Date, required: true },  // Deadline to apply
+  timePeriod: { 
+    type: String, 
+    enum: ['Full-time', 'Part-time', 'Internship'], 
+    required: true 
+  },  // Time period
+  jobType: { 
+    type: String, 
+    enum: ['Job', 'Internship'], 
+    required: true 
+  },  // Job or Internship
 }, { timestamps: true });
 
 const Job = mongoose.model('Job', jobSchema);

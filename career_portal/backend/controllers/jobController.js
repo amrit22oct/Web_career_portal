@@ -4,12 +4,29 @@ import Application from "../models/Application.js";
 // POST: Create a new job post
 export const createJob = async (req, res) => {
   try {
-    const { title, description, company, location, salary, skills } = req.body;
+    const { 
+      title, 
+      description, 
+      company, 
+      location, 
+      salary, 
+      skills, 
+      applyBy, 
+      timePeriod, 
+      jobType 
+    } = req.body;
 
-    if (!title || !description || !company || !location || !skills) {
+    // Check for required fields
+    if (!title || !description || !company || !location || !skills || !applyBy || !timePeriod || !jobType) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
+    // Ensure 'applyBy' is a valid date
+    if (isNaN(new Date(applyBy))) {
+      return res.status(400).json({ message: "Invalid application deadline" });
+    }
+
+    // Create a new job listing
     const newJob = new Job({
       title,
       description,
@@ -18,15 +35,21 @@ export const createJob = async (req, res) => {
       salary,
       skills,
       recruiter: req.user._id,
+      applyBy: new Date(applyBy),  // Convert to Date type
+      timePeriod,
+      jobType,
     });
 
+    // Save the new job to the database
     const savedJob = await newJob.save();
+    
     res.status(201).json(savedJob);
   } catch (error) {
     console.error("Error creating job:", error);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
+
 
 // GET: Fetch all jobs posted by the logged-in recruiter
 export const getRecruiterJobs = async (req, res) => {
@@ -100,7 +123,17 @@ export const getJobById = async (req, res) => {
 
 export const updateJob = async (req, res) => {
   const { jobId } = req.params;
-  const { title, company, description, location, salary, skills } = req.body;
+  const { 
+    title, 
+    company, 
+    description, 
+    location, 
+    salary, 
+    skills, 
+    applyBy, 
+    timePeriod, 
+    jobType 
+  } = req.body;
 
   try {
     const job = await Job.findById(jobId);
@@ -123,6 +156,33 @@ export const updateJob = async (req, res) => {
     if (salary !== undefined) job.salary = salary;
     if (skills !== undefined && Array.isArray(skills)) job.skills = skills;
 
+    // New fields (applyBy, timePeriod, jobType)
+    if (applyBy !== undefined) {
+      // Ensure 'applyBy' is a valid date
+      if (isNaN(new Date(applyBy))) {
+        return res.status(400).json({ message: "Invalid application deadline" });
+      }
+      job.applyBy = new Date(applyBy); // Update application deadline
+    }
+
+    if (timePeriod !== undefined) {
+      // Ensure 'timePeriod' is one of the allowed values
+      const validTimePeriods = ['Full-time', 'Part-time', 'Internship'];
+      if (!validTimePeriods.includes(timePeriod)) {
+        return res.status(400).json({ message: "Invalid time period" });
+      }
+      job.timePeriod = timePeriod; // Update time period
+    }
+
+    if (jobType !== undefined) {
+      // Ensure 'jobType' is one of the allowed values
+      const validJobTypes = ['Job', 'Internship'];
+      if (!validJobTypes.includes(jobType)) {
+        return res.status(400).json({ message: "Invalid job type" });
+      }
+      job.jobType = jobType; // Update job type
+    }
+
     const updatedJob = await job.save();
     return res.status(200).json(updatedJob);
   } catch (error) {
@@ -130,6 +190,7 @@ export const updateJob = async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 };
+
 
 
 

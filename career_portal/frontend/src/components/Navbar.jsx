@@ -34,6 +34,16 @@ const Navbar = () => {
         Jobs
       </NavLink>
       <NavLink
+        to="/internships"
+        className={({ isActive }) =>
+          `px-4 py-2 text-lg font-medium text-white hover:text-indigo-200 transition duration-300 ${
+            isActive ? 'font-bold underline' : ''
+          }`
+        }
+      >
+        Internships
+      </NavLink>
+      <NavLink
         to="/about"
         className={({ isActive }) =>
           `px-4 py-2 text-lg font-medium text-white hover:text-indigo-200 transition duration-300 ${

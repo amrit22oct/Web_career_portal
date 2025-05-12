@@ -3,7 +3,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import API from "../services/api";
 import { AuthContext } from "../context/AuthContext";
 import { BriefcaseIcon, MapPinIcon, CurrencyDollarIcon, SparklesIcon } from "@heroicons/react/24/outline";
-import EditJobModal from "../components/EditJobModal";  // Import the modal
+import EditJobModal from "../components/EditJobModal";
+import ApplyJobModal from "../components/ApplyJobModal";  // New import
 
 const JobDetailsPage = () => {
   const { jobId } = useParams();
@@ -11,7 +12,8 @@ const JobDetailsPage = () => {
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);  // State to manage modal visibility
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isApplyModalOpen, setIsApplyModalOpen] = useState(false);  // New modal state
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -40,17 +42,6 @@ const JobDetailsPage = () => {
       } catch (err) {
         alert("Failed to delete job. Please try again.");
       }
-    }
-  };
-
-  const handleApply = async () => {
-    try {
-      await API.post(`/jobs/${job._id}/apply`, {}, {
-        headers: { Authorization: `Bearer ${user.token}` },
-      });
-      alert("Applied successfully!");
-    } catch (err) {
-      alert("Failed to apply. Please try again.");
     }
   };
 
@@ -120,7 +111,7 @@ const JobDetailsPage = () => {
         {isJobOwner && (
           <>
             <button
-              onClick={() => setIsModalOpen(true)}  // Open modal when clicked
+              onClick={() => setIsModalOpen(true)}
               className="bg-amber-500 hover:bg-amber-600 text-white px-6 py-2 rounded-lg transition"
             >
               Edit
@@ -136,7 +127,7 @@ const JobDetailsPage = () => {
 
         {user?.role === "student" && (
           <button
-            onClick={handleApply}
+            onClick={() => setIsApplyModalOpen(true)}
             className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg transition"
           >
             Apply Now
@@ -144,8 +135,20 @@ const JobDetailsPage = () => {
         )}
       </div>
 
-      {/* Render EditJobModal if it's open */}
-      {isModalOpen && <EditJobModal job={job} closeModal={() => setIsModalOpen(false)} refreshJobDetails={refreshJobDetails} />}
+      {/* Modals */}
+      {isModalOpen && (
+        <EditJobModal
+          job={job}
+          closeModal={() => setIsModalOpen(false)}
+          refreshJobDetails={refreshJobDetails}
+        />
+      )}
+      {isApplyModalOpen && (
+        <ApplyJobModal
+          jobId={job._id}
+          closeModal={() => setIsApplyModalOpen(false)}
+        />
+      )}
     </div>
   );
 };

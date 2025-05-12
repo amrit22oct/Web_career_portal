@@ -8,6 +8,7 @@ import RecruiterDashboardPage from './pages/RecruiterDashboardPage';
 import About from './pages/About';
 import JobsPage from './pages/JobsPage';
 import DashboardPage from './pages/DashboardPage'; // ✅ Import DashboardPage
+import InternshipPage from './pages/InternshipPage'; // Import the new InternshipPage
 
 import PrivateRoute from './components/PrivateRoute';
 import StudentRoute from './components/StudentRoute';
@@ -31,6 +32,7 @@ const App = () => (
           <Route path="/jobs" element={<JobsPage />} />
           <Route path="/jobs/:jobId" element={<JobDetailsPage />} />
           <Route path="/about" element={<About />} />
+          <Route path="/internships" element={<InternshipPage />} /> {/* Add Internship Route */}
 
           {/* Protected Routes */}
           <Route
