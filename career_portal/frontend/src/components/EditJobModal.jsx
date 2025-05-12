@@ -8,7 +8,10 @@ const EditJobModal = ({ job, closeModal, refreshJobDetails }) => {
     location: '',
     salary: '',
     description: '',
-    skills: []
+    skills: [],
+    applyBy: '',
+    timePeriod: 'Internship',
+    jobType: 'Job',
   });
 
   const [skillInput, setSkillInput] = useState('');
@@ -16,22 +19,22 @@ const EditJobModal = ({ job, closeModal, refreshJobDetails }) => {
   useEffect(() => {
     if (job) {
       setFormData({
-        title: job.title,
-        company: job.company,
-        location: job.location,
-        salary: job.salary,
-        description: job.description,
-        skills: job.skills || []
+        title: job.title || '',
+        company: job.company || '',
+        location: job.location || '',
+        salary: job.salary || '',
+        description: job.description || '',
+        skills: job.skills || [],
+        applyBy: job.applyBy ? job.applyBy.slice(0, 10) : '',
+        timePeriod: job.timePeriod || 'Internship',
+        jobType: job.jobType || 'Job',
       });
     }
   }, [job]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSkillKeyDown = (e) => {
@@ -39,26 +42,25 @@ const EditJobModal = ({ job, closeModal, refreshJobDetails }) => {
       e.preventDefault();
       const newSkill = skillInput.trim();
       if (!formData.skills.includes(newSkill)) {
-        setFormData((prevData) => ({
-          ...prevData,
-          skills: [...prevData.skills, newSkill]
+        setFormData((prev) => ({
+          ...prev,
+          skills: [...prev.skills, newSkill],
         }));
       }
       setSkillInput('');
     }
   };
 
-  const handleRemoveSkill = (index) => {
-    setFormData((prevData) => {
-      const updatedSkills = [...prevData.skills];
-      updatedSkills.splice(index, 1);
-      return { ...prevData, skills: updatedSkills };
-    });
+  const removeSkill = (index) => {
+    const updatedSkills = [...formData.skills];
+    updatedSkills.splice(index, 1);
+    setFormData((prev) => ({ ...prev, skills: updatedSkills }));
   };
 
-  const handleSave = async () => {
-    const { title, company, location, salary, description } = formData;
-    if (!title || !company || !location || !salary || !description) {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const { title, company, location, salary, description, applyBy } = formData;
+    if (!title || !company || !location || !salary || !description || !applyBy) {
       alert('Please fill in all required fields.');
       return;
     }
@@ -73,90 +75,123 @@ const EditJobModal = ({ job, closeModal, refreshJobDetails }) => {
   };
 
   return (
-    <div
-      className="fixed inset-0 z-50 bg-gray-600 bg-opacity-50 flex justify-center items-center"
-      onClick={closeModal}
-    >
-      <div
-        className="bg-gradient-to-t from-blue-500 to-blue-400 p-6 rounded-lg w-96 shadow-lg animate__animated animate__fadeIn"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h2 className="text-2xl font-semibold mb-6 text-white text-center">Edit Job</h2>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white max-w-xl w-full rounded-lg shadow-lg p-6 relative">
+        <button
+          className="absolute top-3 right-3 text-gray-500 hover:text-red-600 text-xl font-bold"
+          onClick={closeModal}
+        >
+          &times;
+        </button>
+        <h2 className="text-xl font-bold mb-6 text-gray-800">Edit Job</h2>
 
-        {['title', 'company', 'location', 'salary', 'description'].map((field) => (
-          <div key={field} className="mb-6">
-            <label htmlFor={field} className="block text-white text-sm font-semibold mb-2 capitalize">
-              {field === 'salary' ? 'Salary (in ₹)' : field === 'description' ? 'Job Description' : field}
-            </label>
-            {field === 'description' ? (
-              <textarea
-                name={field}
-                id={field}
-                value={formData[field]}
-                onChange={handleInputChange}
-                placeholder={`Enter ${field}`}
-                className="w-full p-3 border border-transparent rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-600"
-              />
-            ) : (
-              <input
-                type={field === 'salary' ? 'number' : 'text'}
-                name={field}
-                id={field}
-                value={formData[field]}
-                onChange={handleInputChange}
-                placeholder={`Enter ${field}`}
-                className="w-full p-3 border border-transparent rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-600"
-              />
-            )}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {[
+            { name: 'title', label: 'Job Title' },
+            { name: 'company', label: 'Company' },
+            { name: 'salary', label: 'Salary', type: 'number' },
+            { name: 'location', label: 'Location' },
+            { name: 'description', label: 'Description', textarea: true },
+          ].map(({ name, label, type = 'text', textarea }) => (
+            <div key={name}>
+              <label className="block mb-1 text-sm font-medium text-gray-700">{label}</label>
+              {textarea ? (
+                <textarea
+                  name={name}
+                  rows={3}
+                  value={formData[name]}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-2 text-slate-800 bg-white border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                />
+              ) : (
+                <input
+                  type={type}
+                  name={name}
+                  value={formData[name]}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-2 text-slate-800 bg-white border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                />
+              )}
+            </div>
+          ))}
+
+          <div>
+            <label className="block mb-1 text-sm font-medium text-gray-700">Apply By</label>
+            <input
+              type="date"
+              name="applyBy"
+              value={formData.applyBy}
+              onChange={handleInputChange}
+              className="w-full px-4 py-2 text-slate-800 bg-white border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+            />
           </div>
-        ))}
 
-        {/* Skills with tag style UI */}
-        <div className="mb-6">
-          <label htmlFor="skills" className="block text-white text-sm font-semibold mb-2">
-            Skills
-          </label>
-          <div className="flex flex-wrap gap-2 mb-2">
-            {formData.skills.map((skill, idx) => (
-              <span
-                key={idx}
-                className="bg-white text-blue-700 px-3 py-1 rounded-full flex items-center space-x-2"
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block mb-1 text-sm font-medium text-gray-700">Time Period</label>
+              <select
+                name="timePeriod"
+                value={formData.timePeriod}
+                onChange={handleInputChange}
+                className="w-full px-4 py-2 text-slate-800 bg-white border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:outline-none"
               >
-                <span>{skill}</span>
-                <button
-                  onClick={() => handleRemoveSkill(idx)}
-                  className="text-red-600 font-bold focus:outline-none"
-                >
-                  &times;
-                </button>
-              </span>
-            ))}
-          </div>
-          <input
-            type="text"
-            id="skills"
-            value={skillInput}
-            onChange={(e) => setSkillInput(e.target.value)}
-            onKeyDown={handleSkillKeyDown}
-            placeholder="Type a skill and press Enter"
-            className="w-full p-3 border border-transparent rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-600"
-          />
-        </div>
+                <option>Internship</option>
+                <option>Part-time</option>
+                <option>Full-time</option>
+              </select>
+            </div>
 
-        <div className="flex justify-between mt-4">
+            <div>
+              <label className="block mb-1 text-sm font-medium text-gray-700">Job Type</label>
+              <select
+                name="jobType"
+                value={formData.jobType}
+                onChange={handleInputChange}
+                className="w-full px-4 py-2 text-slate-800 bg-white border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+              >
+                <option>Job</option>
+                <option>Internship</option>
+                <option>Freelance</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label className="block mb-1 text-sm font-medium text-gray-700">Skills</label>
+            <input
+              type="text"
+              placeholder="Type skill and press Enter or ,"
+              value={skillInput}
+              onChange={(e) => setSkillInput(e.target.value)}
+              onKeyDown={handleSkillKeyDown}
+              className="w-full px-4 py-2 text-slate-800 placeholder-slate-400 bg-white border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+            />
+            <div className="flex flex-wrap mt-2 gap-2">
+              {formData.skills.map((skill, index) => (
+                <span
+                  key={index}
+                  className="bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full text-sm flex items-center"
+                >
+                  <span>{skill}</span>
+                  <button
+                    type="button"
+                    onClick={() => removeSkill(index)}
+                    className="ml-2 text-indigo-500 hover:text-red-500"
+                  >
+                    &times;
+                  </button>
+                </span>
+              ))}
+            </div>
+          </div>
+
           <button
-            onClick={closeModal}
-            className="bg-gray-500 hover:bg-gray-600 text-white py-2 px-6 rounded-lg"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleSave}
-            className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-6 rounded-lg"
+            type="submit"
+            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-md transition duration-200"
           >
             Save Changes
           </button>
-        </div>
+        </form>
       </div>
     </div>
   );

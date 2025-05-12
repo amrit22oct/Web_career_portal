@@ -2,9 +2,17 @@ import React, { useEffect, useState, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import API from "../services/api";
 import { AuthContext } from "../context/AuthContext";
-import { BriefcaseIcon, MapPinIcon, CurrencyDollarIcon, SparklesIcon } from "@heroicons/react/24/outline";
+import {
+  BriefcaseIcon,
+  MapPinIcon,
+  CurrencyDollarIcon,
+  SparklesIcon,
+  CalendarDaysIcon,
+  ClockIcon,
+  TagIcon
+} from "@heroicons/react/24/outline";
 import EditJobModal from "../components/EditJobModal";
-import ApplyJobModal from "../components/ApplyJobModal";  // New import
+import ApplyJobModal from "../components/ApplyJobModal";
 
 const JobDetailsPage = () => {
   const { jobId } = useParams();
@@ -13,7 +21,7 @@ const JobDetailsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isApplyModalOpen, setIsApplyModalOpen] = useState(false);  // New modal state
+  const [isApplyModalOpen, setIsApplyModalOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -56,6 +64,10 @@ const JobDetailsPage = () => {
     user?.role === "recruiter" &&
     (job.recruiter === user._id || job.recruiter?._id === user._id);
 
+  const formattedDeadline = job?.deadline
+    ? new Date(job.deadline).toLocaleDateString()
+    : "N/A";
+
   return (
     <div className="job-details-container p-6 max-w-5xl mx-auto bg-gray-50 rounded-xl shadow-md mt-8">
       <h1 className="text-4xl font-bold text-indigo-800 mb-4 flex items-center gap-2">
@@ -69,12 +81,24 @@ const JobDetailsPage = () => {
         <MapPinIcon className="h-5 w-5 text-gray-500" />
         {job.location}
       </p>
-      <p className="text-gray-700 flex items-center gap-2 mb-4">
+      <p className="text-gray-700 flex items-center gap-2 mb-1">
         <CurrencyDollarIcon className="h-5 w-5 text-green-600" />
         ${job.salary}
       </p>
+      <p className="text-gray-700 flex items-center gap-2 mb-1">
+        <ClockIcon className="h-5 w-5 text-yellow-600" />
+        {job.experience || job.timePeriod}
+      </p>
+      <p className="text-gray-700 flex items-center gap-2 mb-1">
+        <TagIcon className="h-5 w-5 text-purple-600" />
+        {job.jobType}
+      </p>
+      <p className="text-gray-700 flex items-center gap-2 mb-4">
+        <CalendarDaysIcon className="h-5 w-5 text-red-600" />
+        Apply By: {formattedDeadline}
+      </p>
 
-      {/* Description Box */}
+      {/* Description */}
       <div className="bg-gray-100 rounded-lg p-5 mb-6 border-l-4 border-indigo-500 shadow-inner">
         <div className="flex items-center gap-2 mb-2">
           <SparklesIcon className="h-6 w-6 text-indigo-500" />
@@ -124,7 +148,6 @@ const JobDetailsPage = () => {
             </button>
           </>
         )}
-
         {user?.role === "student" && (
           <button
             onClick={() => setIsApplyModalOpen(true)}

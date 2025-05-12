@@ -12,7 +12,7 @@ const jobSchema = new mongoose.Schema({
   applyBy: { type: Date, required: true },  // Deadline to apply
   timePeriod: { 
     type: String, 
-    enum: ['Full-time', 'Part-time', 'Internship'], 
+    enum: ['Full-time', 'Part-time',], 
     required: true 
   },  // Time period
   jobType: { 
