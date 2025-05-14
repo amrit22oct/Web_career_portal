@@ -20,6 +20,7 @@ body {
   background: #0f172a; /* Dark background */
   color: white;
   font-family: 'Segoe UI', sans-serif;
+  padding: 10px;
 }
 
 /* Sidebar Styles */
@@ -27,7 +28,7 @@ body {
   width: 16rem;
   background: rgba(255, 255, 255, 0.05); /* Glass effect */
   backdrop-filter: blur(10px); /* Glassmorphism */
-  border-right: 2px solid rgba(255, 255, 255, 0.2);
+  border: 2px solid white;
   padding: 2rem 1.5rem;
   display: flex;
   flex-direction: column;
@@ -70,19 +71,35 @@ body {
 /* Main Content Styles */
 .main-content {
   flex: 1;
-  padding: 2rem;
+  margin: 0;
+  padding: 0;
   overflow-y: auto;
+  height: 100%;
+  margin-left: 10px;
 }
 
 /* Glassy Boxes */
 .glass-box {
   background: rgba(255, 255, 255, 0.1); /* Light blur effect */
   backdrop-filter: blur(12px); /* Glassmorphism */
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  border: 2px solid white;
   padding: 1.5rem;
   margin-bottom: 2rem;
   color: #fff;
-  border: 2px solid black;
+  display: flex;
+  flex-direction: column;
+  border: 2px solid white;
+}
+
+.glass-box h1{
+  font-size: 2rem;
+  font-weight: 800;
+  color: white;
+}
+
+.glass-box p{
+  font-size: 1.125rem;
+  color: white;
 }
 
 /* Card Actions */
@@ -92,7 +109,7 @@ body {
   border: 2px solid rgba(255, 255, 255, 0.2);
   padding: 1.5rem;
   color: white;
-  border-radius: 8px;
+  border: 2px solid white;
   transition: background 0.3s ease;
 }
 
@@ -116,9 +133,8 @@ body {
   padding: 0.5rem 1rem;
   font-weight: bold;
   cursor: pointer;
-  border: none;
+  border: 1px solid white;
   margin-top: 1rem;
-  border-radius: 5px;
   transition: background 0.3s ease;
 }
 
@@ -133,7 +149,6 @@ body {
 
 /* Job Listings Styles */
 .job-listings h2 {
-  margin-bottom: 1rem;
   font-size: 1.5rem;
   color: white;
 }
