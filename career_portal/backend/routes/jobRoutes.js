@@ -3,6 +3,7 @@ import {
   createJob,
   getAllJobs,
   getJobById,
+  getInternshipJobs,
   updateJob,
   deleteJob,
   getRecruiterJobs,
@@ -15,8 +16,13 @@ const router = express.Router();
 
 // 🔓 Public Routes
 router.get("/", getAllJobs); // Public
-router.get("/recruiter/jobs", authenticate, recruiterOnly, getRecruiterJobs); // Must be above :jobId
-router.get("/:jobId", getJobById); // Must come after fixed routes like /recruiter/jobs
+
+// ✅ Specific fixed routes should come BEFORE dynamic ones
+router.get("/internship", getInternshipJobs);
+router.get("/recruiter/jobs", authenticate, recruiterOnly, getRecruiterJobs);
+
+// Dynamic route (MUST come last)
+router.get("/:jobId", getJobById);
 
 // 🔐 Recruiter Routes
 router.post("/", authenticate, recruiterOnly, createJob);

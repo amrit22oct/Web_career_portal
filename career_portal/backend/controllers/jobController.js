@@ -119,6 +119,24 @@ export const getJobById = async (req, res) => {
   }
 };
 
+// GET /api/job/internship
+export const getInternshipJobs = async (req, res) => {
+  try {
+    const internships = await Job.find({ jobType: 'Internship' });
+
+    res.status(200).json({
+      success: true,
+      count: internships.length,
+      data: internships,
+    });
+  } catch (error) {
+    console.error('Error fetching internship jobs:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error while fetching internship jobs.',
+    });
+  }
+};
 // PUT: Update a job post
 
 export const updateJob = async (req, res) => {

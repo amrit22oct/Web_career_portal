@@ -2,14 +2,13 @@ import React, { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import JobContext from "../context/JobContext";
 import { AuthContext } from "../context/AuthContext";
-import { FaRegEye, FaEdit, FaTrashAlt, FaRegPaperPlane } from "react-icons/fa";
+import { FaRegEye, FaRegPaperPlane } from "react-icons/fa";
 import API from "../services/api";
 import ApplyJobModal from "./ApplyJobModal"; // Make sure the path is correct
 
 const JobCard = ({ job }) => {
   const { user } = useContext(AuthContext);
   const { refetchJobs } = useContext(JobContext);
-  const [isDeleting, setIsDeleting] = useState(false);
   const [showApplyModal, setShowApplyModal] = useState(false);
 
   if (!user) {
@@ -19,24 +18,6 @@ const JobCard = ({ job }) => {
       </div>
     );
   }
-
-  const handleDelete = async () => {
-    if (window.confirm("Are you sure you want to delete this job?")) {
-      setIsDeleting(true);
-      try {
-        await API.delete(`/jobs/${job._id}`, {
-          headers: { Authorization: `Bearer ${user.token}` },
-        });
-        alert("Job deleted successfully");
-        if (refetchJobs) refetchJobs();
-      } catch (error) {
-        console.error("Error deleting job:", error);
-        alert("Failed to delete job. Please try again.");
-      } finally {
-        setIsDeleting(false);
-      }
-    }
-  };
 
   const handleApply = () => {
     setShowApplyModal(true);
@@ -66,27 +47,6 @@ const JobCard = ({ job }) => {
           >
             <FaRegEye className="mr-2" /> View Details
           </Link>
-
-          {user?.role === "recruiter" && user._id === job.recruiter && (
-            <>
-              <Link
-                to={`/jobs/edit/${job._id}`}
-                className="flex items-center bg-yellow-500 text-white text-sm px-6 py-3 rounded-xl hover:bg-yellow-600 transition-all duration-300 ease-in-out shadow-md hover:shadow-lg"
-              >
-                <FaEdit className="mr-2" /> Edit
-              </Link>
-
-              <button
-                onClick={handleDelete}
-                disabled={isDeleting}
-                className={`flex items-center bg-red-500 text-white text-sm px-6 py-3 rounded-xl hover:bg-red-600 transition-all duration-300 ease-in-out shadow-md hover:shadow-lg ${
-                  isDeleting ? "opacity-50 cursor-not-allowed" : ""
-                }`}
-              >
-                <FaTrashAlt className="mr-2" /> {isDeleting ? "Deleting..." : "Delete"}
-              </button>
-            </>
-          )}
 
           {user?.role === "student" && (
             <button

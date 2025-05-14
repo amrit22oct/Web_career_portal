@@ -11,6 +11,7 @@ export const JobProvider = ({ children }) => {
   const [myJobs, setMyJobs] = useState([]);
   const [jobsPage, setJobsPage] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [jobActionLoading, setJobActionLoading] = useState(false);
   const [error, setError] = useState(null);
 
   // Fetch recruiter’s own jobs
@@ -42,8 +43,8 @@ export const JobProvider = ({ children }) => {
 
   const loadMoreJobs = () => {
     const nextPage = jobsPage + 1;
-    setJobsPage(nextPage);
     fetchPublicJobs(nextPage);
+    setJobsPage(nextPage);
   };
 
   useEffect(() => {
@@ -63,21 +64,47 @@ export const JobProvider = ({ children }) => {
 
   const createJob = async (jobData) => {
     try {
+      setJobActionLoading(true);
       const newJob = await JobService.createJob(jobData);
       setMyJobs((prev) => [...prev, newJob]);
     } catch (err) {
       setError(err.message || 'Failed to create job');
       console.error('Error creating job:', err);
+    } finally {
+      setJobActionLoading(false);
     }
   };
 
   const applyToJob = async (jobId) => {
     try {
+      setJobActionLoading(true);
       await JobService.applyToJob(jobId);
       alert('Successfully applied for the job!');
     } catch (err) {
       setError(err.message || 'Failed to apply for job');
       console.error('Error applying to job:', err);
+    } finally {
+      setJobActionLoading(false);
+    }
+  };
+
+  const clearError = () => setError(null);
+
+  const getJobById = async (id) => {
+    try {
+      return await JobService.getJobById(id);
+    } catch (err) {
+      setError(err.message || 'Failed to fetch job details');
+      console.error('Error fetching job by ID:', err);
+    }
+  };
+
+  const getInternshipJobs = async () => {
+    try {
+      return await JobService.getInternshipJobs();
+    } catch (err) {
+      setError(err.message || 'Failed to fetch internship jobs');
+      console.error('Error fetching internship jobs:', err);
     }
   };
 
@@ -88,10 +115,14 @@ export const JobProvider = ({ children }) => {
         myJobs,
         loading,
         error,
+        jobActionLoading,
         createJob,
         applyToJob,
         refetchJobs: () => fetchPublicJobs(1),
         loadMoreJobs,
+        clearError,
+        getJobById,
+        getInternshipJobs,
       }}
     >
       {children}

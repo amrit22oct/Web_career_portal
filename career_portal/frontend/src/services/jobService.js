@@ -20,22 +20,22 @@ const JobService = {
     }
   },
 
-  // Get a single job by ID and return all job data
+  // Get a single job by ID
   getJobById: async (jobId) => {
     try {
-      const response = await API.get(`/jobs/${jobId}`);  // Corrected URL
-      return response.data; // Ensure this contains all job-related data (e.g., recruiter, salary, description, etc.)
+      const response = await API.get(`/jobs/${jobId}`);
+      return response.data;
     } catch (error) {
       handleError(error);
     }
   },
 
-  // Create a new job post (for recruiters)
+  // Create a new job post
   createJob: async (jobData) => {
     try {
       const token = localStorage.getItem('token');
       const response = await API.post('/jobs', jobData, {
-        headers: { Authorization: `Bearer ${token}` },  // Corrected Bearer token interpolation
+        headers: { Authorization: `Bearer ${token}` },
       });
       return response.data;
     } catch (error) {
@@ -43,12 +43,12 @@ const JobService = {
     }
   },
 
-  // Apply to a job (for students)
+  // Apply to a job
   applyToJob: async (jobId) => {
     try {
       const token = localStorage.getItem('token');
       const response = await API.post(`/jobs/${jobId}/apply`, {}, {
-        headers: { Authorization: `Bearer ${token}` },  // Corrected Bearer token interpolation
+        headers: { Authorization: `Bearer ${token}` },
       });
       return response.data;
     } catch (error) {
@@ -61,8 +61,18 @@ const JobService = {
     try {
       const token = localStorage.getItem('token');
       const response = await API.get('/jobs/recruiter/jobs', {
-        headers: { Authorization: `Bearer ${token}` },  // Corrected Bearer token interpolation
+        headers: { Authorization: `Bearer ${token}` },
       });
+      return response.data;
+    } catch (error) {
+      handleError(error);
+    }
+  },
+
+  // ✅ Get only Internship jobs
+  getInternshipJobs: async () => {
+    try {
+      const response = await API.get('/jobs/internship');
       return response.data;
     } catch (error) {
       handleError(error);
