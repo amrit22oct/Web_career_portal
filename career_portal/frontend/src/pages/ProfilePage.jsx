@@ -9,16 +9,17 @@ const ProfilePage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+
+
+
   const generateDefaultAvatar = () => {
     return 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
   };
-
-
   const [profilePic, setProfilePic] = useState(
     user?.profilePic || generateDefaultAvatar(user?.name)
   );
 
-
+  
   const handleChange = (e) => {
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
   };
