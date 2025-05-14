@@ -5,6 +5,7 @@ import StudentListModal from "../components/Modal";
 import AddJobModal from "../components/AddjobModal";
 import { AuthContext } from "../context/AuthContext";
 import API from "../services/api";
+import '../styles/recdash.css';
 
 const RecruiterDashboard = () => {
   const [jobs, setJobs] = useState([]);
@@ -14,71 +15,60 @@ const RecruiterDashboard = () => {
   const [selectedJob, setSelectedJob] = useState(null);
   const { user: recruiter, fetchUser } = useContext(AuthContext);
 
+  useEffect(() => {
+    fetchUser().then(fetchJobs);
+  }, []);
+
   const fetchJobs = async () => {
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
       const response = await axios.get(`${API}/recruiter/my-jobs`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
-  
-      console.log(response.data); // Debugging: log the response to check the structure
-      setJobs(response.data?.jobs || []);  // Ensure that jobs are correctly set
+
+      const fetchedJobs = Array.isArray(response.data)
+        ? response.data
+        : response.data?.jobs || [];
+
+      setJobs(fetchedJobs);
     } catch (error) {
       console.error("Error fetching jobs:", error);
-      setJobs([]);  // Set an empty array in case of error
+      setJobs([]);
     } finally {
       setLoading(false);
     }
   };
-  
 
   const handleDeleteJob = async (jobId) => {
     if (!window.confirm("Are you sure you want to delete this job?")) return;
-
     try {
       const token = localStorage.getItem("token");
       await axios.delete(`${API}/recruiter/delete-job/${jobId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
-      fetchJobs();  // Refresh jobs list after deletion
+      setJobs(jobs.filter((job) => job._id !== jobId));
     } catch (error) {
       console.error("Error deleting job:", error);
     }
   };
 
-  useEffect(() => {
-    const initialize = async () => {
-      await fetchUser();  // Ensure recruiter data is fetched
-      fetchJobs();        // Then fetch jobs
-    };
-    initialize();
-  }, []);
-
   return (
-    <div className="min-h-screen flex bg-gray-100">
+    <div className="dashboard-container">
       {/* Sidebar */}
-      <div className="w-64 bg-white shadow-lg p-6 flex flex-col justify-between rounded-r-2xl">
+      <div className="sidebar">
         <div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-6">Recruiter Panel</h2>
-          <nav className="space-y-4">
+          <h2>Recruiter Panel</h2>
+          <nav>
             {["Explore Jobs", "My Applications", "Profile", "Settings"].map((item, index) => (
-              <button
-                key={index}
-                className="text-gray-700 hover:text-blue-600 w-full text-left"
-                onClick={() => console.log(`${item} clicked`)}
-              >
+              <button key={index} onClick={() => console.log(`${item} clicked`)}>
                 {item}
               </button>
             ))}
           </nav>
         </div>
         <button
-          className="text-red-600 hover:text-red-800 w-full text-left mt-6"
+          className="logout-button"
           onClick={() => {
             localStorage.removeItem("token");
             window.location.reload();
@@ -89,86 +79,66 @@ const RecruiterDashboard = () => {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 p-8 overflow-y-auto">
-        {/* Welcome Card */}
-        <div className="bg-white rounded-2xl shadow p-6 mb-8">
-          <h1 className="text-3xl font-bold text-gray-800">
-            Welcome, {recruiter?.name || "Loading..."}!
-          </h1>
-          <p className="text-lg text-gray-600 mt-1">
-            You're logged in as a{" "}
+      <div className="main-content">
+        <div className="glass-box">
+          <h1>Welcome, {recruiter?.name || "Recruiter"}!</h1>
+          <p>
+            You're logged in as{" "}
             {recruiter?.role
               ? recruiter.role.charAt(0).toUpperCase() + recruiter.role.slice(1)
-              : "Recruiter"}.
+              : "Recruiter"}
+            .
           </p>
-          <div className="mt-4 space-y-2">
-            <p>
-              <span className="font-semibold text-gray-700">Email:</span>{" "}
-              {recruiter?.email || "Loading..."}
-            </p>
-            <p>
-              <span className="font-semibold text-gray-700">Role:</span>{" "}
-              {recruiter?.role || "Loading..."}
-            </p>
-          </div>
+          <p><strong>Email:</strong> {recruiter?.email || "N/A"}</p>
+          <p><strong>Role:</strong> {recruiter?.role || "Recruiter"}</p>
         </div>
 
-        {/* Dashboard Cards */}
+        {/* Action Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          <div className="bg-blue-600 text-white p-6 rounded-2xl shadow hover:bg-blue-700">
-            <h3 className="text-xl font-semibold">Explore Jobs</h3>
-            <p>Browse and post job openings.</p>
+          <div className="card-action">
+            <h3>Post a Job</h3>
+            <p>Quickly add new job opportunities.</p>
             <button
               onClick={() => setShowAddJobModal(true)}
-              className="mt-4 bg-white text-blue-600 px-4 py-2 rounded-full font-semibold hover:bg-blue-100"
+              className="primary-button"
             >
-              Post a Job
+              Post Now
             </button>
           </div>
-          <div className="bg-purple-600 text-white p-6 rounded-2xl shadow hover:bg-purple-700">
-            <h3 className="text-xl font-semibold">My Applications</h3>
-            <p>Manage received applications.</p>
+          <div className="card-action">
+            <h3>Applications</h3>
+            <p>Manage all received applications.</p>
           </div>
-          <div className="bg-green-600 text-white p-6 rounded-2xl shadow hover:bg-green-700">
-            <h3 className="text-xl font-semibold">Profile</h3>
-            <p>Update your personal information.</p>
+          <div className="card-action">
+            <h3>Profile</h3>
+            <p>Update your recruiter profile.</p>
           </div>
         </div>
 
-        {/* Analytics */}
-        <div className="bg-white rounded-2xl shadow p-6 mb-8">
-          <h2 className="text-xl font-bold text-gray-800 mb-4">Analytics</h2>
-          <p className="text-gray-600">Total Jobs Posted: {jobs.length}</p>
-          <p className="text-gray-600">Applicants Received: 24</p>
+        {/* Dashboard Stats */}
+        <div className="glass-box">
+          <h2>Dashboard Stats</h2>
+          <p>Total Jobs Posted: {jobs.length}</p>
+          <p>Applicants Received: 24 {/* Placeholder */}</p>
         </div>
 
-        {/* Posted Jobs */}
-        <div className="mt-10">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Posted Jobs</h2>
+        {/* Job Listings */}
+        <div className="glass-box job-listings">
+          <h2>Your Job Listings</h2>
           {loading ? (
-            <p className="text-gray-600">Loading jobs...</p>
+            <p className="text-gray-400">Loading jobs...</p>
           ) : jobs.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {jobs.map((job) => (
-                <JobCard
-                  key={job._id}
-                  job={job}
-                  onViewApplicants={() => {
-                    setSelectedJob(job);
-                    setShowStudentModal(true);
-                  }}
-                  onDelete={() => handleDeleteJob(job._id)}
-                />
+                <JobCard key={job._id} job={job} />
               ))}
             </div>
           ) : (
-            <div>
-              <p className="text-gray-600">
-                Total Jobs Posted: {jobs.length > 0 ? jobs.length : "No jobs available"}
-              </p>
+            <div className="no-jobs">
+              No jobs posted yet.
               <button
                 onClick={() => setShowAddJobModal(true)}
-                className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-full font-semibold hover:bg-blue-700"
+                className="primary-button"
               >
                 Post a Job
               </button>
@@ -187,7 +157,7 @@ const RecruiterDashboard = () => {
       {showAddJobModal && (
         <AddJobModal
           onClose={() => setShowAddJobModal(false)}
-          onJobPosted={fetchJobs} // Ensure jobs list is refreshed after posting a job
+          onJobPosted={fetchJobs}
         />
       )}
     </div>

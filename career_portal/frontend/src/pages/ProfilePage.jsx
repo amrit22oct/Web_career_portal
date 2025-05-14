@@ -1,6 +1,7 @@
 import { useState, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
-import '../styles/profile.css'
+import '../styles/profile.css';
+
 const ProfilePage = () => {
   const { user, updateUser } = useContext(AuthContext);
   const [editing, setEditing] = useState(false);
@@ -8,7 +9,15 @@ const ProfilePage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [profilePic, setProfilePic] = useState(user?.profilePic || ''); // Store the user's profile picture
+  const generateDefaultAvatar = () => {
+    return 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
+  };
+
+
+  const [profilePic, setProfilePic] = useState(
+    user?.profilePic || generateDefaultAvatar(user?.name)
+  );
+
 
   const handleChange = (e) => {
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
@@ -19,7 +28,7 @@ const ProfilePage = () => {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setProfilePic(reader.result); // Display the image preview
+        setProfilePic(reader.result);
       };
       reader.readAsDataURL(file);
     }
@@ -38,11 +47,11 @@ const ProfilePage = () => {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ ...form, profilePic }), // Send the profilePic along with the form data
+        body: JSON.stringify({ ...form, profilePic }),
       });
       if (!res.ok) throw new Error('Update failed');
       const updated = await res.json();
-      updateUser(updated); // update AuthContext
+      updateUser(updated);
       setEditing(false);
       setSuccess('Profile updated successfully!');
     } catch (err) {
@@ -52,27 +61,25 @@ const ProfilePage = () => {
     }
   };
 
-  if (!user) return <p className="p-6 text-center text-gray-600">Loading profile…</p>;
+  
+
+  if (!user) return <p className="profile-loading">Loading profile…</p>;
 
   return (
-    <div className="max-w-4xl mx-auto p-8 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-3xl shadow-2xl profile-container">
-      <h2 className="text-4xl font-extrabold text-center text-white mb-8">My Profile</h2>
+    <div className="profile-container">
+      <h2 className="profile-title">My Profile</h2>
 
-      {error && <p className="text-red-500 text-center mb-4">{error}</p>}
-      {success && <p className="text-green-500 text-center mb-4">{success}</p>}
+      {error && <p className="profile-error">{error}</p>}
+      {success && <p className="profile-success">{success}</p>}
 
-      {/* Profile Picture */}
-      <div className="flex justify-center mb-8">
-        <div className="relative">
+      <div className="profile-picture-wrapper">
+        <div className="profile-picture-box">
           <img
-            src={profilePic || 'https://via.placeholder.com/150'}
+            src={profilePic}
             alt="Profile"
-            className="w-40 h-40 rounded-full border-8 border-gradient-to-r from-teal-400 to-teal-600 shadow-xl transform transition duration-300 hover:scale-105 object-cover"
+            className="profile-picture"
           />
-          <label
-            htmlFor="profilePic"
-            className="absolute bottom-0 right-0 bg-teal-600 text-white p-3 rounded-full cursor-pointer shadow-lg hover:bg-teal-700 transition duration-300"
-          >
+          <label htmlFor="profilePic" className="profile-picture-label">
             <i className="fas fa-camera"></i>
             <input
               id="profilePic"
@@ -85,76 +92,38 @@ const ProfilePage = () => {
         </div>
       </div>
 
-      {/* Personal Information */}
       {!editing ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
-          <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-2xl transition duration-300">
-            <strong className="text-xl text-teal-600">Name:</strong>
-            <p className="text-gray-700">{user.name}</p>
+        <div className="profile-info-grid">
+          <div className="profile-info-box">
+            <strong>Name:</strong>
+            <p>{user.name}</p>
           </div>
-          <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-2xl transition duration-300">
-            <strong className="text-xl text-teal-600">Email:</strong>
-            <p className="text-gray-700">{user.email}</p>
+          <div className="profile-info-box">
+            <strong>Email:</strong>
+            <p>{user.email}</p>
           </div>
-          <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-2xl transition duration-300">
-            <strong className="text-xl text-teal-600">Role:</strong>
-            <p className="text-gray-700 capitalize">{user.role}</p>
+          <div className="profile-info-box">
+            <strong>Role:</strong>
+            <p className="capitalize">{user.role}</p>
           </div>
-          <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-2xl transition duration-300">
-            <strong className="text-xl text-teal-600">Joined:</strong>
-            <p className="text-gray-700">{new Date(user.createdAt).toLocaleDateString()}</p>
+          <div className="profile-info-box">
+            <strong>Joined:</strong>
+            <p>{new Date(user.createdAt).toLocaleDateString()}</p>
           </div>
         </div>
       ) : (
         <form onSubmit={handleSubmit}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
-            <div>
-              <input
-                name="name"
-                value={form.name}
-                onChange={handleChange}
-                className="w-full p-4 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-                placeholder="Enter your name"
-                required
-              />
-            </div>
-            <div>
-              <input
-                name="email"
-                type="email"
-                value={form.email}
-                onChange={handleChange}
-                className="w-full p-4 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-                placeholder="Enter your email"
-                required
-              />
-            </div>
-            <div className="col-span-2">
-              <textarea
-                name="bio"
-                value={form.bio}
-                onChange={handleChange}
-                className="w-full p-4 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-                placeholder="Write a short bio..."
-              />
-            </div>
+          <div className="profile-form-grid">
+            <input name="name" value={form.name} onChange={handleChange} placeholder="Enter your name" required />
+            <input name="email" type="email" value={form.email} onChange={handleChange} placeholder="Enter your email" required />
+            <textarea name="bio" value={form.bio} onChange={handleChange} placeholder="Write a short bio..." />
           </div>
-          <div className="mb-6">
-            <strong className="block text-teal-600">Change Profile Picture:</strong>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleProfilePicChange}
-              className="w-full p-4 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-            />
+          <div className="profile-upload">
+            <strong>Change Profile Picture:</strong>
+            <input type="file" accept="image/*" onChange={handleProfilePicChange} />
           </div>
-
-          <div className="flex justify-between gap-6">
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-teal-600 text-white py-3 rounded-lg shadow-lg hover:bg-teal-700 transition duration-300"
-            >
+          <div className="profile-button-group">
+            <button type="submit" disabled={loading}>
               {loading ? 'Saving…' : 'Save Changes'}
             </button>
             <button
@@ -162,10 +131,9 @@ const ProfilePage = () => {
               onClick={() => {
                 setEditing(false);
                 setForm({ name: user.name, email: user.email, bio: user.bio });
-                setProfilePic(user?.profilePic || '');
+                setProfilePic(user?.profilePic || generateDefaultAvatar(user?.name));
                 setSuccess('');
               }}
-              className="w-full bg-gray-300 text-gray-700 py-3 rounded-lg shadow-lg hover:bg-gray-400 transition duration-300"
             >
               Cancel
             </button>
@@ -173,18 +141,17 @@ const ProfilePage = () => {
         </form>
       )}
 
-      {/* Social Links Section */}
-      <div className="mt-8">
-        <h3 className="text-3xl font-semibold text-white mb-6">Social Links</h3>
-        <div className="flex gap-6 justify-center">
-          <a href={user?.socialLinks?.linkedin || '#'} target="_blank" className="text-blue-600 hover:text-blue-800 transition duration-300">
-            <i className="fab fa-linkedin fa-3x"></i>
+      <div className="profile-social">
+        <h3>Social Links</h3>
+        <div className="profile-social-links">
+          <a href={user?.socialLinks?.linkedin || '#'} target="_blank" rel="noreferrer">
+            <i className="fab fa-linkedin"></i>
           </a>
-          <a href={user?.socialLinks?.github || '#'} target="_blank" className="text-gray-800 hover:text-gray-900 transition duration-300">
-            <i className="fab fa-github fa-3x"></i>
+          <a href={user?.socialLinks?.github || '#'} target="_blank" rel="noreferrer">
+            <i className="fab fa-github"></i>
           </a>
-          <a href={user?.socialLinks?.twitter || '#'} target="_blank" className="text-blue-400 hover:text-blue-600 transition duration-300">
-            <i className="fab fa-twitter fa-3x"></i>
+          <a href={user?.socialLinks?.twitter || '#'} target="_blank" rel="noreferrer">
+            <i className="fab fa-twitter"></i>
           </a>
         </div>
       </div>
