@@ -1,0 +1,176 @@
+/* recruiterDashboard.css */
+
+/* General Reset and Layout */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #1a1a1a;
+  color: #fff;
+}
+
+/* Dashboard Container */
+.dashboard-container {
+  display: flex;
+  min-height: 100vh;
+  background: #0f172a; /* Dark background */
+  color: white;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* Sidebar Styles */
+.sidebar {
+  width: 16rem;
+  background: rgba(255, 255, 255, 0.05); /* Glass effect */
+  backdrop-filter: blur(10px); /* Glassmorphism */
+  border-right: 2px solid rgba(255, 255, 255, 0.2);
+  padding: 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100vh;
+}
+
+.sidebar h2 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 2rem;
+  color: #fff;
+}
+
+.sidebar button {
+  display: block;
+  color: #fff;
+  background: transparent;
+  border: none;
+  padding: 0.5rem 0;
+  text-align: left;
+  width: 100%;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.sidebar button:hover {
+  color: #60a5fa; /* Light blue hover */
+}
+
+.logout-button {
+  margin-top: 2rem;
+  color: #f87171; /* Red for logout */
+}
+
+.logout-button:hover {
+  color: #ef4444; /* Darker red for hover */
+}
+
+/* Main Content Styles */
+.main-content {
+  flex: 1;
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+/* Glassy Boxes */
+.glass-box {
+  background: rgba(255, 255, 255, 0.1); /* Light blur effect */
+  backdrop-filter: blur(12px); /* Glassmorphism */
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  color: #fff;
+  border: 2px solid black;
+}
+
+/* Card Actions */
+.card-action {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(8px); /* Subtle glass effect */
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  padding: 1.5rem;
+  color: white;
+  border-radius: 8px;
+  transition: background 0.3s ease;
+}
+
+.card-action:hover {
+  background: rgba(255, 255, 255, 0.12); /* Hover effect */
+}
+
+.card-action h3 {
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.card-action p {
+  font-size: 1rem;
+}
+
+/* Buttons */
+.primary-button {
+  background: #2563eb; /* Primary blue */
+  color: #fff;
+  padding: 0.5rem 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  border: none;
+  margin-top: 1rem;
+  border-radius: 5px;
+  transition: background 0.3s ease;
+}
+
+.primary-button:hover {
+  background: #3b82f6; /* Lighter blue for hover */
+}
+
+.no-jobs {
+  color: #94a3b8;
+  text-align: center;
+}
+
+/* Job Listings Styles */
+.job-listings h2 {
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+  color: white;
+}
+
+.job-listings .grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+/* Loader/Placeholder Text */
+.text-gray-400 {
+  color: #94a3b8;
+  text-align: center;
+}
+
+/* Modal Styles (Optional, if required) */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 999;
+}
+
+.modal-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  padding: 2rem;
+  color: white;
+  border-radius: 8px;
+  z-index: 1000;
+}
