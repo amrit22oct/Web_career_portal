@@ -22,23 +22,22 @@ const JobsPage = () => {
     setLoading(true);
     setError(null);
     try {
-      if (!user || !user.role) throw new Error('User not authenticated or missing role');
+      // Always fetch public jobs
+      const publicJobs = await JobService.getAllJobs(1);
+      const jobList = Array.isArray(publicJobs) ? publicJobs : publicJobs.jobs || [];
+      setJobs(jobList.slice(0, JOBS_PER_PAGE));
+      setPage(1);
+      setHasMore(jobList.length >= JOBS_PER_PAGE);
 
-      if (user.role === 'recruiter') {
+      // If recruiter, fetch their posted jobs
+      if (user?.role === 'recruiter') {
         const recruiterJobs = await JobService.getRecruiterJobs();
         const recruiterJobsList = Array.isArray(recruiterJobs) ? recruiterJobs : recruiterJobs.jobs || [];
         setMyJobs(recruiterJobsList);
         setVisibleMyJobs(recruiterJobsList.slice(0, MY_JOBS_PER_PAGE));
         setHasMoreMyJobs(recruiterJobsList.length > MY_JOBS_PER_PAGE);
         setMyPage(1);
-      }
-
-      const publicJobs = await JobService.getAllJobs(1);
-      const jobList = Array.isArray(publicJobs) ? publicJobs : publicJobs.jobs || [];
-      setJobs(jobList.slice(0, JOBS_PER_PAGE));
-      setPage(1);
-      setHasMore(jobList.length >= JOBS_PER_PAGE);
-    } catch (err) {
+      }} catch (err) {
       setError('Unable to fetch job listings.');
       console.error('Job fetching error:', err);
     } finally {
@@ -76,8 +75,8 @@ const JobsPage = () => {
   };
 
   useEffect(() => {
-    if (!authLoading && user) getJobs();
-  }, [authLoading, user]);
+    if (!authLoading) getJobs();
+  }, [authLoading]);
 
   if (loading && jobs.length === 0) {
     return (

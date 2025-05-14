@@ -1,6 +1,8 @@
 import { useState, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import "../styles/profile.css";
+// Import the default avatar image from your assets folder
+import logo from "../assets/logo.png";
 
 const ProfilePage = () => {
   const { user, updateUser } = useContext(AuthContext);
@@ -13,12 +15,11 @@ const ProfilePage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-
-
-
+  
   const generateDefaultAvatar = () => {
-    return "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+    return logo; // Use the imported image from assets
   };
+
   const [profilePic, setProfilePic] = useState(
     user?.profilePic || generateDefaultAvatar(user?.name)
   );

@@ -11,18 +11,7 @@ const JobCard = ({ job }) => {
   const { refetchJobs } = useContext(JobContext);
   const [showApplyModal, setShowApplyModal] = useState(false);
 
-  if (!user) {
-    return (
-      <div className="w-full h-screen flex justify-center items-center">
-        <div className="text-lg text-gray-500">Loading...</div>
-      </div>
-    );
-  }
-
-  const handleApply = () => {
-    setShowApplyModal(true);
-  };
-
+  // If there's no user, just display the job without showing "Apply" functionality
   return (
     <>
       <div className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 ease-in-out p-6 flex flex-col justify-between border border-gray-200 hover:border-blue-500">
@@ -48,9 +37,10 @@ const JobCard = ({ job }) => {
             <FaRegEye className="mr-2" /> View Details
           </Link>
 
+          {/* Show Apply button only for logged-in students */}
           {user?.role === "student" && (
             <button
-              onClick={handleApply}
+              onClick={() => setShowApplyModal(true)}
               className="flex items-center bg-green-600 text-white text-sm px-6 py-3 rounded-xl hover:bg-green-700 transition-all duration-300 ease-in-out shadow-md hover:shadow-lg"
             >
               <FaRegPaperPlane className="mr-2" /> Apply
@@ -59,7 +49,7 @@ const JobCard = ({ job }) => {
         </div>
       </div>
 
-      {/* Apply Job Modal */}
+      {/* Show Apply Job Modal only if user is logged in and Apply button is clicked */}
       {showApplyModal && (
         <ApplyJobModal jobId={job._id} closeModal={() => setShowApplyModal(false)} />
       )}

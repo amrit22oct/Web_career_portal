@@ -7,6 +7,7 @@ import {
   updateJob,
   deleteJob,
   getRecruiterJobs,
+  addApplicant,
 } from "../controllers/jobController.js";
 
 import { authenticate } from "../middleware/authenticate.js";
@@ -28,5 +29,8 @@ router.get("/:jobId", getJobById);
 router.post("/", authenticate, recruiterOnly, createJob);
 router.put("/:jobId", authenticate, recruiterOnly, updateJob);
 router.delete("/:jobId", authenticate, recruiterOnly, deleteJob);
+// applying the application
+router.post('/:jobId/apply', addApplicant);
+
 
 export default router;

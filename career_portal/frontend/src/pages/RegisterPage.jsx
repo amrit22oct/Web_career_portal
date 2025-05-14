@@ -12,6 +12,8 @@ const RegisterPage = () => {
   });
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -65,7 +67,7 @@ const RegisterPage = () => {
           placeholder="Name"
           value={formData.name}
           onChange={handleChange}
-          className="w-full p-3 mb-4 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300"
+          className="w-full p-3 mb-4 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300 text-gray-800 placeholder:text-gray-500"
           required
         />
 
@@ -75,35 +77,53 @@ const RegisterPage = () => {
           placeholder="Email"
           value={formData.email}
           onChange={handleChange}
-          className="w-full p-3 mb-4 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300"
+          className="w-full p-3 mb-4 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300 text-gray-800 placeholder:text-gray-500"
           required
         />
 
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          value={formData.password}
-          onChange={handleChange}
-          className="w-full p-3 mb-4 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300"
-          required
-        />
+        <div className="relative mb-4">
+          <input
+            type={showPassword ? 'text' : 'password'}
+            name="password"
+            placeholder="Password"
+            value={formData.password}
+            onChange={handleChange}
+            className="w-full p-3 pr-16 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300 text-gray-800 placeholder:text-gray-500"
+            required
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword(prev => !prev)}
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm text-indigo-600 hover:underline focus:outline-none"
+          >
+            {showPassword ? 'Hide' : 'Show'}
+          </button>
+        </div>
 
-        <input
-          type="password"
-          name="confirmPassword"
-          placeholder="Confirm Password"
-          value={formData.confirmPassword}
-          onChange={handleChange}
-          className="w-full p-3 mb-4 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300"
-          required
-        />
+        <div className="relative mb-4">
+          <input
+            type={showConfirmPassword ? 'text' : 'password'}
+            name="confirmPassword"
+            placeholder="Confirm Password"
+            value={formData.confirmPassword}
+            onChange={handleChange}
+            className="w-full p-3 pr-16 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300 text-gray-800 placeholder:text-gray-500"
+            required
+          />
+          <button
+            type="button"
+            onClick={() => setShowConfirmPassword(prev => !prev)}
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm text-indigo-600 hover:underline focus:outline-none"
+          >
+            {showConfirmPassword ? 'Hide' : 'Show'}
+          </button>
+        </div>
 
         <select
           name="role"
           value={formData.role}
           onChange={handleChange}
-          className="w-full p-3 mb-6 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300"
+          className="w-full p-3 mb-6 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300 text-gray-800"
         >
           <option value="student">Student</option>
           <option value="recruiter">Recruiter</option>
