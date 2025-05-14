@@ -3,8 +3,8 @@ import { Link } from "react-router-dom";
 import JobContext from "../context/JobContext";
 import { AuthContext } from "../context/AuthContext";
 import { FaRegEye, FaRegPaperPlane } from "react-icons/fa";
-import API from "../services/api";
-import ApplyJobModal from "./ApplyJobModal"; // Make sure the path is correct
+import ApplyJobModal from "./ApplyJobModal";
+import "../styles/JobCard.css";
 
 const JobCard = ({ job }) => {
   const { user } = useContext(AuthContext);
@@ -13,8 +13,8 @@ const JobCard = ({ job }) => {
 
   if (!user) {
     return (
-      <div className="w-full h-screen flex justify-center items-center">
-        <div className="text-lg text-gray-500">Loading...</div>
+      <div className="loading-screen">
+        <div className="loading-text">Loading...</div>
       </div>
     );
   }
@@ -25,41 +25,32 @@ const JobCard = ({ job }) => {
 
   return (
     <>
-      <div className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 ease-in-out p-6 flex flex-col justify-between border border-gray-200 hover:border-blue-500">
+      <div className="job-card">
         <div>
-          <h3 className="text-2xl font-semibold text-blue-800 mb-3 transition-colors duration-300 ease-in-out hover:text-blue-600">
-            {job.title || "Untitled Role"}
-          </h3>
+          <h3 className="job-title">{job.title || "Untitled Role"}</h3>
 
-          <p className="text-gray-700 mb-2">
-            <span className="font-medium text-gray-800">Company:</span> {job.company || "Unknown"}
+          <p className="job-info">
+            <span className="label">Company:</span> {job.company || "Unknown"}
           </p>
 
-          <p className="text-gray-600 mb-4">
-            <span className="font-medium text-gray-800">Location:</span> {job.location || "Not specified"}
+          <p className="job-info">
+            <span className="label">Location:</span> {job.location || "Not specified"}
           </p>
         </div>
 
-        <div className="mt-6 flex flex-wrap gap-4 justify-between items-center">
-          <Link
-            to={`/jobs/${job._id}`}
-            className="flex items-center bg-blue-600 text-white text-sm px-6 py-3 rounded-xl hover:bg-blue-700 transition-all duration-300 ease-in-out shadow-md hover:shadow-lg"
-          >
-            <FaRegEye className="mr-2" /> View Details
+        <div className="job-actions">
+          <Link to={`/jobs/${job._id}`} className="view-btn">
+            <FaRegEye className="icon" /> View Details
           </Link>
 
           {user?.role === "student" && (
-            <button
-              onClick={handleApply}
-              className="flex items-center bg-green-600 text-white text-sm px-6 py-3 rounded-xl hover:bg-green-700 transition-all duration-300 ease-in-out shadow-md hover:shadow-lg"
-            >
-              <FaRegPaperPlane className="mr-2" /> Apply
+            <button onClick={handleApply} className="apply-btn">
+              <FaRegPaperPlane className="icon" /> Apply
             </button>
           )}
         </div>
       </div>
 
-      {/* Apply Job Modal */}
       {showApplyModal && (
         <ApplyJobModal jobId={job._id} closeModal={() => setShowApplyModal(false)} />
       )}

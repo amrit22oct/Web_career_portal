@@ -1,17 +1,4 @@
-/* recruiterDashboard.css */
 
-/* General Reset and Layout */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: 'Segoe UI', sans-serif;
-  background-color: #1a1a1a;
-  color: #fff;
-}
 
 /* Dashboard Container */
 .dashboard-container {
@@ -20,52 +7,48 @@ body {
   background: #0f172a; /* Dark background */
   color: white;
   font-family: 'Segoe UI', sans-serif;
-  padding: 10px;
+  padding: 24px;
 }
 
 /* Sidebar Styles */
 .sidebar {
-  width: 16rem;
-  background: rgba(255, 255, 255, 0.05); /* Glass effect */
-  backdrop-filter: blur(10px); /* Glassmorphism */
-  border: 2px solid white;
-  padding: 2rem 1.5rem;
+  width: 17%;
+  background-color: rgba(31, 41, 55, 0.85); /* Dark transparent background */
+  padding: 24px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  height: 100vh;
+  gap: 24px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+  border: 2px solid white;
 }
 
 .sidebar h2 {
   font-size: 1.5rem;
-  font-weight: bold;
-  margin-bottom: 2rem;
-  color: #fff;
+  font-weight: 600;
+  color: #F3F4F6;
 }
 
-.sidebar button {
-  display: block;
-  color: #fff;
-  background: transparent;
-  border: none;
-  padding: 0.5rem 0;
-  text-align: left;
-  width: 100%;
+.sidebar nav button {
+  font-size: 1rem;
+  color: #D1D5DB; /* Lighter color for dark mode */
   cursor: pointer;
-  transition: color 0.3s ease;
+  padding: 8px 0;
+  border: none;
+  background: none;
+  transition: color 0.3s;
 }
 
-.sidebar button:hover {
-  color: #60a5fa; /* Light blue hover */
+.sidebar nav button:hover {
+  color: #3B82F6; /* Light blue hover color */
 }
 
 .logout-button {
-  margin-top: 2rem;
-  color: #f87171; /* Red for logout */
+  color: #F87171; /* Lighter red for logout */
+  transition: color 0.3s;
 }
 
 .logout-button:hover {
-  color: #ef4444; /* Darker red for hover */
+  color: #EF4444; /* Darker red on hover */
 }
 
 /* Main Content Styles */
@@ -73,22 +56,18 @@ body {
   flex: 1;
   margin: 0;
   padding: 0;
-  overflow-y: auto;
-  height: 100%;
-  margin-left: 10px;
+  margin-left: 20px;
+  border: 2px solid white;
 }
 
 /* Glassy Boxes */
 .glass-box {
-  background: rgba(255, 255, 255, 0.1); /* Light blur effect */
-  backdrop-filter: blur(12px); /* Glassmorphism */
-  border: 2px solid white;
+  background: transparent; /* Light blur effect */
   padding: 1.5rem;
   margin-bottom: 2rem;
   color: #fff;
   display: flex;
   flex-direction: column;
-  border: 2px solid white;
 }
 
 .glass-box h1{
@@ -102,19 +81,28 @@ body {
   color: white;
 }
 
+
+
 /* Card Actions */
 .card-action {
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(8px); /* Subtle glass effect */
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  padding: 1.5rem;
+  background: rgba(59, 130, 246, 0.1); /* Dark blue glassy effect */
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4); /* Deep shadows */
   color: white;
+  padding: 24px;
   border: 2px solid white;
-  transition: background 0.3s ease;
+  transition: background 0.3s, transform 0.3s;
+}
+.db-card{
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 3 columns */
+  gap: 20px;
+  padding: 20px;
 }
 
 .card-action:hover {
-  background: rgba(255, 255, 255, 0.12); /* Hover effect */
+  background: rgba(59, 130, 246, 0.2); /* Slightly brighter blue on hover */
+  transform: translateY(-5px); /* Slight hover effect */
 }
 
 .card-action h3 {
@@ -145,6 +133,8 @@ body {
 .no-jobs {
   color: #94a3b8;
   text-align: center;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Job Listings Styles */

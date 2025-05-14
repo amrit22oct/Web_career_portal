@@ -1,28 +1,29 @@
 import { FaFacebook, FaTwitter, FaLinkedin, FaGithub } from 'react-icons/fa';
+import '../styles/footer.css'; // adjust path as needed
 
 const Footer = () => {
   return (
-    <footer className="bg-gray-800 text-white py-4 mt-8">
-      <div className="container mx-auto text-center">
-        <p>&copy; 2025 Web Career Portal. All Rights Reserved.</p>
-        <div className="flex justify-center space-x-6 mt-4">
-          <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">
-            <FaFacebook className="text-white hover:text-blue-500" size={24} />
-          </a>
-          <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">
-            <FaTwitter className="text-white hover:text-blue-400" size={24} />
-          </a>
-          <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer">
-            <FaLinkedin className="text-white hover:text-blue-700" size={24} />
-          </a>
-          <a href="https://github.com" target="_blank" rel="noopener noreferrer">
-            <FaGithub className="text-white hover:text-gray-400" size={24} />
-          </a>
-        </div>
-        <div className="mt-4">
-          <a href="/contact" className="text-white hover:text-blue-500">Contact Us</a> | 
-          <a href="/privacy" className="text-white hover:text-blue-500"> Privacy Policy</a>
-        </div>
+    <footer className="footer">
+      <p>&copy; 2025 Web Career Portal. All Rights Reserved.</p>
+
+      <div className="social-icons">
+        <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">
+          <FaFacebook className="facebook" size={24} />
+        </a>
+        <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">
+          <FaTwitter className="twitter" size={24} />
+        </a>
+        <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer">
+          <FaLinkedin className="linkedin" size={24} />
+        </a>
+        <a href="https://github.com" target="_blank" rel="noopener noreferrer">
+          <FaGithub className="github" size={24} />
+        </a>
+      </div>
+
+      <div className="footer-links">
+        <a href="/contact">Contact Us</a> | 
+        <a href="/privacy"> Privacy Policy</a>
       </div>
     </footer>
   );

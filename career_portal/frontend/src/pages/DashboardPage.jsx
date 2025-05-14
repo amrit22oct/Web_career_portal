@@ -65,7 +65,7 @@ const DashboardPage = () => {
               <div className="action-card">
                 <h3>Explore Jobs</h3>
                 <p>Browse through the latest job opportunities and apply.</p>
-                <button className="action-button" onClick={() => navigate('/jobsPage.jsx')}>Start Exploring</button>
+                <button className="action-button" onClick={() => navigate('/jobsPage')}>Start Exploring</button>
               </div>
               <div className="action-card">
                 <h3>My Applications</h3>

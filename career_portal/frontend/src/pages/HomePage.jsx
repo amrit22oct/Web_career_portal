@@ -3,19 +3,33 @@ import { useEffect, useState, useContext } from 'react';
 import JobCard from '../components/JobCard';
 import { AuthContext } from '../context/AuthContext';
 import API from '../services/api';
+import '../styles/homePage.css';
+import img1 from '../assets/img1.jpg';
+import img2 from '../assets/img2.jpg';
+import img3 from '../assets/img3.jpg';
+import img4 from '../assets/img4.jpg';
+import img5 from '../assets/img5.jpg';
 
 const HomePage = () => {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
   const { user } = useContext(AuthContext);
+
+  const images = [
+    img1,
+    img2,
+    img3,
+    img4,
+    img5
+  ];
+
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
     const fetchJobs = async () => {
       try {
         const response = await API.get('/jobs');
-        console.log(response.data);
         if (Array.isArray(response.data.jobs)) {
           setJobs(response.data.jobs);
         } else {
@@ -32,48 +46,48 @@ const HomePage = () => {
     fetchJobs();
   }, []);
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
+    }, 2000);
+
+    return () => clearInterval(interval); // Cleanup on unmount
+  }, []);
+
   return (
-    <div className="container mx-auto p-6">
-      {/* Hero Section */}
-      <div className="bg-gradient-to-r from-blue-500 to-teal-500 text-white text-center py-24 mb-10 rounded-lg shadow-lg transform hover:scale-105 transition-all duration-300 ease-in-out">
-        <h1 className="text-5xl font-extrabold leading-tight tracking-tight">Your Dream Job Awaits!</h1>
-        <p className="text-xl mt-4">Explore top job opportunities and take the next step in your career.</p>
+    <div className="home-container">
+      <div
+        className="hero-section"
+        style={{
+          backgroundImage: `url(${images[currentIndex]})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          transition: 'background-image 1s ease-in-out'
+        }}
+      >
+        <h1>Your Dream Awaits!</h1>
+        <p>Explore top job opportunities and take the next step in your career.</p>
       </div>
 
-      {/* Job Listings Section (Only for logged-in users) */}
       {user && (
-        <section>
-          <h2 className="text-3xl font-semibold mb-6 text-center text-gray-800">Featured Job Listings</h2>
+        <section className="job-section">
+          <h2>Featured Job Listings</h2>
 
-          {loading && (
-            <div className="text-center">
-              <p>Loading jobs...</p>
-            </div>
-          )}
-
-          {error && (
-            <div className="text-center text-red-500">
-              <p>Error: {error}</p>
-            </div>
-          )}
+          {loading && <p className="center-text">Loading..</p>}
+          {error && <p className="center-text error-text">Error: {error}</p>}
 
           {jobs.length === 0 && !loading && !error ? (
-            <p className="text-center text-gray-500">No job listings available at the moment.</p>
+            <p className="center-text no-jobs">No job listings available at the moment.</p>
           ) : (
             <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="job-grid">
                 {jobs.slice(0, 3).map((job) => (
                   <JobCard key={job._id} job={job} />
                 ))}
               </div>
               {jobs.length > 3 && (
-                <div className="text-center mt-8">
-                  <Link
-                    to="/jobs"
-                    className="inline-block bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-all duration-300 ease-in-out transform hover:scale-105"
-                  >
-                    View More Jobs
-                  </Link>
+                <div className="center-text">
+                  <Link to="/jobs" className="view-more-btn">View More Jobs</Link>
                 </div>
               )}
             </>
@@ -81,33 +95,26 @@ const HomePage = () => {
         </section>
       )}
 
-      {/* Call to Action Section (Visible when user is not logged in) */}
       {!user && (
-        <div className="bg-blue-100 rounded-lg py-12 mt-12 text-center shadow-xl">
-          <h3 className="text-3xl font-semibold mb-6 text-gray-800">Ready to Start Your Career?</h3>
-          <p className="text-lg mb-6 text-gray-700">Sign up now and gain access to exclusive job listings.</p>
-          <Link
-            to="/register"
-            className="bg-blue-600 text-white py-3 px-8 rounded-lg hover:bg-blue-700 transition-all duration-300 ease-in-out transform hover:scale-105"
-          >
-            Register Now
-          </Link>
+        <div className="cta-box">
+          <h3>Ready to Start Your Career?</h3>
+          <p>Sign up now and gain access to exclusive job listings.</p>
+          <Link to="/register" className="register-btn">Register Now</Link>
         </div>
       )}
 
-      {/* Testimonials Section */}
-      <section className="mt-24 text-center">
-        <h2 className="text-3xl font-semibold text-gray-800 mb-6">What Our Users Say</h2>
-        <div className="flex flex-wrap justify-center gap-12">
-          <div className="bg-white p-6 rounded-lg shadow-md max-w-sm">
-            <p className="italic text-gray-600 mb-4">"This platform helped me land my dream job! The job search experience was seamless."</p>
-            <p className="font-semibold text-gray-800">John Doe</p>
-            <p className="text-sm text-gray-500">Software Engineer</p>
+      <section className="testimonials">
+        <h2>What Our Users Say</h2>
+        <div className="testimonial-wrapper">
+          <div className="testimonial-card">
+            <p>"This platform helped me land my dream job! The job search experience was seamless."</p>
+            <strong>John Doe</strong>
+            <span>Software Engineer</span>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow-md max-w-sm">
-            <p className="italic text-gray-600 mb-4">"A fantastic way to connect with top companies. I found several opportunities I was interested in."</p>
-            <p className="font-semibold text-gray-800">Jane Smith</p>
-            <p className="text-sm text-gray-500">Product Manager</p>
+          <div className="testimonial-card">
+            <p>"A fantastic way to connect with top companies. I found several opportunities I was interested in."</p>
+            <strong>Jane Smith</strong>
+            <span>Product Manager</span>
           </div>
         </div>
       </section>
