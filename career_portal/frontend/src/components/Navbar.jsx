@@ -83,7 +83,7 @@ const Navbar = () => {
         to="/"
         className="text-2xl font-bold text-white hover:text-indigo-300 transition duration-300"
       >
-        Web_Career_Portal
+        Web Career Portal
       </NavLink>
 
       {/* Navigation Links + Profile/Logout on Right */}

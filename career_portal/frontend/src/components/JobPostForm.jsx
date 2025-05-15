@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import Button from './Button'; // Assuming you have a Button component
-
+import '../styles/jobform.css'
 const JobPostForm = ({ onSubmit }) => {
   const [jobData, setJobData] = useState({
     title: '',
@@ -46,11 +46,11 @@ const JobPostForm = ({ onSubmit }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-md w-full max-w-md mx-auto">
-      <h2 className="text-2xl font-semibold mb-4">Post a New Job</h2>
-      
-      {errorMessage && <p className="text-red-600 mb-4">{errorMessage}</p>}
-      {successMessage && <p className="text-green-600 mb-4">{successMessage}</p>}
+    <form onSubmit={handleSubmit} className="glass-form">
+      <h2 className="form-title">Post a New Job</h2>
+
+      {errorMessage && <p className="error-message">{errorMessage}</p>}
+      {successMessage && <p className="success-message">{successMessage}</p>}
 
       <input
         type="text"
@@ -58,7 +58,7 @@ const JobPostForm = ({ onSubmit }) => {
         placeholder="Job Title"
         value={jobData.title}
         onChange={handleChange}
-        className="w-full p-2 mb-4 border rounded"
+        className="form-input"
         required
       />
       <input
@@ -67,7 +67,7 @@ const JobPostForm = ({ onSubmit }) => {
         placeholder="Company"
         value={jobData.company}
         onChange={handleChange}
-        className="w-full p-2 mb-4 border rounded"
+        className="form-input"
         required
       />
       <textarea
@@ -75,7 +75,7 @@ const JobPostForm = ({ onSubmit }) => {
         placeholder="Job Description"
         value={jobData.description}
         onChange={handleChange}
-        className="w-full p-2 mb-4 border rounded"
+        className="form-input"
         required
       />
       <input
@@ -84,7 +84,7 @@ const JobPostForm = ({ onSubmit }) => {
         placeholder="Location"
         value={jobData.location}
         onChange={handleChange}
-        className="w-full p-2 mb-4 border rounded"
+        className="form-input"
       />
       <input
         type="number"
@@ -92,10 +92,16 @@ const JobPostForm = ({ onSubmit }) => {
         placeholder="Salary"
         value={jobData.salary}
         onChange={handleChange}
-        className="w-full p-2 mb-6 border rounded"
+        className="form-input"
       />
-      
-      <Button text={loading ? 'Posting...' : 'Post Job'} className={loading ? 'opacity-50 cursor-not-allowed' : ''} />
+
+      <button
+        type="submit"
+        disabled={loading}
+        className={`form-button ${loading ? 'disabled' : ''}`}
+      >
+        {loading ? 'Posting...' : 'Post Job'}
+      </button>
     </form>
   );
 };

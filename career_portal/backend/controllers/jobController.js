@@ -237,9 +237,10 @@ export const deleteJob = async (req, res) => {
 };
 
 // POST: Add an applicant to a job
+// No need to get studentId from req.body now
 export const addApplicant = async (req, res) => {
   const { jobId } = req.params;
-  const { studentId } = req.body;
+  const studentId = req.user._id; // Get from JWT auth middleware
 
   try {
     const job = await Job.findById(jobId);
@@ -247,37 +248,41 @@ export const addApplicant = async (req, res) => {
       return res.status(404).json({ message: "Job not found" });
     }
 
-    if (job.recruiter.toString() === studentId) {
-      return res
-        .status(400)
-        .json({ message: "Recruiter cannot apply to their own job" });
+    if (job.recruiter.toString() === studentId.toString()) {
+      return res.status(400).json({ message: "Recruiter cannot apply to their own job" });
     }
 
-    if (job.applicants.includes(studentId)) {
-      return res
-        .status(400)
-        .json({ message: "Student already applied to this job" });
+    const alreadyApplied = job.applicants.some(
+      (applicantId) => applicantId.toString() === studentId.toString()
+    );
+
+    if (alreadyApplied) {
+      return res.status(400).json({ message: "You have already applied to this job" });
     }
 
     job.applicants.push(studentId);
     await job.save();
 
     const application = new Application({
-      jobId,
+      jobId: job._id,
       studentId,
       status: "Applied",
+      appliedAt: new Date(),
     });
 
     await application.save();
 
-    return res
-      .status(200)
-      .json({ message: "Application submitted successfully", job });
+    return res.status(200).json({
+      message: "Application submitted successfully",
+      application,
+    });
   } catch (error) {
     console.error("Error adding applicant:", error);
-    return res.status(500).json({ message: "Server error" });
+    return res.status(500).json({ message: "Server error", error: error.message });
   }
 };
+
+
 
 // PUT: Update applicant status
 export const updateApplicantStatus = async (req, res) => {

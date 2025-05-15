@@ -2,6 +2,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import JobService from '../services/jobService';
 import JobCard from '../components/JobCard';
+import '../styles/jobpage.css';
 
 const JobsPage = () => {
   const { user, loading: authLoading } = useContext(AuthContext);
@@ -80,42 +81,39 @@ const JobsPage = () => {
 
   if (loading && jobs.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-10">
-        <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent mb-4" />
-        <p className="text-lg font-medium text-blue-600">Loading jobs...</p>
+      <div className="loading-container">
+        <div className="spinner" />
+        <p className="loading-text">Loading jobs...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="text-center text-red-600 font-semibold mt-10">
+      <div className="error-message">
         <p>Error: {error}</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-gradient-to-b from-white via-blue-50 to-blue-100 min-h-screen py-10 px-4">
-      <div className="max-w-6xl mx-auto">
-        <h1 className="text-4xl font-bold text-blue-800 mb-8 text-center">Explore Career Opportunities</h1>
+    <div className="jobs-page">
+      <div className="jobs-container">
+        <h1 className="main-heading">Explore Career Opportunities</h1>
 
         {user?.role === 'recruiter' && (
           <>
-            <h2 className="text-2xl font-semibold text-green-800 mb-4">Your Posted Jobs</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <h2 className="section-heading green">Your Posted Jobs</h2>
+            <div className="jobs-grid">
               {visibleMyJobs.length > 0 ? (
                 visibleMyJobs.map((job) => <JobCard key={job._id || job.id} job={job} />)
               ) : (
-                <div className="col-span-full text-gray-500 text-center italic">You haven't posted any jobs yet.</div>
+                <div className="no-jobs-msg">You haven't posted any jobs yet.</div>
               )}
             </div>
             {hasMoreMyJobs && (
-              <div className="text-center mb-10">
-                <button
-                  onClick={loadMoreMyJobs}
-                  className="bg-green-600 hover:bg-green-700 text-white font-medium px-6 py-2 rounded-full shadow-lg transition-all"
-                >
+              <div className="button-wrapper">
+                <button onClick={loadMoreMyJobs} className="load-more-btn green">
                   Load More of Your Jobs
                 </button>
               </div>
@@ -123,21 +121,18 @@ const JobsPage = () => {
           </>
         )}
 
-        <h2 className="text-2xl font-semibold text-blue-800 mb-4 mt-6">All Public Job Listings</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <h2 className="section-heading blue">All Public Job Listings</h2>
+        <div className="jobs-grid">
           {jobs.length > 0 ? (
             jobs.map((job) => <JobCard key={job._id || job.id} job={job} />)
           ) : (
-            <div className="col-span-full text-gray-500 text-center italic">No jobs available right now.</div>
+            <div className="no-jobs-msg">No jobs available right now.</div>
           )}
         </div>
 
         {hasMore && (
-          <div className="text-center mt-8">
-            <button
-              onClick={loadMoreJobs}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2 rounded-full shadow-md transition-all"
-            >
+          <div className="button-wrapper">
+            <button onClick={loadMoreJobs} className="load-more-btn blue">
               Load More Jobs
             </button>
           </div>

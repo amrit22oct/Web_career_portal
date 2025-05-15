@@ -5,7 +5,7 @@ import StudentListModal from "../components/Modal";
 import AddJobModal from "../components/AddjobModal";
 import { AuthContext } from "../context/AuthContext";
 import API from "../services/api";
-import '../styles/recdash.css';
+import "../styles/recdash.css";
 
 const RecruiterDashboard = () => {
   const [jobs, setJobs] = useState([]);
@@ -59,12 +59,19 @@ const RecruiterDashboard = () => {
       <div className="sidebar">
         <div>
           <h2>Recruiter Panel</h2>
-          <nav>
-            {["Explore Jobs", "My Applications", "Profile", "Settings"].map((item, index) => (
-              <button key={index} onClick={() => console.log(`${item} clicked`)}>
-                {item}
-              </button>
-            ))}
+          <nav className="flex flex-col space-y-4">
+            <button className="text-gray-700 hover:text-blue-600 focus:outline-none">
+              Explore Jobs
+            </button>
+            <button className="text-gray-700 hover:text-blue-600 focus:outline-none">
+              My Applications
+            </button>
+            <button className="text-gray-700 hover:text-blue-600 focus:outline-none">
+              Profile
+            </button>
+            <button className="text-gray-700 hover:text-blue-600 focus:outline-none">
+              Settings
+            </button>
           </nav>
         </div>
         <button
@@ -89,12 +96,16 @@ const RecruiterDashboard = () => {
               : "Recruiter"}
             .
           </p>
-          <p><strong>Email:</strong> {recruiter?.email || "N/A"}</p>
-          <p><strong>Role:</strong> {recruiter?.role || "Recruiter"}</p>
+          <p>
+            <strong>Email:</strong> {recruiter?.email || "N/A"}
+          </p>
+          <p>
+            <strong>Role:</strong> {recruiter?.role || "Recruiter"}
+          </p>
         </div>
 
         {/* Action Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <div class="db-card">
           <div className="card-action">
             <h3>Post a Job</h3>
             <p>Quickly add new job opportunities.</p>
