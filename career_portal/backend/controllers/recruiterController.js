@@ -134,3 +134,63 @@ export const deleteRecruiterAccount = async (req, res) => {
     res.status(500).json({ success: false, message: 'Failed to delete account', error });
   }
 };
+
+
+
+export const getApplicationsForRecruiter = async (req, res) => {
+  const recruiterId = req.user._id;
+
+  try {
+    // Get all jobs posted by this recruiter
+    const recruiterJobs = await Job.find({ recruiter: recruiterId }).select('_id');
+
+    const jobIds = recruiterJobs.map(job => job._id);
+
+    // Find applications for those jobs
+    const applications = await Application.find({ job: { $in: jobIds } })
+      .populate('job', 'title')
+      .populate('student', 'name email university skills');
+
+    res.json(applications);
+  } catch (error) {
+    console.error('Error fetching recruiter applications:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+
+// PATCH /application/:id/status
+// PATCH /application/:id/status
+export const updateApplicationStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (req.user.role !== "recruiter") {
+      return res.status(403).json({ message: "Only recruiters can update application status." });
+    }
+
+    const validStatuses = ["accepted", "rejected"];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ message: "Invalid status. Must be 'accepted' or 'rejected'." });
+    }
+
+    const application = await Application.findById(id).populate("job");
+    if (!application) {
+      return res.status(404).json({ message: "Application not found." });
+    }
+
+    // Check if the logged-in recruiter owns the job
+    if (application.job.recruiter.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "You can only update status for your own job applications." });
+    }
+
+    application.status = status;
+    await application.save();
+
+    res.status(200).json({ message: `Application ${status} successfully.`, application });
+  } catch (error) {
+    console.error("Error updating status:", error);
+    res.status(500).json({ message: "Server error." });
+  }
+};

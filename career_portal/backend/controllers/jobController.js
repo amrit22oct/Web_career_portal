@@ -237,10 +237,10 @@ export const deleteJob = async (req, res) => {
 };
 
 // POST: Add an applicant to a job
-// No need to get studentId from req.body now
 export const addApplicant = async (req, res) => {
   const { jobId } = req.params;
-  const studentId = req.user._id; // Get from JWT auth middleware
+  const studentId = req.user._id;
+  const { resumeLink, coverLetter } = req.body;
 
   try {
     const job = await Job.findById(jobId);
@@ -260,14 +260,25 @@ export const addApplicant = async (req, res) => {
       return res.status(400).json({ message: "You have already applied to this job" });
     }
 
+    if (!resumeLink?.trim()) {
+      return res.status(400).json({ message: "Resume link is required" });
+    }
+
+    if (!coverLetter?.trim()) {
+      return res.status(400).json({ message: "Cover letter is required" });
+    }
+
+    // Add student to job's applicant list
     job.applicants.push(studentId);
     await job.save();
 
+    // Create Application document
     const application = new Application({
-      jobId: job._id,
-      studentId,
-      status: "Applied",
-      appliedAt: new Date(),
+      job: job._id,
+      student: studentId,
+      resumeLink,
+      coverLetter,
+      status: "pending", // must match enum in schema
     });
 
     await application.save();
@@ -278,10 +289,23 @@ export const addApplicant = async (req, res) => {
     });
   } catch (error) {
     console.error("Error adding applicant:", error);
-    return res.status(500).json({ message: "Server error", error: error.message });
+    return res.status(500).json({
+      message: "Server error",
+      error: error.message,
+    });
   }
 };
 
+/**
+ * GET /api/applications/my
+ * Returns all jobs the authenticated student has applied to.
+ */
+
+
+/**
+ * GET /api/applications/recruiter
+ * Returns all job applications for jobs posted by the logged-in recruiter.
+ */
 
 
 // PUT: Update applicant status
