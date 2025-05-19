@@ -1,57 +1,65 @@
-import React, { useState } from "react";
-import API from "../services/api";
+import React, { useState } from 'react';
+import API from '../services/api';
 
 const ApplyJobModal = ({ jobId, closeModal }) => {
-  const [resumeLink, setResumeLink] = useState("");
-  const [coverLetter, setCoverLetter] = useState("");
+  const [resumeLink, setResumeLink] = useState('');
+  const [coverLetter, setCoverLetter] = useState('');
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
-
     try {
       await API.post(
         `/jobs/${jobId}/apply`,
-        { resumeLink, coverLetter },
+        {
+          resumeLink,
+          coverLetter: coverLetter.trim() || undefined, // send undefined if empty
+        },
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
         }
       );
-      alert("Application submitted successfully!");
+      alert('Application submitted successfully!');
       closeModal();
     } catch (err) {
-      alert("Failed to submit application.");
+      alert(
+        err.response?.data?.message || 'Failed to submit application.'
+      );
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg p-6 w-full max-w-lg shadow-lg">
         <h2 className="text-2xl font-semibold mb-4">Apply for this Job</h2>
         <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="block text-sm font-medium">Resume Link</label>
+          {/* Resume URL */}
+          <label className="block mb-4">
+            <span className="text-sm font-medium">Resume Link *</span>
             <input
               type="url"
+              required
+              className="mt-1 w-full border rounded p-2"
+              placeholder="https://your-resume.com"
               value={resumeLink}
-              onChange={(e) => setResumeLink(e.target.value)}
-              className="w-full border border-gray-300 rounded p-2 mt-1"
-              placeholder="https://your-resume-link.com"
-              required
+              onChange={e => setResumeLink(e.target.value)}
             />
-          </div>
-          <div className="mb-4">
-            <label className="block text-sm font-medium">Cover Letter</label>
+          </label>
+
+          {/* Cover Letter (optional) */}
+          <label className="block mb-4">
+            <span className="text-sm font-medium">Cover Letter (optional)</span>
             <textarea
-              value={coverLetter}
-              onChange={(e) => setCoverLetter(e.target.value)}
-              className="w-full border border-gray-300 rounded p-2 mt-1"
               rows="4"
+              className="mt-1 w-full border rounded p-2"
               placeholder="Write your cover letter..."
-              required
-            ></textarea>
-          </div>
+              value={coverLetter}
+              onChange={e => setCoverLetter(e.target.value)}
+            />
+          </label>
+
+          {/* Buttons */}
           <div className="flex justify-end gap-4">
             <button
               type="button"

@@ -4,6 +4,7 @@ import JobCard from "../components/JobCard";
 import StudentListModal from "../components/Modal";
 import AddJobModal from "../components/AddjobModal";
 import { AuthContext } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 import API from "../services/api";
 import "../styles/recdash.css";
 
@@ -14,6 +15,7 @@ const RecruiterDashboard = () => {
   const [showAddJobModal, setShowAddJobModal] = useState(false);
   const [selectedJob, setSelectedJob] = useState(null);
   const { user: recruiter, fetchUser } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchUser().then(fetchJobs);
@@ -63,7 +65,10 @@ const RecruiterDashboard = () => {
             <button className="text-gray-700 hover:text-blue-600 focus:outline-none">
               Explore Jobs
             </button>
-            <button className="text-gray-700 hover:text-blue-600 focus:outline-none">
+            <button
+              className="text-gray-700 hover:text-blue-600 focus:outline-none"
+              onClick={() => navigate("/recruiter/myapplications")}
+            >
               My Applications
             </button>
             <button className="text-gray-700 hover:text-blue-600 focus:outline-none">
@@ -105,7 +110,7 @@ const RecruiterDashboard = () => {
         </div>
 
         {/* Action Cards */}
-        <div class="db-card">
+        <div className="db-card">
           <div className="card-action">
             <h3>Post a Job</h3>
             <p>Quickly add new job opportunities.</p>
@@ -119,6 +124,12 @@ const RecruiterDashboard = () => {
           <div className="card-action">
             <h3>Applications</h3>
             <p>Manage all received applications.</p>
+            <button
+              onClick={() => navigate("/recruiter/myapplications")}
+              className="primary-button"
+            >
+              View Applications
+            </button>
           </div>
           <div className="card-action">
             <h3>Profile</h3>

@@ -2,25 +2,27 @@ import { Routes, Route } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
-import JobDetailsPage from './pages/JobDetailPage'; // ✅ Fixed import (note the case in the file name)
+import JobDetailsPage from './pages/JobDetailPage';
 import ProfilePage from './pages/ProfilePage';
 import RecruiterDashboardPage from './pages/RecruiterDashboardPage';
 import About from './pages/About';
 import JobsPage from './pages/JobsPage';
-import DashboardPage from './pages/DashboardPage'; // ✅ Import DashboardPage
-import InternshipPage from './pages/InternshipPage'; // Import the new InternshipPage
+import DashboardPage from './pages/DashboardPage';
+import InternshipPage from './pages/InternshipPage';
+import ApplicationsPage from './pages/ApplicationsPage';
+import RecruiterApplicationsPage from './pages/RecruiterApplicationsPage'; // ✅ New import
+import NotFoundPage from './pages/NotFoundPage';
 
 import PrivateRoute from './components/PrivateRoute';
 import StudentRoute from './components/StudentRoute';
 import RecruiterRoute from './components/RecruiterRoute';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-import NotFoundPage from './pages/NotFoundPage';
 
-import { JobProvider } from './context/JobContext'; // ✅ Import JobProvider
+import { JobProvider } from './context/JobContext';
 
 const App = () => (
-  <JobProvider> {/* ✅ Wrap with JobProvider */}
+  <JobProvider>
     <div className="flex flex-col min-h-screen">
       <Navbar />
       <main className="flex-grow">
@@ -32,7 +34,7 @@ const App = () => (
           <Route path="/jobs" element={<JobsPage />} />
           <Route path="/jobs/:jobId" element={<JobDetailsPage />} />
           <Route path="/about" element={<About />} />
-          <Route path="/internships" element={<InternshipPage />} /> {/* Add Internship Route */}
+          <Route path="/internships" element={<InternshipPage />} />
 
           {/* Protected Routes */}
           <Route
@@ -54,7 +56,17 @@ const App = () => (
             }
           />
 
-          {/* Recruiter Dashboard Route */}
+          {/* Student Applications Page */}
+          <Route
+            path="/myApplications"
+            element={
+              <StudentRoute>
+                <ApplicationsPage />
+              </StudentRoute>
+            }
+          />
+
+          {/* Recruiter Dashboard */}
           <Route
             path="/recruiter/dashboard"
             element={
@@ -64,7 +76,17 @@ const App = () => (
             }
           />
 
-          {/* 404 - Catch all unmatched routes */}
+          {/* Recruiter Applications Page - ✅ ADDED */}
+          <Route
+            path="/recruiter/myapplications"
+            element={
+              <RecruiterRoute>
+                <RecruiterApplicationsPage />
+              </RecruiterRoute>
+            }
+          />
+
+          {/* 404 Not Found */}
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </main>
