@@ -3,7 +3,7 @@ import { useEffect, useState, useContext } from 'react';
 import JobCard from '../components/JobCard';
 import { AuthContext } from '../context/AuthContext';
 import API from '../services/api';
-import '../styles/homePage.css';
+import '@/styles/homePage.css';
 import img1 from '../assets/img1.jpg';
 import img2 from '../assets/img2.jpg';
 import img3 from '../assets/img3.jpg';
