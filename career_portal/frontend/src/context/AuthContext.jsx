@@ -50,7 +50,6 @@ export const AuthProvider = ({ children }) => {
 
         setUser(data);
 
-        // Redirect user based on their role if on login/register page
         if (location.pathname === '/login' || location.pathname === '/register') {
           if (data.role === 'recruiter') {
             navigate('/recruiter/dashboard');
@@ -68,6 +67,11 @@ export const AuthProvider = ({ children }) => {
     loadUser();
   }, [navigate, location.pathname]);
 
+  // Clear global error on route change
+  useEffect(() => {
+    setError(null);
+  }, [location.pathname]);
+
   // Login handler
   const login = async (email, password) => {
     try {
@@ -84,10 +88,15 @@ export const AuthProvider = ({ children }) => {
         } else {
           navigate('/dashboard');
         }
+
+        return true;
+      } else {
+        setError('Invalid credentials, please try again.');
+        return false;
       }
     } catch (err) {
       setError('Invalid credentials, please try again.');
-      throw err;
+      return false;
     }
   };
 
@@ -99,7 +108,6 @@ export const AuthProvider = ({ children }) => {
     navigate('/login');
   };
 
-  // Update user details in state
   const updateUser = (updatedUser) => setUser(updatedUser);
 
   return (
@@ -109,10 +117,6 @@ export const AuthProvider = ({ children }) => {
       {loading ? (
         <div className="w-full h-screen flex justify-center items-center bg-gray-100">
           <div className="text-lg text-gray-500">Loading...</div>
-        </div>
-      ) : error ? (
-        <div className="w-full h-screen flex justify-center items-center bg-gray-100">
-          <div className="text-lg text-red-500">{error}</div>
         </div>
       ) : (
         children

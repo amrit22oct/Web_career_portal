@@ -5,17 +5,17 @@ const About = () => {
   return (
     <div className="about-wrapper">
       <div className="about-container">
-        <h1 className="about-title">About PlacementShell</h1>
+        <h1 className="about-title">About Placement Cell</h1>
 
         {/* Introduction Section */}
         <p className="about-intro">
-          Welcome to <span className="highlight">PlacementShell</span> — your
+          Welcome to <span className="highlight">Placement Cell</span> — your
           trusted platform connecting students and recruiters!
         </p>
         <p className="about-paragraph">
           Our mission is to make the placement process easy, transparent, and
           efficient for everyone. Whether you're a student searching for your
-          dream job or a recruiter looking for top talent, PlacementShell provides
+          dream job or a recruiter looking for top talent, Placement Cell provides
           a seamless experience.
         </p>
 
@@ -49,7 +49,7 @@ const About = () => {
         </div>
 
         {/* Benefits Section */}
-        <h2 className="section-title">Why Choose PlacementShell?</h2>
+        <h2 className="section-title">Why Choose Placement Cell?</h2>
         <p className="about-paragraph">
           <span className="highlight-student">For Students:</span> We offer a user-friendly platform that helps you find jobs faster, improve your visibility to top recruiters, and manage your career progress.
         </p>
@@ -60,7 +60,7 @@ const About = () => {
         {/* Call to Action */}
         <div className="cta">
           <p className="cta-text">Ready to get started?</p>
-          <button className="cta-button">Join PlacementShell Now</button>
+          <button className="cta-button">Join Placement Cell Now</button>
         </div>
 
         {/* Closing */}

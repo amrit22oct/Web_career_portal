@@ -1,9 +1,9 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 const Login = () => {
-  const { login } = useContext(AuthContext);
+  const { login, error: authError } = useContext(AuthContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -12,14 +12,19 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      await login(email, password);
-      navigate("/dashboard");
-    } catch (err) {
-      console.error(err);
-      setError(err.message || "Login failed. Please try again.");
+    setError(""); // reset local error
+    const success = await login(email, password);
+    if (!success) {
+      setError("Invalid email or password.");
     }
   };
+
+  // Sync context error with local error
+  useEffect(() => {
+    if (authError) {
+      setError(authError);
+    }
+  }, [authError]);
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-400 to-indigo-600 px-4">
@@ -31,7 +36,12 @@ const Login = () => {
           Welcome Back
         </h2>
 
-        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+        {/* Error message */}
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded mb-4 text-center">
+            {error}
+          </div>
+        )}
 
         <div className="mb-4">
           <label className="block text-gray-700 mb-2">Email Address</label>

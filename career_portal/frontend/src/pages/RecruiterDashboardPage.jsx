@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
-import JobCard from "../components/JobCard";
 import StudentListModal from "../components/Modal";
 import AddJobModal from "../components/AddjobModal";
 import { AuthContext } from "../context/AuthContext";
@@ -144,29 +143,7 @@ const RecruiterDashboard = () => {
           <p>Applicants Received: 24 {/* Placeholder */}</p>
         </div>
 
-        {/* Job Listings */}
-        <div className="glass-box job-listings">
-          <h2>Your Job Listings</h2>
-          {loading ? (
-            <p className="text-gray-400">Loading jobs...</p>
-          ) : jobs.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {jobs.map((job) => (
-                <JobCard key={job._id} job={job} />
-              ))}
-            </div>
-          ) : (
-            <div className="no-jobs">
-              No jobs posted yet.
-              <button
-                onClick={() => setShowAddJobModal(true)}
-                className="primary-button"
-              >
-                Post a Job
-              </button>
-            </div>
-          )}
-        </div>
+        {/* Removed Job Listings section */}
       </div>
 
       {/* Modals */}

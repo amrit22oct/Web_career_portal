@@ -8,6 +8,9 @@ const ApplicationsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const [showModal, setShowModal] = useState(false);
+  const [selectedApplicationId, setSelectedApplicationId] = useState(null);
+
   const { user } = useContext(AuthContext);
 
   useEffect(() => {
@@ -47,6 +50,11 @@ const ApplicationsPage = () => {
 
     fetchApplications();
   }, [user]);
+
+  const confirmWithdrawPopup = (applicationId) => {
+    setSelectedApplicationId(applicationId);
+    setShowModal(true);
+  };
 
   if (!user) {
     return <div className="text-center mt-10 text-gray-600">Loading user info...</div>;
@@ -89,8 +97,17 @@ const ApplicationsPage = () => {
                 </h2>
                 <p className="text-gray-600">Company: {app.job?.company || "N/A"}</p>
                 <p className="text-sm text-blue-500 capitalize">
-                  Type: {app.job?.type || "job"} {/* type: "job" or "internship" */}
+                  Type: {app.job?.type || "job"}
                 </p>
+
+                <div className="mt-2">
+                  <button
+                    onClick={() => confirmWithdrawPopup(app._id)}
+                    className="mt-3 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition"
+                  >
+                    Withdraw Application
+                  </button>
+                </div>
               </>
             ) : (
               <>
@@ -100,7 +117,7 @@ const ApplicationsPage = () => {
                 <p className="text-gray-600">Email: {app.student?.email || "N/A"}</p>
                 <p className="text-gray-600">Job Applied: {app.job?.title || "N/A"}</p>
                 <p className="text-sm text-blue-500 capitalize">
-                  Type: {app.job?.type || "job"} {/* assuming job.type = "job" or "internship" */}
+                  Type: {app.job?.type || "job"}
                 </p>
               </>
             )}
@@ -135,6 +152,48 @@ const ApplicationsPage = () => {
           </div>
         ))}
       </div>
+
+      {/* Confirmation Modal */}
+      {showModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-90 z-50">
+          <div className="bg-gray-900 rounded-lg p-6 max-w-sm w-full shadow-lg text-white">
+            <h2 className="text-lg font-semibold mb-4">Confirm Withdrawal</h2>
+            <p>Are you sure you want to withdraw this application?</p>
+            <div className="mt-6 flex justify-end gap-4">
+              <button
+                onClick={() => setShowModal(false)}
+                className="px-4 py-2 rounded border border-gray-600 hover:bg-gray-800"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={async () => {
+                  try {
+                    const token = localStorage.getItem("token");
+                    const config = {
+                      headers: {
+                        Authorization: `Bearer ${token}`,
+                      },
+                    };
+                    await API.delete(`/student/application/${selectedApplicationId}`, config);
+                    setApplications((prev) =>
+                      prev.filter((app) => app._id !== selectedApplicationId)
+                    );
+                    setShowModal(false);
+                    setSelectedApplicationId(null);
+                  } catch (err) {
+                    console.error("Error withdrawing application:", err);
+                    alert("Failed to withdraw the application. Please try again.");
+                  }
+                }}
+                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition"
+              >
+                Confirm Withdraw
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
