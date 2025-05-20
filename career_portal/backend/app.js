@@ -1,12 +1,10 @@
-// server.js (or app.js)
-
 import express from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
 
 import authRoutes from './routes/authRoutes.js';
-import profileRoutes from './routes/profileRoutes.js';     // ← import profile routes
+import profileRoutes from './routes/profileRoutes.js';
 import studentRoutes from './routes/studentRoutes.js';
 import recruiterRoutes from './routes/recruiterRoutes.js';
 import jobRoutes from './routes/jobRoutes.js';
@@ -15,19 +13,31 @@ import { errorHandler } from './middleware/errorHandler.js';
 
 const app = express();
 
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://your-production-frontend-url.com',  // replace this with your real prod URL
+];
+
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true); // allow non-browser or same-origin requests
+      if (!allowedOrigins.includes(origin)) {
+        return callback(new Error('CORS policy: This origin is not allowed'), false);
+      }
+      return callback(null, true);
+    },
     credentials: true,
   })
 );
+
 app.use(express.json());
 app.use(cookieParser());
 app.use(morgan('dev'));
 
 // Mount routes
 app.use('/api/auth', authRoutes);
-app.use('/api/auth', profileRoutes);    // ← mount profileRoutes under /api/auth
+app.use('/api/auth', profileRoutes);
 app.use('/api/student', studentRoutes);
 app.use('/api/recruiter', recruiterRoutes);
 app.use('/api/jobs', jobRoutes);
