@@ -42,3 +42,25 @@ export const getAppliedJobs = async (req, res) => {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 };
+
+// Withdraw Application
+export const withdrawApplication = async (req, res) => {
+  try {
+    const application = await Application.findById(req.params.applicationId);
+
+    if (!application) {
+      return res.status(404).json({ message: "Application not found" });
+    }
+
+    if (application.student.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "Unauthorized action" });
+    }
+
+    await application.deleteOne();
+
+    res.status(200).json({ message: "Application withdrawn successfully" });
+  } catch (err) {
+    console.error("Error withdrawing application:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
