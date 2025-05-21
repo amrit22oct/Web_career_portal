@@ -1,6 +1,6 @@
 import { useState, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
-import "../styles/profile.css";
+
 // Import the default avatar image from your assets folder
 import logo from "../assets/logo.png";
 
@@ -13,9 +13,9 @@ const ProfilePage = () => {
     bio: user?.bio || "",
   });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-  
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
   const generateDefaultAvatar = () => {
     return logo; // Use the imported image from assets
   };
@@ -24,7 +24,6 @@ const ProfilePage = () => {
     user?.profilePic || generateDefaultAvatar(user?.name)
   );
 
-  
   const handleChange = (e) => {
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
   };
@@ -67,19 +66,27 @@ const ProfilePage = () => {
     }
   };
 
-  if (!user) return <p className="profile-loading">Loading profile…</p>;
+  if (!user)
+    return <p className="py-6 text-center text-gray-400">Loading profile…</p>;
 
   return (
-    <div className="profile-container">
-      <h2 className="profile-title">My Profile</h2>
+    <div className="max-w-4xl mx-auto mt-8 p-10 bg-gray-900/80 backdrop-blur-md border border-gray-700 shadow-lg rounded-xl text-white font-sans">
+      <h2 className="text-4xl font-bold text-center mb-8">My Profile</h2>
 
-      {error && <p className="profile-error">{error}</p>}
-      {success && <p className="profile-success">{success}</p>}
+      {error && <p className="text-red-400 text-center mb-4">{error}</p>}
+      {success && <p className="text-green-400 text-center mb-4">{success}</p>}
 
-      <div className="profile-picture-wrapper">
-        <div className="profile-picture-box">
-          <img src={profilePic} alt="Profile" className="profile-picture" />
-          <label htmlFor="profilePic" className="profile-picture-label">
+      <div className="flex justify-center mb-8 relative">
+        <div className="relative">
+          <img
+            src={profilePic}
+            alt="Profile"
+            className="w-64 h-64 rounded-full border border-gray-600 shadow-xl object-cover bg-gray-800 transition-transform duration-300 hover:scale-105"
+          />
+          <label
+            htmlFor="profilePic"
+            className="absolute bottom-2 right-2 bg-teal-700 text-white p-3 rounded-full cursor-pointer shadow-md hover:bg-teal-600 transition-colors"
+          >
             <i className="fas fa-camera"></i>
             <input
               id="profilePic"
@@ -93,33 +100,34 @@ const ProfilePage = () => {
       </div>
 
       {!editing ? (
-        <div className="profile-info-grid">
-          <div className="profile-info-box">
-            <strong>Name:</strong>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mb-8">
+          <div className="bg-gray-800 p-6 border border-gray-700 shadow-inner rounded">
+            <strong className="block mb-2 text-gray-300">Name:</strong>
             <p>{user.name}</p>
           </div>
-          <div className="profile-info-box">
-            <strong>Email:</strong>
+          <div className="bg-gray-800 p-6 border border-gray-700 shadow-inner rounded">
+            <strong className="block mb-2 text-gray-300">Email:</strong>
             <p>{user.email}</p>
           </div>
-          <div className="profile-info-box">
-            <strong>Role:</strong>
-            <p className="capitalize">{user.role}</p>
+          <div className="bg-gray-800 p-6 border border-gray-700 shadow-inner rounded capitalize">
+            <strong className="block mb-2 text-gray-300">Role:</strong>
+            <p>{user.role}</p>
           </div>
-          <div className="profile-info-box">
-            <strong>Joined:</strong>
+          <div className="bg-gray-800 p-6 border border-gray-700 shadow-inner rounded">
+            <strong className="block mb-2 text-gray-300">Joined:</strong>
             <p>{new Date(user.createdAt).toLocaleDateString()}</p>
           </div>
         </div>
       ) : (
         <form onSubmit={handleSubmit}>
-          <div className="profile-form-grid">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
             <input
               name="name"
               value={form.name}
               onChange={handleChange}
               placeholder="Enter your name"
               required
+              className="p-4 bg-gray-800 border border-gray-600 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-400"
             />
             <input
               name="email"
@@ -128,24 +136,34 @@ const ProfilePage = () => {
               onChange={handleChange}
               placeholder="Enter your email"
               required
+              className="p-4 bg-gray-800 border border-gray-600 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-400"
             />
             <textarea
               name="bio"
               value={form.bio}
               onChange={handleChange}
               placeholder="Write a short bio..."
+              rows={4}
+              className="p-4 bg-gray-800 border border-gray-600 rounded text-white placeholder-gray-400 resize-none focus:outline-none focus:ring-2 focus:ring-teal-400 col-span-full"
             />
           </div>
-          <div className="profile-upload">
-            <strong>Change Profile Picture:</strong>
+
+          <div className="mb-6">
+            <strong className="block mb-2 text-gray-300">Change Profile Picture:</strong>
             <input
               type="file"
               accept="image/*"
               onChange={handleProfilePicChange}
+              className="text-white"
             />
           </div>
-          <div className="profile-button-group">
-            <button type="submit" disabled={loading}>
+
+          <div className="flex gap-4">
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex-1 bg-teal-600 hover:bg-teal-700 disabled:opacity-50 text-white font-bold py-3 rounded transition-colors"
+            >
               {loading ? "Saving…" : "Save Changes"}
             </button>
             <button
@@ -158,6 +176,7 @@ const ProfilePage = () => {
                 );
                 setSuccess("");
               }}
+              className="flex-1 bg-white/20 hover:bg-white/30 text-white font-bold py-3 rounded transition-colors"
             >
               Cancel
             </button>
@@ -165,13 +184,14 @@ const ProfilePage = () => {
         </form>
       )}
 
-      <div className="profile-social">
-        <h3>Social Links</h3>
-        <div className="profile-social-links">
+      <div className="mt-12 text-center">
+        <h3 className="text-2xl text-gray-300 mb-4">Social Links</h3>
+        <div className="flex justify-center gap-10 text-gray-400 text-3xl">
           <a
             href={user?.socialLinks?.linkedin || "#"}
             target="_blank"
             rel="noreferrer"
+            className="hover:text-sky-400 transition-transform duration-300 hover:scale-110"
           >
             <i className="fab fa-linkedin"></i>
           </a>
@@ -179,6 +199,7 @@ const ProfilePage = () => {
             href={user?.socialLinks?.github || "#"}
             target="_blank"
             rel="noreferrer"
+            className="hover:text-gray-100 transition-transform duration-300 hover:scale-110"
           >
             <i className="fab fa-github"></i>
           </a>
@@ -186,6 +207,7 @@ const ProfilePage = () => {
             href={user?.socialLinks?.twitter || "#"}
             target="_blank"
             rel="noreferrer"
+            className="hover:text-sky-500 transition-transform duration-300 hover:scale-110"
           >
             <i className="fab fa-twitter"></i>
           </a>
