@@ -35,18 +35,20 @@ app.use((req, res, next) => {
   res.setHeader(
     "Content-Security-Policy",
     `
-    default-src 'self';
-    style-src 'self' https://fonts.googleapis.com;
-    font-src 'self' https://fonts.gstatic.com;
-    script-src 'self';
-    img-src 'self' data:;
-    connect-src 'self' ${CLIENT_URL};
-    object-src 'none';
-    frame-src 'none';
+      default-src 'self';
+      style-src 'self' https://fonts.googleapis.com;
+      style-src-elem 'self' https://fonts.googleapis.com;
+      font-src 'self' https://fonts.gstatic.com;
+      script-src 'self';
+      img-src 'self' data:;
+      connect-src 'self' ${CLIENT_URL};
+      object-src 'none';
+      frame-src 'none';
     `.replace(/\s{2,}/g, " ").trim()
   );
   next();
 });
+
 
 // === CORS Setup ===
 app.use(
