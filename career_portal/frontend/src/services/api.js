@@ -1,21 +1,24 @@
-import axios from 'axios';
+import axios from "axios";
 
-// Detect backend URL automatically
-const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+// Detect if running on localhost
+const isLocalhost =
+  window.location.hostname === "localhost" ||
+  window.location.hostname === "127.0.0.1";
 
+// Set backend base URL dynamically
 const BASE_URL = isLocalhost
-  ? 'http://localhost:5001' // Local backend for development
-  : `${window.location.origin.replace(/\/$/, '')}`; // Use same origin in production (e.g., Render)
+  ? "http://localhost:5001" // Backend local dev port
+  : `${window.location.origin.replace(/\/$/, "")}`; // Same origin in production
 
-// Create Axios instance
+// Create Axios instance with base URL and credentials
 const API = axios.create({
-  baseURL: `${BASE_URL}/api`, // Prefix all requests with /api
-  withCredentials: true, // Include cookies (e.g., JWT)
+  baseURL: `${BASE_URL}/api`, // prefix all calls with /api
+  withCredentials: true, // include cookies for auth
 });
 
-// Attach token if available
+// Attach token from localStorage if exists
 API.interceptors.request.use((req) => {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem("token");
   if (token) {
     req.headers.Authorization = `Bearer ${token}`;
   }

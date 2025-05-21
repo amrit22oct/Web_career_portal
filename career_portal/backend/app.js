@@ -22,7 +22,7 @@ const __dirname = path.dirname(__filename);
 
 const isProd = process.env.NODE_ENV === "production";
 
-// Determine frontend client URL
+// Determine frontend client URL (set on Render or fallback to localhost)
 let CLIENT_URL = process.env.CLIENT_URL || "http://localhost:5173";
 if (isProd && !process.env.CLIENT_URL) {
   console.warn("⚠️ Warning: CLIENT_URL is not set in production.");
@@ -30,7 +30,7 @@ if (isProd && !process.env.CLIENT_URL) {
 
 const allowedOrigins = [CLIENT_URL, "http://localhost:5173"].filter(Boolean);
 
-// === CSP Middleware (Optional, but enhances security) ===
+// === CSP Middleware (Optional, enhances security) ===
 app.use((req, res, next) => {
   res.setHeader(
     "Content-Security-Policy",
