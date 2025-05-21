@@ -22,13 +22,22 @@ const __dirname = path.dirname(__filename);
 
 const isProd = process.env.NODE_ENV === "production";
 
-// Dynamically determine frontend client URL for CORS and CSP
-const CLIENT_URL = isProd
-  ? process.env.CLIENT_URL ||
-    `https://${process.env.HOSTNAME || ""}`.replace(/\/$/, "")
-  : process.env.CLIENT_URL || "http://localhost:5173";
+let CLIENT_URL;
 
-const allowedOrigins = [CLIENT_URL, "http://localhost:5173"];
+if (isProd) {
+  if (!process.env.CLIENT_URL) {
+    console.warn(
+      "Warning: CLIENT_URL is not set in production environment variables."
+    );
+    CLIENT_URL = ""; // fallback empty, could break CORS but at least explicit
+  } else {
+    CLIENT_URL = process.env.CLIENT_URL;
+  }
+} else {
+  CLIENT_URL = process.env.CLIENT_URL || "http://localhost:5173";
+}
+
+const allowedOrigins = [CLIENT_URL, "http://localhost:5173"].filter(Boolean);
 
 // === CSP Middleware ===
 app.use((req, res, next) => {

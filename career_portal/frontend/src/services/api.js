@@ -4,7 +4,7 @@ import axios from 'axios';
 const BASE_URL =
   import.meta.env.MODE === 'development'
     ? 'http://localhost:5001' // Your local backend port
-    : 'https://your-production-backend-url.com'; // 🔁 Replace with actual deployed backend URL
+    : import.meta.env.VITE_BACKEND_URL || 'https://your-production-backend-url.com'; // Use env variable in prod, fallback if missing
 
 // Axios instance configuration
 const API = axios.create({
