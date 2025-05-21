@@ -1,18 +1,19 @@
 import axios from 'axios';
 
-// Automatically set backend URL based on environment
-const BASE_URL =
-  import.meta.env.MODE === 'development'
-    ? 'http://localhost:5001' // Your local backend port
-    : import.meta.env.VITE_BACKEND_URL || 'https://your-production-backend-url.com'; // Use env variable in prod, fallback if missing
+// Detect backend URL automatically
+const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 
-// Axios instance configuration
+const BASE_URL = isLocalhost
+  ? 'http://localhost:5001' // Local backend for development
+  : `${window.location.origin.replace(/\/$/, '')}`; // Use same origin in production (e.g., Render)
+
+// Create Axios instance
 const API = axios.create({
-  baseURL: `${BASE_URL}/api`,
-  withCredentials: true, // send cookies (e.g., JWT in cookie)
+  baseURL: `${BASE_URL}/api`, // Prefix all requests with /api
+  withCredentials: true, // Include cookies (e.g., JWT)
 });
 
-// Attach token to every request if available
+// Attach token if available
 API.interceptors.request.use((req) => {
   const token = localStorage.getItem('token');
   if (token) {

@@ -22,24 +22,15 @@ const __dirname = path.dirname(__filename);
 
 const isProd = process.env.NODE_ENV === "production";
 
-let CLIENT_URL;
-
-if (isProd) {
-  if (!process.env.CLIENT_URL) {
-    console.warn(
-      "Warning: CLIENT_URL is not set in production environment variables."
-    );
-    CLIENT_URL = ""; // fallback empty, could break CORS but at least explicit
-  } else {
-    CLIENT_URL = process.env.CLIENT_URL;
-  }
-} else {
-  CLIENT_URL = process.env.CLIENT_URL || "http://localhost:5173";
+// Determine frontend client URL
+let CLIENT_URL = process.env.CLIENT_URL || "http://localhost:5173";
+if (isProd && !process.env.CLIENT_URL) {
+  console.warn("⚠️ Warning: CLIENT_URL is not set in production.");
 }
 
 const allowedOrigins = [CLIENT_URL, "http://localhost:5173"].filter(Boolean);
 
-// === CSP Middleware ===
+// === CSP Middleware (Optional, but enhances security) ===
 app.use((req, res, next) => {
   res.setHeader(
     "Content-Security-Policy",
@@ -52,9 +43,7 @@ app.use((req, res, next) => {
     connect-src 'self' ${CLIENT_URL};
     object-src 'none';
     frame-src 'none';
-    `
-      .replace(/\s{2,}/g, " ")
-      .trim()
+    `.replace(/\s{2,}/g, " ").trim()
   );
   next();
 });
@@ -62,15 +51,11 @@ app.use((req, res, next) => {
 // === CORS Setup ===
 app.use(
   cors({
-    origin: function (origin, callback) {
-      // Allow requests with no origin (like mobile apps or curl)
+    origin: (origin, callback) => {
       if (!origin || allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
-      return callback(
-        new Error("CORS policy: This origin is not allowed"),
-        false
-      );
+      return callback(new Error("CORS policy: Not allowed by server"), false);
     },
     credentials: true,
   })
@@ -81,7 +66,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(morgan("dev"));
 
-// === Static Uploads Folder ===
+// === Serve uploaded files ===
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // === API Routes ===
@@ -92,17 +77,16 @@ app.use("/api/recruiter", recruiterRoutes);
 app.use("/api/jobs", jobRoutes);
 app.use("/api/admin", adminRoutes);
 
-// === Serve Frontend in Production ===
+// === Serve frontend in production ===
 if (isProd) {
   const frontendPath = path.join(__dirname, "../frontend/dist");
   app.use(express.static(frontendPath));
-
   app.get("*", (req, res) => {
     res.sendFile(path.join(frontendPath, "index.html"));
   });
 }
 
-// === Global Error Handler ===
+// === Global error handler ===
 app.use(errorHandler);
 
 export default app;
