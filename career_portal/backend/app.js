@@ -81,7 +81,7 @@ app.use("/api/admin", adminRoutes);
 
 // === Serve frontend in production ===
 if (isProd) {
-  const frontendPath = path.join(__dirname, "../frontend/dist");
+  const frontendPath = path.join(__dirname, "../frontend");
   app.use(express.static(frontendPath));
   app.get("*", (req, res) => {
     res.sendFile(path.join(frontendPath, "index.html"));
