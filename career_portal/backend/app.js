@@ -13,29 +13,30 @@ import { errorHandler } from './middleware/errorHandler.js';
 
 const app = express();
 
+// Allowed origins for CORS (frontend URLs)
 const allowedOrigins = [
-  'http://localhost:5173',
-  'https://your-production-frontend-url.com',  // replace this with your real prod URL
+  process.env.CLIENT_URL || 'http://localhost:5173',  // dev frontend URL
+  'https://your-production-frontend-url.com'          // production frontend URL (replace this)
 ];
 
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      if (!origin) return callback(null, true); // allow non-browser or same-origin requests
-      if (!allowedOrigins.includes(origin)) {
-        return callback(new Error('CORS policy: This origin is not allowed'), false);
-      }
+app.use(cors({
+  origin: function(origin, callback) {
+    // allow requests with no origin (like mobile apps, Postman)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
       return callback(null, true);
-    },
-    credentials: true,
-  })
-);
+    } else {
+      return callback(new Error('CORS policy: This origin is not allowed'), false);
+    }
+  },
+  credentials: true,  // allow cookies, credentials
+}));
 
 app.use(express.json());
 app.use(cookieParser());
 app.use(morgan('dev'));
 
-// Mount routes
+// Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/auth', profileRoutes);
 app.use('/api/student', studentRoutes);
@@ -43,7 +44,7 @@ app.use('/api/recruiter', recruiterRoutes);
 app.use('/api/jobs', jobRoutes);
 app.use('/api/admin', adminRoutes);
 
-// Global error handler
+// Error handling middleware
 app.use(errorHandler);
 
 export default app;
