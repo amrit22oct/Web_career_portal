@@ -2,7 +2,6 @@ import React, { useContext, useState, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import JobService from '../services/jobService';
 import JobCard from '../components/JobCard';
-import '../styles/jobpage.css';
 
 const JobsPage = () => {
   const { user, loading: authLoading } = useContext(AuthContext);
@@ -23,14 +22,12 @@ const JobsPage = () => {
     setLoading(true);
     setError(null);
     try {
-      // Always fetch public jobs
       const publicJobs = await JobService.getAllJobs(1);
       const jobList = Array.isArray(publicJobs) ? publicJobs : publicJobs.jobs || [];
       setJobs(jobList.slice(0, JOBS_PER_PAGE));
       setPage(1);
       setHasMore(jobList.length >= JOBS_PER_PAGE);
 
-      // If recruiter, fetch their posted jobs
       if (user?.role === 'recruiter') {
         const recruiterJobs = await JobService.getRecruiterJobs();
         const recruiterJobsList = Array.isArray(recruiterJobs) ? recruiterJobs : recruiterJobs.jobs || [];
@@ -38,7 +35,8 @@ const JobsPage = () => {
         setVisibleMyJobs(recruiterJobsList.slice(0, MY_JOBS_PER_PAGE));
         setHasMoreMyJobs(recruiterJobsList.length > MY_JOBS_PER_PAGE);
         setMyPage(1);
-      }} catch (err) {
+      }
+    } catch (err) {
       setError('Unable to fetch job listings.');
       console.error('Job fetching error:', err);
     } finally {
@@ -81,39 +79,46 @@ const JobsPage = () => {
 
   if (loading && jobs.length === 0) {
     return (
-      <div className="loading-container">
-        <div className="spinner" />
-        <p className="loading-text">Loading jobs...</p>
+      <div className="flex flex-col items-center justify-center py-20">
+        <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+        <p className="text-blue-600 text-lg font-medium">Loading jobs...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="error-message">
+      <div className="text-center text-red-600 font-semibold mt-10">
         <p>Error: {error}</p>
       </div>
     );
   }
 
   return (
-    <div className="jobs-page">
-      <div className="jobs-container">
-        <h1 className="main-heading">Explore Career Opportunities</h1>
+    <div className="bg-[#0f172a] min-h-screen py-10 px-10 w-full">
+      <div className="max-w-full mx-auto">
+        <h1 className="text-white text-4xl font-bold mb-8 text-center">Explore Career Opportunities</h1>
 
         {user?.role === 'recruiter' && (
           <>
-            <h2 className="section-heading green">Your Posted Jobs</h2>
-            <div className="jobs-grid">
+            <h2 className="text-white text-2xl font-semibold mb-4">Your Posted Jobs</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
               {visibleMyJobs.length > 0 ? (
-                visibleMyJobs.map((job) => <JobCard key={job._id || job.id} job={job} />)
+                visibleMyJobs.map((job) => (
+                  <div key={job._id || job.id} className="bg-gray-800 p-6 rounded shadow-md">
+                    <JobCard job={job} />
+                  </div>
+                ))
               ) : (
-                <div className="no-jobs-msg">You haven't posted any jobs yet.</div>
+                <div className="col-span-3 text-gray-400 italic text-center mt-4">You haven't posted any jobs yet.</div>
               )}
             </div>
             {hasMoreMyJobs && (
-              <div className="button-wrapper">
-                <button onClick={loadMoreMyJobs} className="load-more-btn green">
+              <div className="text-center mb-8">
+                <button
+                  onClick={loadMoreMyJobs}
+                  className="px-6 py-2 rounded-full font-medium text-white bg-green-600 hover:bg-green-700 shadow-md transition-colors"
+                >
                   Load More of Your Jobs
                 </button>
               </div>
@@ -121,18 +126,25 @@ const JobsPage = () => {
           </>
         )}
 
-        <h2 className="section-heading blue">All Public Job Listings</h2>
-        <div className="jobs-grid">
+        <h2 className="text-white text-2xl font-semibold mb-4">All Public Job Listings</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           {jobs.length > 0 ? (
-            jobs.map((job) => <JobCard key={job._id || job.id} job={job} />)
+            jobs.map((job) => (
+              <div key={job._id || job.id} className="bg-gray-800 p-6 rounded shadow-md">
+                <JobCard job={job} />
+              </div>
+            ))
           ) : (
-            <div className="no-jobs-msg">No jobs available right now.</div>
+            <div className="col-span-3 text-gray-400 italic text-center mt-4">No jobs available right now.</div>
           )}
         </div>
 
         {hasMore && (
-          <div className="button-wrapper">
-            <button onClick={loadMoreJobs} className="load-more-btn blue">
+          <div className="text-center">
+            <button
+              onClick={loadMoreJobs}
+              className="px-6 py-2 rounded-full font-medium text-white bg-blue-600 hover:bg-blue-700 shadow-md transition-colors"
+            >
               Load More Jobs
             </button>
           </div>

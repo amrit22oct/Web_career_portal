@@ -101,7 +101,12 @@ const HomePage = () => {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
               {jobs.slice(0, 6).map(job => (
-                <JobCard key={job._id} job={job} className="hover:shadow-2xl transition-shadow duration-300" />
+                <div
+                  key={job._id}
+                  className="bg-gray-800 p-6 rounded shadow-md"
+                >
+                  <JobCard job={job} className="hover:shadow-2xl transition-shadow duration-300" />
+                </div>
               ))}
             </div>
           )}

@@ -1,18 +1,17 @@
-import { useState } from 'react';
-import Button from './Button'; // Assuming you have a Button component
-import '../styles/jobform.css'
+import { useState } from "react";
+
 const JobPostForm = ({ onSubmit }) => {
   const [jobData, setJobData] = useState({
-    title: '',
-    company: '',
-    description: '',
-    location: '',
-    salary: '',
+    title: "",
+    company: "",
+    description: "",
+    location: "",
+    salary: "",
   });
 
   const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   const handleChange = (e) => {
     setJobData({ ...jobData, [e.target.name]: e.target.value });
@@ -20,37 +19,54 @@ const JobPostForm = ({ onSubmit }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setErrorMessage('');
-    setSuccessMessage('');
+    setErrorMessage("");
+    setSuccessMessage("");
 
     if (!jobData.title || !jobData.company || !jobData.description) {
-      setErrorMessage('Please fill in all required fields.');
+      setErrorMessage("Please fill in all required fields.");
       return;
     }
-    
+
     if (jobData.salary && isNaN(jobData.salary)) {
-      setErrorMessage('Salary must be a valid number.');
+      setErrorMessage("Salary must be a valid number.");
       return;
     }
 
     try {
       setLoading(true);
-      await onSubmit(jobData); // Handle the job submission in parent component
-      setSuccessMessage('Job posted successfully!');
-      setJobData({ title: '', company: '', description: '', location: '', salary: '' });
+      await onSubmit(jobData);
+      setSuccessMessage("Job posted successfully!");
+      setJobData({
+        title: "",
+        company: "",
+        description: "",
+        location: "",
+        salary: "",
+      });
     } catch (error) {
-      setErrorMessage('There was an error posting the job. Please try again.');
+      setErrorMessage("There was an error posting the job. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="glass-form">
-      <h2 className="form-title">Post a New Job</h2>
+    <form
+      onSubmit={handleSubmit}
+      className="max-w-md w-full bg-white/10 border border-white/20 backdrop-blur-md rounded-xl shadow-xl p-8 mx-auto my-10"
+    >
+      <h2 className="text-2xl font-semibold text-white text-center mb-6">
+        Post a New Job
+      </h2>
 
-      {errorMessage && <p className="error-message">{errorMessage}</p>}
-      {successMessage && <p className="success-message">{successMessage}</p>}
+      {errorMessage && (
+        <p className="text-red-400 text-sm font-semibold mb-4">{errorMessage}</p>
+      )}
+      {successMessage && (
+        <p className="text-green-400 text-sm font-semibold mb-4">
+          {successMessage}
+        </p>
+      )}
 
       <input
         type="text"
@@ -58,7 +74,7 @@ const JobPostForm = ({ onSubmit }) => {
         placeholder="Job Title"
         value={jobData.title}
         onChange={handleChange}
-        className="form-input"
+        className="w-full mb-4 px-4 py-2 rounded-lg bg-white/20 placeholder-white/70 text-white focus:bg-white/30 outline-none"
         required
       />
       <input
@@ -67,7 +83,7 @@ const JobPostForm = ({ onSubmit }) => {
         placeholder="Company"
         value={jobData.company}
         onChange={handleChange}
-        className="form-input"
+        className="w-full mb-4 px-4 py-2 rounded-lg bg-white/20 placeholder-white/70 text-white focus:bg-white/30 outline-none"
         required
       />
       <textarea
@@ -75,7 +91,7 @@ const JobPostForm = ({ onSubmit }) => {
         placeholder="Job Description"
         value={jobData.description}
         onChange={handleChange}
-        className="form-input"
+        className="w-full mb-4 px-4 py-2 rounded-lg bg-white/20 placeholder-white/70 text-white focus:bg-white/30 outline-none"
         required
       />
       <input
@@ -84,7 +100,7 @@ const JobPostForm = ({ onSubmit }) => {
         placeholder="Location"
         value={jobData.location}
         onChange={handleChange}
-        className="form-input"
+        className="w-full mb-4 px-4 py-2 rounded-lg bg-white/20 placeholder-white/70 text-white focus:bg-white/30 outline-none"
       />
       <input
         type="number"
@@ -92,15 +108,19 @@ const JobPostForm = ({ onSubmit }) => {
         placeholder="Salary"
         value={jobData.salary}
         onChange={handleChange}
-        className="form-input"
+        className="w-full mb-6 px-4 py-2 rounded-lg bg-white/20 placeholder-white/70 text-white focus:bg-white/30 outline-none"
       />
 
       <button
         type="submit"
         disabled={loading}
-        className={`form-button ${loading ? 'disabled' : ''}`}
+        className={`w-full py-3 rounded-lg font-bold text-white transition-all duration-300 ${
+          loading
+            ? "bg-gradient-to-r from-indigo-400 to-purple-400 opacity-50 cursor-not-allowed"
+            : "bg-gradient-to-r from-indigo-500 to-purple-600 hover:opacity-90"
+        }`}
       >
-        {loading ? 'Posting...' : 'Post Job'}
+        {loading ? "Posting..." : "Post Job"}
       </button>
     </form>
   );

@@ -1,104 +1,88 @@
 import { useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { Navigate, useNavigate } from "react-router-dom";
-import '../styles/studentDash.css';  // Import the new CSS file
 
 const DashboardPage = () => {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
+  if (!user) return <Navigate to="/login" replace />;
 
   const handleLogout = () => {
     logout();
-    navigate('/login'); // Redirecting user after logout
+    navigate('/login');
   };
 
   return (
-    <div className="dashboard-container">
-      <div className="flex">
+    <div className="flex flex-col min-h-screen bg-gradient-to-br from-slate-800 to-slate-700 text-white">
+      {/* Content container that fills full height */}
+      <div className="flex flex-1 flex-col lg:flex-row gap-6 p-6">
         {/* Sidebar */}
-        <div className="sidebar">
-          <h2>Dashboard</h2>
-          <nav className="flex flex-col space-y-4">
-            <button
-              onClick={() => navigate('/jobs')}  // Navigate to job page
-              className="text-gray-700 hover:text-blue-600 focus:outline-none"
-            >
-              Explore Jobs
-            </button>
-            <button 
-              onClick={() => navigate('/myApplications')} // Navigate to My Applications page (update this route as per your design)
-              className="text-gray-700 hover:text-blue-600 focus:outline-none"
-            >
-              My Applications
-            </button>
-            <button 
-              onClick={() => navigate('/profile')} // Navigate to Profile Page
-              className="text-gray-700 hover:text-blue-600 focus:outline-none"
-            >
-              Profile
-            </button>
-            <button 
-              onClick={() => navigate('/Internships')} // Add navigation to settings page
-              className="text-gray-700 hover:text-blue-600 focus:outline-none"
-            >
-              Internships
-            </button>
-            <button 
-              onClick={handleLogout}
-              className="logout-button"
-            >
-              Logout
-            </button>
+        <aside className="lg:w-1/5 w-full bg-slate-900/80 p-6 rounded-xl shadow-lg border border-white space-y-6">
+          <h2 className="text-2xl font-semibold">Dashboard</h2>
+          <nav className="flex flex-col gap-4">
+            <button onClick={() => navigate('/jobs')} className="hover:text-blue-400 text-left">Explore Jobs</button>
+            <button onClick={() => navigate('/myApplications')} className="hover:text-blue-400 text-left">My Applications</button>
+            <button onClick={() => navigate('/profile')} className="hover:text-blue-400 text-left">Profile</button>
+            <button onClick={() => navigate('/Internships')} className="hover:text-blue-400 text-left">Internships</button>
+            <button onClick={handleLogout} className="text-red-400 hover:text-red-600 text-left">Logout</button>
           </nav>
-        </div>
+        </aside>
 
-        {/* Main Dashboard Content */}
-        <div className="main-content">
-          <div className="dashboard-card glassy-card">
-            {/* Welcome Section */}
-            <h1>Welcome, {user.name}!</h1>
-            <p>
-              You're logged in as a {user?.role?.charAt(0).toUpperCase() + user?.role?.slice(1)}.
-            </p>
-            
-            {/* User Info Section */}
-            <div className="user-info">
-              <div className="user-info-item">
-                <p className="label">Email:</p>
-                <p className="value">{user.email}</p>
-              </div>
-              <div className="user-info-item">
-                <p className="label">Role:</p>
-                <p className="value">
-                  {user?.role?.charAt(0).toUpperCase() + user?.role?.slice(1)}
-                </p>
-              </div>
-            </div>
+        {/* Main Content */}
+        <main className="flex-1 flex flex-col">
+          <div className="flex-grow bg-white/10 backdrop-blur-xl p-8 rounded-xl border border-white shadow-2xl space-y-6">
+            {/* Welcome Message */}
+            <header>
+              <h1 className="text-3xl font-bold">Welcome, {user.name}!</h1>
+              <p className="text-gray-200 mt-2">
+                You're logged in as a <span className="capitalize font-semibold">{user.role}</span>.
+              </p>
+            </header>
 
-            {/* Dashboard Action Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
-              <div className="action-card">
-                <h3>Explore Jobs</h3>
-                <p>Browse through the latest job opportunities and apply.</p>
-                <button className="action-button" onClick={() => navigate('/jobs')}>Start Exploring</button>
+            {/* User Info Panel */}
+            <section className="bg-white/10 rounded-lg p-4 text-gray-100 space-y-3 border border-white/20 shadow-inner">
+              <div className="flex justify-between border-b border-gray-500 pb-2">
+                <span className="font-medium">Email:</span>
+                <span>{user.email}</span>
               </div>
-              <div className="action-card">
-                <h3>My Applications</h3>
-                <p>View and manage your job applications.</p>
-                <button className="action-button" onClick={() => navigate('/myApplications')}>View Applications</button>
+              <div className="flex justify-between">
+                <span className="font-medium">Role:</span>
+                <span className="capitalize">{user.role}</span>
               </div>
-              <div className="action-card">
-                <h3>Profile</h3>
-                <p>Update your profile and preferences.</p>
-                <button className="action-button" onClick={() => navigate('/profile')}>Edit Profile</button>
+            </section>
+
+            {/* Action Cards */}
+            <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {/* Card 1 */}
+              <div className="bg-blue-500/10 border border-white p-6 rounded-lg hover:bg-blue-500/20 transition transform hover:-translate-y-1 shadow-md">
+                <h3 className="text-xl font-semibold mb-2">Explore Jobs</h3>
+                <p>Browse the latest job opportunities and apply easily.</p>
+                <button onClick={() => navigate('/jobs')} className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow">
+                  Start Exploring
+                </button>
               </div>
-            </div>
+
+              {/* Card 2 */}
+              <div className="bg-blue-500/10 border border-white p-6 rounded-lg hover:bg-blue-500/20 transition transform hover:-translate-y-1 shadow-md">
+                <h3 className="text-xl font-semibold mb-2">My Applications</h3>
+                <p>Track your submitted applications in one place.</p>
+                <button onClick={() => navigate('/myApplications')} className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow">
+                  View Applications
+                </button>
+              </div>
+
+              {/* Card 3 */}
+              <div className="bg-blue-500/10 border border-white p-6 rounded-lg hover:bg-blue-500/20 transition transform hover:-translate-y-1 shadow-md">
+                <h3 className="text-xl font-semibold mb-2">Profile</h3>
+                <p>Update your personal info and resume.</p>
+                <button onClick={() => navigate('/profile')} className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow">
+                  Edit Profile
+                </button>
+              </div>
+            </section>
           </div>
-        </div>
+        </main>
       </div>
     </div>
   );

@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import JobService from '../services/jobService';
 import JobCard from '../components/JobCard';
-import '../styles/internship.css'; // Import the separated CSS
 
 const LoadingSpinner = () => (
-  <div className="spinner-container">
-    <div className="spinner"></div>
+  <div className="flex justify-center items-center my-10">
+    <div className="w-16 h-16 border-4 border-gray-700 border-t-blue-400 rounded-full animate-spin"></div>
   </div>
 );
 
@@ -34,18 +33,28 @@ const InternshipPage = () => {
   }, []);
 
   return (
-    <div className="internship-page">
-      <h1 className="internship-heading">Internship Opportunities</h1>
+    <div className="min-h-screen bg-gray-900 p-10">
+      <h1 className="text-4xl font-bold text-center text-white mb-8">
+        Internship Opportunities
+      </h1>
 
       {loading && <LoadingSpinner />}
-      {error && <div className="error-message">{error}</div>}
-      {!loading && !error && internships.length === 0 && (
-        <div className="no-internships-message">No internships available at the moment.</div>
+
+      {error && (
+        <div className="text-center bg-red-700 text-red-100 p-4 rounded mb-6">
+          {error}
+        </div>
       )}
 
-      <div className="internship-grid">
+      {!loading && !error && internships.length === 0 && (
+        <div className="text-center bg-yellow-600 text-yellow-100 p-4 rounded mb-6">
+          No internships available at the moment.
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {internships.map((job) => (
-          <div key={job._id} className="job-card-wrapper">
+          <div key={job._id} className="bg-gray-800 p-6 rounded shadow-md">
             <JobCard job={job} />
           </div>
         ))}

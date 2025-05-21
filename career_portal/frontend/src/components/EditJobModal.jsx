@@ -75,18 +75,33 @@ const EditJobModal = ({ job, closeModal, refreshJobDetails }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white max-w-xl w-full rounded-lg shadow-lg p-6 relative">
+    <div
+      onClick={closeModal}
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto p-8 relative
+          flex flex-col"
+      >
+        {/* Close button */}
         <button
-          className="absolute top-3 right-3 text-gray-500 hover:text-red-600 text-xl font-bold"
           onClick={closeModal}
+          className="absolute top-5 right-5 text-gray-400 hover:text-red-600 text-3xl font-semibold transition-colors"
+          aria-label="Close modal"
+          type="button"
         >
           &times;
         </button>
-        <h2 className="text-xl font-bold mb-6 text-gray-800">Edit Job</h2>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {[
+        {/* Header */}
+        <h2 className="text-2xl font-semibold text-gray-800 mb-6 text-center">
+          Edit Job
+        </h2>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="space-y-6 flex-grow">
+          {[ 
             { name: 'title', label: 'Job Title' },
             { name: 'company', label: 'Company' },
             { name: 'salary', label: 'Salary', type: 'number' },
@@ -94,46 +109,72 @@ const EditJobModal = ({ job, closeModal, refreshJobDetails }) => {
             { name: 'description', label: 'Description', textarea: true },
           ].map(({ name, label, type = 'text', textarea }) => (
             <div key={name}>
-              <label className="block mb-1 text-sm font-medium text-gray-700">{label}</label>
+              <label
+                htmlFor={name}
+                className="block mb-2 font-medium text-gray-700"
+              >
+                {label}
+              </label>
               {textarea ? (
                 <textarea
+                  id={name}
                   name={name}
-                  rows={3}
+                  rows={4}
                   value={formData[name]}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-2 text-slate-800 bg-white border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                  className="w-full px-4 py-3 rounded-md border border-gray-300 bg-gray-50 text-gray-900
+                    focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none transition"
+                  placeholder={`Enter ${label.toLowerCase()}...`}
                 />
               ) : (
                 <input
+                  id={name}
                   type={type}
                   name={name}
                   value={formData[name]}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-2 text-slate-800 bg-white border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                  className="w-full px-4 py-3 rounded-md border border-gray-300 bg-gray-50 text-gray-900
+                    focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+                  placeholder={`Enter ${label.toLowerCase()}...`}
+                  min={type === 'number' ? 0 : undefined}
                 />
               )}
             </div>
           ))}
 
           <div>
-            <label className="block mb-1 text-sm font-medium text-gray-700">Apply By</label>
+            <label
+              htmlFor="applyBy"
+              className="block mb-2 font-medium text-gray-700"
+            >
+              Apply By
+            </label>
             <input
+              id="applyBy"
               type="date"
               name="applyBy"
               value={formData.applyBy}
               onChange={handleInputChange}
-              className="w-full px-4 py-2 text-slate-800 bg-white border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+              className="w-full px-4 py-3 rounded-md border border-gray-300 bg-gray-50 text-gray-900
+                focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
-              <label className="block mb-1 text-sm font-medium text-gray-700">Time Period</label>
+              <label
+                htmlFor="timePeriod"
+                className="block mb-2 font-medium text-gray-700"
+              >
+                Time Period
+              </label>
               <select
+                id="timePeriod"
                 name="timePeriod"
                 value={formData.timePeriod}
                 onChange={handleInputChange}
-                className="w-full px-4 py-2 text-slate-800 bg-white border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                className="w-full px-4 py-3 rounded-md border border-gray-300 bg-gray-50 text-gray-900
+                  focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
               >
                 <option>Internship</option>
                 <option>Part-time</option>
@@ -142,12 +183,19 @@ const EditJobModal = ({ job, closeModal, refreshJobDetails }) => {
             </div>
 
             <div>
-              <label className="block mb-1 text-sm font-medium text-gray-700">Job Type</label>
+              <label
+                htmlFor="jobType"
+                className="block mb-2 font-medium text-gray-700"
+              >
+                Job Type
+              </label>
               <select
+                id="jobType"
                 name="jobType"
                 value={formData.jobType}
                 onChange={handleInputChange}
-                className="w-full px-4 py-2 text-slate-800 bg-white border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                className="w-full px-4 py-3 rounded-md border border-gray-300 bg-gray-50 text-gray-900
+                  focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
               >
                 <option>Job</option>
                 <option>Internship</option>
@@ -157,26 +205,34 @@ const EditJobModal = ({ job, closeModal, refreshJobDetails }) => {
           </div>
 
           <div>
-            <label className="block mb-1 text-sm font-medium text-gray-700">Skills</label>
+            <label
+              htmlFor="skillsInput"
+              className="block mb-2 font-medium text-gray-700"
+            >
+              Skills
+            </label>
             <input
+              id="skillsInput"
               type="text"
               placeholder="Type skill and press Enter or ,"
               value={skillInput}
               onChange={(e) => setSkillInput(e.target.value)}
               onKeyDown={handleSkillKeyDown}
-              className="w-full px-4 py-2 text-slate-800 placeholder-slate-400 bg-white border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+              className="w-full px-4 py-3 rounded-md border border-gray-300 bg-gray-50 text-gray-900
+                placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
             />
-            <div className="flex flex-wrap mt-2 gap-2">
+            <div className="flex flex-wrap gap-3 mt-3">
               {formData.skills.map((skill, index) => (
                 <span
                   key={index}
-                  className="bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full text-sm flex items-center"
+                  className="bg-indigo-200 text-indigo-800 px-3 py-1 rounded-full text-sm font-semibold flex items-center"
                 >
-                  <span>{skill}</span>
+                  {skill}
                   <button
                     type="button"
                     onClick={() => removeSkill(index)}
-                    className="ml-2 text-indigo-500 hover:text-red-500"
+                    className="ml-2 text-indigo-600 hover:text-red-600 transition"
+                    aria-label={`Remove skill ${skill}`}
                   >
                     &times;
                   </button>
@@ -187,7 +243,8 @@ const EditJobModal = ({ job, closeModal, refreshJobDetails }) => {
 
           <button
             type="submit"
-            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-md transition duration-200"
+            className="w-full mt-6 bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-md
+              font-semibold transition duration-200 shadow-md"
           >
             Save Changes
           </button>
