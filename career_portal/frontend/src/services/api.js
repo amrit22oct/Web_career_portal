@@ -1,15 +1,18 @@
 import axios from 'axios';
 
-const BASE_URL = import.meta.env.MODE === 'development'
-  ? 'http://localhost:5010' // backend running locally in dev
-  : 'https://your-production-backend-url.com'; // replace with your deployed backend URL
+// Automatically set backend URL based on environment
+const BASE_URL =
+  import.meta.env.MODE === 'development'
+    ? 'http://localhost:5001' // Your local backend port
+    : 'https://your-production-backend-url.com'; // 🔁 Replace with actual deployed backend URL
 
+// Axios instance configuration
 const API = axios.create({
   baseURL: `${BASE_URL}/api`,
-  withCredentials: true,
+  withCredentials: true, // send cookies (e.g., JWT in cookie)
 });
 
-// Attach token from localStorage to Authorization header if available
+// Attach token to every request if available
 API.interceptors.request.use((req) => {
   const token = localStorage.getItem('token');
   if (token) {
