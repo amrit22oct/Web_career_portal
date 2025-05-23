@@ -31,6 +31,7 @@
     "redis": "^4.7.0",
     "url": "^0.11.4",
     "WEB_CAREER_PORTAL": "file:..",
+    "web-career-portal": "file:..",
     "winston": "^3.17.0"
   }
 }

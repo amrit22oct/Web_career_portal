@@ -1,13 +1,9 @@
 import axios from "axios";
 
-// Detect if running on localhost
-const isLocalhost =
-  window.location.hostname === "localhost" ||
-  window.location.hostname === "127.0.0.1";
-
-// In production, use relative path to ensure same-origin
-const BASE_URL = isLocalhost ? "http://localhost:5001/api" : "/api";
-
+const BASE_URL =
+  import.meta.env.MODE === "development"
+    ? "http://localhost:5001/api"
+    : "/api";
 // Axios instance
 const API = axios.create({
   baseURL: BASE_URL,
