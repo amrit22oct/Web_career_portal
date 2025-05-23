@@ -3,7 +3,7 @@ import cors from "cors";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import path from "path";
-import { fileURLToPath } from "url";
+import { fileURLToPath } from 'url';
 import dotenv from "dotenv";
 
 import authRoutes from "./routes/authRoutes.js";
@@ -20,7 +20,7 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// This is the key: process.env.NODE_ENV must be 'production' in your deployment environment.
+// This is the key: process.env.NODE_ENV must be 'production' in your Render environment variables.
 const isProd = process.env.NODE_ENV === "production";
 
 // Determine frontend client URL (set on Render or fallback to localhost)
