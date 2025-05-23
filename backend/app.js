@@ -1,112 +1,111 @@
-// import express from "express";
-// import cors from "cors";
-// import morgan from "morgan";
-// import cookieParser from "cookie-parser";
-// import path from "path";
-// import { fileURLToPath } from "url";
-// import dotenv from "dotenv";
+import express from "express";
+import dotenv from "dotenv";
+dotenv.config();
 
-// import authRoutes from "./routes/authRoutes.js";
-// import profileRoutes from "./routes/profileRoutes.js";
-// import studentRoutes from "./routes/studentRoutes.js";
-// import recruiterRoutes from "./routes/recruiterRoutes.js";
-// import jobRoutes from "./routes/jobRoutes.js";
-// import adminRoutes from "./routes/adminRoutes.js";
-// import { errorHandler } from "./middleware/errorHandler.js";
+import cookieParser from "cookie-parser";
+import cors from "cors";
+import morgan from "morgan";
+import helmet from "helmet";
+import path from "path";
+import { fileURLToPath } from "url";
 
-// dotenv.config();
+import { connectDB } from "./config/db.js";
+import { errorHandler } from "./middleware/errorHandler.js";
 
-// const app = express();
-// const __filename = fileURLToPath(import.meta.url);
-// const __dirname = path.dirname(__filename);
+import authRoutes from "./routes/authRoutes.js";
+import profileRoutes from "./routes/profileRoutes.js";
+import studentRoutes from "./routes/studentRoutes.js";
+import recruiterRoutes from "./routes/recruiterRoutes.js";
+import jobRoutes from "./routes/jobRoutes.js";
+import adminRoutes from "./routes/adminRoutes.js";
 
-// // This is the key: process.env.NODE_ENV must be 'production' in your deployment environment.
-// const isProd = process.env.NODE_ENV === "production";
+const PORT = process.env.PORT || 5001;
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-// // Determine frontend client URL (set on Render or fallback to localhost)
-// // In production, if the backend serves the frontend, CLIENT_URL is primarily for CORS/CSP in development.
-// // For production, 'self' will be sufficient for connect-src as they share the same origin.
-// let CLIENT_URL = process.env.CLIENT_URL || "http://localhost:5173";
-// if (isProd && !process.env.CLIENT_URL) {
-//   console.warn(
-//     "⚠️ Warning: CLIENT_URL is not explicitly set in production. Ensure your deployment environment handles this correctly."
-//   );
-// }
+const app = express();
 
-// // Define allowed origins for CORS. In production, when backend serves frontend,
-// // requests from frontend to backend are same-origin, handled by !origin.
-// const allowedOrigins = [CLIENT_URL, "http://localhost:5173"].filter(Boolean);
+// Middleware
+app.use(express.json());
+app.use(cookieParser());
+app.use(morgan("dev"));
+app.use(helmet());
 
-// // Dynamically build connect-src for CSP based on environment
-// let connectSrc = `'self'`;
-// // In development, the frontend runs on a different port, so we need to explicitly allow it.
-// // In production, since the backend serves the frontend, they are on the same origin,
-// // so 'self' is sufficient.
-// if (!isProd) {
-//   connectSrc += ` ${CLIENT_URL}`;
-// }
+// Allow CORS only in development
+if (process.env.NODE_ENV !== "production") {
+  app.use(cors({
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true
+  }));
+}
+// app.use(cors({
+//   origin: 'http://localhost:5173', // React app URL
+//   credentials: true, // Allow cookies if you're using them
+// }));
+// Custom CSP (same-origin only)
+app.use((req, res, next) => {
+  res.setHeader("Content-Security-Policy", `
+    default-src 'self';
+    style-src 'self' https://fonts.googleapis.com 'unsafe-inline';
+    font-src 'self' https://fonts.gstatic.com;
+    script-src 'self';
+    img-src 'self' data:;
+    connect-src 'self';
+    object-src 'none';
+    frame-src 'none';
+  `.replace(/\s{2,}/g, " ").trim());
+  next();
+});
 
-// // === CSP Middleware (Optional, enhances security) ===
-// app.use((req, res, next) => {
-//   res.setHeader(
-//     "Content-Security-Policy",
-//     `
-//       default-src 'self';
-//       style-src 'self' https://fonts.googleapis.com;
-//       style-src-elem 'self' https://fonts.googleapis.com;
-//       font-src 'self' https://fonts.gstatic.com;
-//       script-src 'self';
-//       img-src 'self' data:;
-//       connect-src ${connectSrc};
-//       object-src 'none';
-//       frame-src 'none';
-//     `
-//       .replace(/\s{2,}/g, " ")
-//       .trim()
-//   );
-//   next();
-// });
+// Static file serving for uploaded files
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
-// // === CORS Setup ===
-// app.use(
-//   cors({
-//     origin: (origin, callback) => {
-//       // Allow requests with no origin (like mobile apps or direct file access)
-//       // or if the origin is in the allowed list.
-//       if (!origin || allowedOrigins.includes(origin)) {
-//         return callback(null, true);
-//       }
-//       // Block requests from unallowed origins
-//       return callback(new Error("CORS policy: Not allowed by server"), false);
-//     },
-//     credentials: true, // Allow sending cookies with cross-origin requests
-//   })
-// );
+// API Routes
+app.use("/api/auth", authRoutes);
+app.use("/api/auth", profileRoutes); // Assuming profile routes are also under /api/auth
+app.use("/api/student", studentRoutes);
+app.use("/api/recruiter", recruiterRoutes);
+app.use("/api/jobs", jobRoutes);
+app.use("/api/admin", adminRoutes);
 
-// // === Middleware ===
-// app.use(express.json()); // Parse JSON request bodies
-// app.use(cookieParser()); // Parse cookies from request headers
-// app.use(morgan("dev")); // HTTP request logger middleware for development
-
-// // === Serve uploaded files ===
-// // This makes the 'uploads' directory accessible statically
-// app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-
-// // === API Routes ===
-// // Mount various API routes
-// app.use("/api/auth", authRoutes);
-// app.use("/api/auth", profileRoutes); // Assuming profile routes are also under /api/auth
-// app.use("/api/student", studentRoutes);
-// app.use("/api/recruiter", recruiterRoutes);
-// app.use("/api/jobs", jobRoutes);
-// app.use("/api/admin", adminRoutes);
-
-// // === Serve frontend in production ===
-// // This block will ONLY run if process.env.NODE_ENV is 'production'
+// Error handler
+app.use(errorHandler);
 
 
-// // === Global error handler ===
-// // Catches and processes errors that occur in the application
-// app.use(errorHandler);
+// ✅ NEW:
+if (process.env.NODE_ENV === "production") {
+  const clientPath = path.join(__dirname, "./client");
+  console.log("Serving static files from:", clientPath);
 
-// export default app;
+  app.use(express.static(clientPath));
+
+  app.get("*", (req, res) => {
+    const indexFile = path.join(clientPath, "index.html");
+    console.log("Serving index.html from:", indexFile);
+    res.sendFile(indexFile, err => {
+      if (err) {
+        console.error("Error sending index.html:", err);
+        res.status(500).send("Something went wrong");
+      }
+    });
+  });
+}
+
+
+
+
+// Start server
+const startServer = async () => {
+  try {
+    await connectDB();
+    app.listen(PORT, () => {
+      console.log(`🚀 Backend running on http://localhost:${PORT}`);
+    });
+  } catch (error) {
+    console.error("❌ Failed to start server:", error.message);
+    process.exit(1);
+  }
+};
+
+startServer();

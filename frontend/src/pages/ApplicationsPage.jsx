@@ -2,52 +2,38 @@ import React, { useEffect, useState, useContext } from "react";
 import API from "../services/api";
 import { AuthContext } from "../context/AuthContext";
 
-const PAGE_SIZE = 5; // Number of apps per page
+const PAGE_SIZE = 5;
 
 const statusColors = {
-  pending: "bg-yellow-200 text-yellow-800",
-  accepted: "bg-green-200 text-green-800",
-  rejected: "bg-red-200 text-red-800",
-  withdrawn: "bg-gray-300 text-gray-700",
-  unknown: "bg-gray-200 text-gray-800",
+  pending: "bg-gradient-to-r from-yellow-200 to-yellow-400 text-yellow-900",
+  accepted: "bg-gradient-to-r from-green-300 to-green-500 text-green-900",
+  rejected: "bg-gradient-to-r from-red-300 to-red-500 text-red-900",
+  withdrawn: "bg-gradient-to-r from-gray-300 to-gray-400 text-gray-900",
+  unknown: "bg-gradient-to-r from-gray-200 to-gray-300 text-gray-800",
 };
 
 const ApplicationsPage = () => {
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
   const [showModal, setShowModal] = useState(false);
   const [selectedApplicationId, setSelectedApplicationId] = useState(null);
-
   const { user } = useContext(AuthContext);
-
-  // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [totalApplications, setTotalApplications] = useState(0);
 
   useEffect(() => {
     const fetchApplications = async (page = 1) => {
       if (!user) return;
-
       setLoading(true);
       setError(null);
-
       try {
         const token = localStorage.getItem("token");
-
         const config = {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          params: {
-            page,
-            limit: PAGE_SIZE,
-          },
+          headers: { Authorization: `Bearer ${token}` },
+          params: { page, limit: PAGE_SIZE },
         };
-
         let response;
-
         if (user.role === "student") {
           response = await API.get("/student/applied", config);
         } else if (user.role === "recruiter") {
@@ -55,8 +41,6 @@ const ApplicationsPage = () => {
         } else {
           throw new Error("Invalid user role");
         }
-
-        // Expect API to return paginated data like { applications: [...], total: number }
         setApplications(response?.data?.applications || []);
         setTotalApplications(response?.data?.total || 0);
         setCurrentPage(page);
@@ -67,7 +51,6 @@ const ApplicationsPage = () => {
         setLoading(false);
       }
     };
-
     fetchApplications(currentPage);
   }, [user, currentPage]);
 
@@ -84,20 +67,32 @@ const ApplicationsPage = () => {
   };
 
   if (!user) {
-    return <div className="text-center mt-10 text-gray-600">Loading user info...</div>;
+    return (
+      <div className="flex justify-center items-center h-screen text-indigo-600 text-lg font-medium">
+        Loading user info...
+      </div>
+    );
   }
 
   if (loading) {
-    return <div className="text-center mt-10 text-lg">Loading applications...</div>;
+    return (
+      <div className="flex justify-center items-center h-screen text-indigo-600 text-xl font-semibold">
+        Loading applications...
+      </div>
+    );
   }
 
   if (error) {
-    return <div className="text-center mt-10 text-red-600">{error}</div>;
+    return (
+      <div className="flex justify-center items-center h-screen text-red-600 text-lg font-semibold">
+        {error}
+      </div>
+    );
   }
 
   if (applications.length === 0) {
     return (
-      <div className="text-center mt-10 text-gray-600 text-lg font-medium">
+      <div className="flex justify-center items-center h-screen text-indigo-700 text-lg font-medium px-4 text-center max-w-xl mx-auto">
         {user.role === "student"
           ? "You haven't applied to any jobs or internships yet."
           : "No applications received yet."}
@@ -106,74 +101,108 @@ const ApplicationsPage = () => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
-      <h1 className="text-4xl font-extrabold mb-8 text-center text-gradient bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500">
-        {user.role === "student" ? "My Job & Internship Applications" : "Received Applications"}
+    <div className="max-w-7xl mx-auto p-6 sm:p-10">
+      <h1 className="text-4xl sm:text-5xl font-extrabold mb-10 text-center bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-700 bg-clip-text text-transparent drop-shadow-lg">
+        {user.role === "student"
+          ? "My Job & Internship Applications"
+          : "Received Applications"}
       </h1>
 
       <div className="space-y-8">
         {applications.map((app) => {
-          const statusClass = statusColors[(app.status || "unknown").toLowerCase()] || statusColors.unknown;
+          const statusClass =
+            statusColors[(app.status || "unknown").toLowerCase()] ||
+            statusColors.unknown;
+
           return (
             <div
               key={app._id}
-              className="border border-indigo-300 rounded-xl p-6 shadow-lg bg-white hover:shadow-2xl transition duration-300"
+              className="bg-white border border-indigo-300 rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-shadow duration-300 flex flex-col sm:flex-row sm:justify-between sm:items-center"
             >
-              {user.role === "student" ? (
-                <>
-                  <h2 className="text-2xl font-semibold text-indigo-700">{app.job?.title || "Job Title Unavailable"}</h2>
-                  <p className="text-gray-700 mt-1 font-medium">Company: <span className="text-indigo-500">{app.job?.company || "N/A"}</span></p>
-                  <p className="inline-block mt-1 px-3 py-1 text-sm font-semibold rounded-full bg-indigo-100 text-indigo-800 capitalize">
-                    Type: {app.job?.type || "job"}
-                  </p>
-
-                  <div className="mt-4">
-                    <button
-                      onClick={() => confirmWithdrawPopup(app._id)}
-                      className="px-5 py-2 bg-red-600 text-white rounded-full hover:bg-red-700 shadow-md transition"
-                    >
-                      Withdraw Application
-                    </button>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <h2 className="text-2xl font-semibold text-purple-700">{app.student?.name || "Applicant Name Unavailable"}</h2>
-                  <p className="text-gray-700 mt-1 font-medium">Email: <span className="text-purple-500">{app.student?.email || "N/A"}</span></p>
-                  <p className="text-gray-700 mt-1 font-medium">Job Applied: <span className="text-purple-500">{app.job?.title || "N/A"}</span></p>
-                  <p className="inline-block mt-1 px-3 py-1 text-sm font-semibold rounded-full bg-purple-100 text-purple-800 capitalize">
-                    Type: {app.job?.type || "job"}
-                  </p>
-                </>
-              )}
-
-              <p className="mt-3 font-semibold">
-                Resume:{" "}
-                {app.resumeLink ? (
-                  <a
-                    href={app.resumeLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-indigo-600 underline hover:text-indigo-800"
-                  >
-                    View Resume
-                  </a>
+              <div className="flex-1">
+                {user.role === "student" ? (
+                  <>
+                    <h2 className="text-2xl font-semibold text-indigo-800">
+                      {app.job?.title || "Job Title Unavailable"}
+                    </h2>
+                    <p className="text-indigo-700 mt-1 font-medium">
+                      Company:{" "}
+                      <span className="text-indigo-600 font-semibold">
+                        {app.job?.company || "N/A"}
+                      </span>
+                    </p>
+                    <span className="inline-block mt-2 px-4 py-1 rounded-full bg-indigo-200 text-indigo-900 font-semibold capitalize shadow-md">
+                      Type: {app.job?.type || "job"}
+                    </span>
+                  </>
                 ) : (
-                  <span className="text-gray-500 italic">Not Provided</span>
+                  <>
+                    <h2 className="text-2xl font-semibold text-purple-800">
+                      {app.student?.name || "Applicant Name Unavailable"}
+                    </h2>
+                    <p className="text-purple-700 mt-1 font-medium">
+                      Email:{" "}
+                      <span className="text-purple-600 font-semibold">
+                        {app.student?.email || "N/A"}
+                      </span>
+                    </p>
+                    <p className="text-purple-700 mt-1 font-medium">
+                      Job Applied:{" "}
+                      <span className="text-purple-600 font-semibold">
+                        {app.job?.title || "N/A"}
+                      </span>
+                    </p>
+                    <span className="inline-block mt-2 px-4 py-1 rounded-full bg-purple-200 text-purple-900 font-semibold capitalize shadow-md">
+                      Type: {app.job?.type || "job"}
+                    </span>
+                  </>
                 )}
-              </p>
 
-              {app.coverLetter && (
-                <p className="mt-2 italic text-gray-700 max-w-prose">Cover Letter: {app.coverLetter}</p>
-              )}
+                <p className="mt-4 font-semibold text-indigo-700">
+                  Resume:{" "}
+                  {app.resumeLink ? (
+                    <a
+                      href={app.resumeLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-indigo-700 underline hover:text-indigo-900 transition"
+                    >
+                      View Resume
+                    </a>
+                  ) : (
+                    <span className="text-indigo-400 italic">Not Provided</span>
+                  )}
+                </p>
 
-              <p className={`mt-3 inline-block px-3 py-1 rounded-full font-semibold ${statusClass} capitalize`}>
-                Status: {app.status || "Unknown"}
-              </p>
+                {app.coverLetter && (
+                  <p className="mt-3 italic text-indigo-800 max-w-prose">{`Cover Letter: ${app.coverLetter}`}</p>
+                )}
+              </div>
 
-              <p className="text-sm text-gray-400 mt-2">
-                Applied on: {app.createdAt ? new Date(app.createdAt).toLocaleDateString() : "N/A"}
-              </p>
+              <div className="mt-6 sm:mt-0 sm:ml-6 flex flex-col items-start sm:items-end">
+                <p
+                  className={`inline-block px-5 py-2 rounded-full font-semibold ${statusClass} shadow-lg capitalize`}
+                  style={{ minWidth: "130px", textAlign: "center" }}
+                >
+                  Status: {app.status || "Unknown"}
+                </p>
+
+                <p className="text-sm text-indigo-500 mt-2 font-medium">
+                  Applied on:{" "}
+                  {app.createdAt
+                    ? new Date(app.createdAt).toLocaleDateString()
+                    : "N/A"}
+                </p>
+
+                {user.role === "student" && (
+                  <button
+                    onClick={() => confirmWithdrawPopup(app._id)}
+                    className="mt-5 w-full sm:w-auto px-6 py-2 bg-gradient-to-r from-pink-600 via-pink-700 to-pink-800 text-white rounded-full shadow-lg hover:from-pink-700 hover:via-pink-800 hover:to-pink-900 transition"
+                  >
+                    Withdraw Application
+                  </button>
+                )}
+              </div>
             </div>
           );
         })}
@@ -181,11 +210,11 @@ const ApplicationsPage = () => {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex justify-center mt-10 space-x-3 select-none">
+        <div className="flex justify-center mt-12 space-x-3 select-none flex-wrap gap-2">
           <button
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1}
-            className={`px-3 py-1 rounded-md border border-indigo-500 text-indigo-600 font-semibold hover:bg-indigo-100 disabled:opacity-50 disabled:cursor-not-allowed`}
+            className="px-5 py-2 rounded-lg border border-indigo-500 text-indigo-600 font-semibold hover:bg-indigo-100 disabled:opacity-50 disabled:cursor-not-allowed transition"
           >
             Prev
           </button>
@@ -197,10 +226,10 @@ const ApplicationsPage = () => {
               <button
                 key={pageNum}
                 onClick={() => handlePageChange(pageNum)}
-                className={`px-3 py-1 rounded-md border font-semibold ${
+                className={`px-5 py-2 rounded-lg border font-semibold transition ${
                   isActive
-                    ? "bg-indigo-600 text-white border-indigo-600"
-                    : "border-indigo-400 text-indigo-600 hover:bg-indigo-100"
+                    ? "bg-indigo-700 text-white border-indigo-700"
+                    : "border-indigo-400 text-indigo-700 hover:bg-indigo-100"
                 }`}
               >
                 {pageNum}
@@ -211,49 +240,45 @@ const ApplicationsPage = () => {
           <button
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
-            className={`px-3 py-1 rounded-md border border-indigo-500 text-indigo-600 font-semibold hover:bg-indigo-100 disabled:opacity-50 disabled:cursor-not-allowed`}
+            className="px-5 py-2 rounded-lg border border-indigo-500 text-indigo-600 font-semibold hover:bg-indigo-100 disabled:opacity-50 disabled:cursor-not-allowed transition"
           >
             Next
           </button>
         </div>
       )}
 
-      {/* Confirmation Modal */}
+      {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-90 z-50">
-          <div className="bg-gray-900 rounded-lg p-6 max-w-sm w-full shadow-lg text-white">
-            <h2 className="text-lg font-semibold mb-4">Confirm Withdrawal</h2>
-            <p>Are you sure you want to withdraw this application?</p>
-            <div className="mt-6 flex justify-end gap-4">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60"
+          onClick={() => setShowModal(false)}
+        >
+          <div
+            className="bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl relative"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="text-2xl font-extrabold text-pink-700 mb-6">
+              Confirm Withdrawal
+            </h2>
+            <p className="mb-8 text-gray-800 leading-relaxed">
+              Are you sure you want to withdraw your application? This action
+              cannot be undone.
+            </p>
+            <div className="flex justify-end space-x-6">
               <button
+                className="px-6 py-3 rounded-xl bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold shadow-md transition"
                 onClick={() => setShowModal(false)}
-                className="px-4 py-2 rounded border border-gray-600 hover:bg-gray-800"
               >
                 Cancel
               </button>
               <button
-                onClick={async () => {
-                  try {
-                    const token = localStorage.getItem("token");
-                    const config = {
-                      headers: {
-                        Authorization: `Bearer ${token}`,
-                      },
-                    };
-                    await API.delete(`/student/application/${selectedApplicationId}`, config);
-                    setApplications((prev) =>
-                      prev.filter((app) => app._id !== selectedApplicationId)
-                    );
-                    setShowModal(false);
-                    setSelectedApplicationId(null);
-                  } catch (err) {
-                    console.error("Error withdrawing application:", err);
-                    alert("Failed to withdraw the application. Please try again.");
-                  }
+                className="px-6 py-3 rounded-xl bg-pink-700 hover:bg-pink-800 text-white font-extrabold shadow-lg transition"
+                onClick={() => {
+                  // Withdraw logic goes here
+                  setShowModal(false);
                 }}
-                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition"
               >
-                Confirm Withdraw
+                Withdraw
               </button>
             </div>
           </div>

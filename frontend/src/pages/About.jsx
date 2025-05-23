@@ -10,90 +10,97 @@ import {
 
 const About = () => {
   return (
-    <div className="bg-gradient-to-br from-slate-800 to-slate-700 py-12 px-4 sm:px-8">
-      <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-xl p-10 sm:p-14 space-y-10">
-        <h1 className="text-4xl font-extrabold text-blue-800 text-center">
-          About Placement Cell
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white py-16 px-6 sm:px-12 lg:px-24">
+      <div className="max-w-6xl mx-auto bg-gray-900 bg-opacity-70 rounded-3xl shadow-xl p-10 sm:p-14 space-y-12">
+        <h1 className="text-4xl sm:text-5xl font-extrabold text-teal-400 text-center drop-shadow-lg">
+          About Web Career Portal
         </h1>
 
         {/* Introduction */}
-        <div className="text-center space-y-4">
-          <p className="text-lg text-gray-700">
-            Welcome to <span className="font-semibold">Placement Cell</span> — your trusted platform connecting students and recruiters!
+        <div className="text-center max-w-4xl mx-auto space-y-5">
+          <p className="text-lg sm:text-xl text-gray-300">
+            Welcome to{" "}
+            <span className="font-semibold text-teal-400">Web Career Portal</span> — your trusted platform connecting
+            students and recruiters with transparency and ease!
           </p>
-          <p className="text-md text-gray-600 max-w-3xl mx-auto">
-            Our mission is to make the placement process easy, transparent, and efficient. Whether you're a student searching for your dream job or a recruiter looking for top talent, Placement Cell provides a seamless experience.
+          <p className="text-base sm:text-lg text-gray-400 leading-relaxed">
+            Our mission is to simplify the placement process and empower both students and recruiters. Whether you are
+            searching for your dream job or scouting for top talent, our portal provides a seamless and efficient
+            experience.
           </p>
         </div>
 
         {/* Features */}
         <div>
-          <h2 className="text-2xl font-bold text-blue-700 text-center mb-6">
+          <h2 className="text-3xl font-bold text-center text-teal-400 mb-10 drop-shadow-md">
             Key Features
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             <FeatureCard
               Icon={BriefcaseIcon}
               title="Job Listings"
               description="Discover a wide range of job opportunities that match your skills and interests."
-              bgColor="bg-blue-600"
+              bgColor="bg-gradient-to-r from-teal-500 to-teal-700"
             />
             <FeatureCard
               Icon={ArrowUpTrayIcon}
               title="Resume Upload"
               description="Easily upload your resume and make it visible to potential recruiters."
-              bgColor="bg-purple-600"
+              bgColor="bg-gradient-to-r from-purple-600 to-purple-800"
             />
             <FeatureCard
               Icon={UserCircleIcon}
               title="Student Dashboard"
               description="Manage your profile, applications, and job search history easily."
-              bgColor="bg-emerald-600"
+              bgColor="bg-gradient-to-r from-emerald-500 to-emerald-700"
             />
             <FeatureCard
               Icon={ClipboardDocumentCheckIcon}
               title="Recruiter Dashboard"
               description="Recruiters can manage job postings and view applicants seamlessly."
-              bgColor="bg-orange-500"
+              bgColor="bg-gradient-to-r from-orange-500 to-orange-700"
             />
             <FeatureCard
               Icon={ChartBarIcon}
               title="Application Tracking"
               description="Track your applications and get real-time updates on your progress."
-              bgColor="bg-yellow-500"
+              bgColor="bg-gradient-to-r from-yellow-400 to-yellow-600"
             />
             <FeatureCard
               Icon={BellAlertIcon}
               title="Job Alerts"
               description="Receive personalized job alerts based on your profile and preferences."
-              bgColor="bg-red-600"
+              bgColor="bg-gradient-to-r from-red-500 to-red-700"
             />
           </div>
         </div>
 
         {/* Benefits */}
-        <div className="space-y-4">
-          <h2 className="text-2xl font-bold text-blue-700 text-center">
-            Why Choose Placement Cell?
+        <div className="max-w-3xl mx-auto space-y-6">
+          <h2 className="text-3xl font-bold text-center text-teal-400 drop-shadow-md">
+            Why Choose Web Career Portal?
           </h2>
-          <p className="text-gray-700 text-md text-center">
-            <span className="font-semibold text-blue-600">For Students:</span> We offer a user-friendly platform that helps you find jobs faster, improve your visibility to top recruiters, and manage your career progress.
+          <p className="text-gray-300 text-center text-lg leading-relaxed">
+            <span className="font-semibold text-teal-400">For Students:</span> We provide a user-friendly platform to
+            help you find jobs faster, increase your visibility to top recruiters, and efficiently manage your career
+            journey.
           </p>
-          <p className="text-gray-700 text-md text-center">
-            <span className="font-semibold text-purple-600">For Recruiters:</span> Access a pool of highly qualified candidates and streamline the hiring process.
+          <p className="text-gray-300 text-center text-lg leading-relaxed">
+            <span className="font-semibold text-purple-500">For Recruiters:</span> Access a large pool of qualified
+            candidates and streamline your hiring process with ease and precision.
           </p>
         </div>
 
         {/* CTA */}
-        <div className="text-center mt-8">
-          <p className="text-xl font-medium text-gray-800 mb-4">Ready to get started?</p>
-          <button className="bg-blue-600 hover:bg-blue-800 transition text-white font-semibold py-3 px-6 rounded-full shadow-lg">
-            Join Placement Cell Now
+        <div className="text-center mt-12">
+          <p className="text-xl font-semibold text-gray-200 mb-5">Ready to get started?</p>
+          <button className="bg-teal-500 hover:bg-teal-600 transition-colors text-white font-semibold py-3 px-8 rounded-full shadow-lg shadow-teal-700/50 text-lg">
+            Join Web Career Portal Now
           </button>
         </div>
 
         {/* Closing */}
-        <p className="text-center text-gray-600 text-md mt-10">
+        <p className="text-center text-gray-400 text-md mt-14 mb-6">
           Thank you for trusting us. Let's build your career together!
         </p>
       </div>
@@ -102,12 +109,14 @@ const About = () => {
 };
 
 const FeatureCard = ({ Icon, title, description, bgColor }) => (
-  <div className={`rounded-xl text-white p-6 shadow-md hover:scale-[1.03] transition-transform duration-300 ${bgColor}`}>
-    <div className="flex items-center gap-3 mb-3">
-      <Icon className="h-7 w-7" />
-      <h3 className="text-lg font-bold">{title}</h3>
+  <div
+    className={`${bgColor} rounded-2xl p-6 shadow-lg transform hover:scale-105 transition-transform duration-300 cursor-default`}
+  >
+    <div className="flex items-center gap-4 mb-4">
+      <Icon className="h-8 w-8 text-white drop-shadow-md" />
+      <h3 className="text-xl font-semibold text-white drop-shadow-md">{title}</h3>
     </div>
-    <p className="text-sm text-white/90">{description}</p>
+    <p className="text-white/90 text-sm leading-relaxed">{description}</p>
   </div>
 );
 

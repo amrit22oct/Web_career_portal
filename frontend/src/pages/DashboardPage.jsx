@@ -1,6 +1,31 @@
-import { useContext } from "react";
+import React, { useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { Navigate, useNavigate } from "react-router-dom";
+import {
+  BriefcaseIcon,
+  ClipboardDocumentListIcon,
+  UserCircleIcon,
+  ArrowRightOnRectangleIcon,
+} from "@heroicons/react/24/outline";
+
+const sidebarLinks = [
+  {
+    name: "Explore Jobs",
+    icon: BriefcaseIcon,
+    path: "/jobs",
+  },
+  {
+    name: "My Applications",
+    icon: ClipboardDocumentListIcon,
+    path: "/myApplications",
+  },
+  {
+    name: "Profile",
+    icon: UserCircleIcon,
+    path: "/profile",
+  },
+  // add more if needed
+];
 
 const DashboardPage = () => {
   const { user, logout } = useContext(AuthContext);
@@ -10,78 +35,105 @@ const DashboardPage = () => {
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate("/login");
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-br from-slate-800 to-slate-700 text-white">
-      {/* Content container that fills full height */}
-      <div className="flex flex-1 flex-col lg:flex-row gap-6 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-black text-white font-sans">
+      <div className="flex min-h-screen">
         {/* Sidebar */}
-        <aside className="lg:w-1/5 w-full bg-slate-900/80 p-6 rounded-xl shadow-lg border border-white space-y-6">
-          <h2 className="text-2xl font-semibold">Dashboard</h2>
-          <nav className="flex flex-col gap-4">
-            <button onClick={() => navigate('/jobs')} className="hover:text-blue-400 text-left">Explore Jobs</button>
-            <button onClick={() => navigate('/myApplications')} className="hover:text-blue-400 text-left">My Applications</button>
-            <button onClick={() => navigate('/profile')} className="hover:text-blue-400 text-left">Profile</button>
-            <button onClick={() => navigate('/Internships')} className="hover:text-blue-400 text-left">Internships</button>
-            <button onClick={handleLogout} className="text-red-400 hover:text-red-600 text-left">Logout</button>
+        <aside className="hidden lg:flex flex-col w-60 bg-gradient-to-tr from-blue-900 via-indigo-900 to-purple-900 p-6 text-gray-300 shadow-xl">
+          <div className="mb-8 flex items-center justify-start">
+            <div className="text-white font-extrabold text-2xl tracking-widest">
+              DASHBOARD
+            </div>
+          </div>
+
+          <nav className="flex flex-col gap-6 flex-grow">
+            {sidebarLinks.map(({ name, icon: Icon, path }, i) => (
+              <button
+                key={i}
+                onClick={() => navigate(path)}
+                className="flex items-center gap-4 px-3 py-2 rounded-lg hover:bg-indigo-700 hover:text-white transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                title={name}
+                aria-label={name}
+              >
+                <Icon className="h-6 w-6" />
+                <span className="font-semibold text-lg">{name}</span>
+              </button>
+            ))}
           </nav>
+
+          <button
+            onClick={handleLogout}
+            className="mt-6 flex items-center gap-4 px-3 py-2 rounded-lg text-red-400 hover:bg-red-700 hover:text-red-200 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-red-500"
+            title="Logout"
+            aria-label="Logout"
+          >
+            <ArrowRightOnRectangleIcon className="h-6 w-6" />
+            <span className="font-semibold text-lg">Logout</span>
+          </button>
         </aside>
 
-        {/* Main Content */}
-        <main className="flex-1 flex flex-col">
-          <div className="flex-grow bg-white/10 backdrop-blur-xl p-8 rounded-xl border border-white shadow-2xl space-y-6">
-            {/* Welcome Message */}
-            <header>
-              <h1 className="text-3xl font-bold">Welcome, {user.name}!</h1>
-              <p className="text-gray-200 mt-2">
-                You're logged in as a <span className="capitalize font-semibold">{user.role}</span>.
-              </p>
-            </header>
+        {/* Main content */}
+        <main className="flex-1 p-6 overflow-auto min-h-screen">
+          {/* Welcome Box */}
+          <section className="mb-10">
+            <h1 className="text-4xl font-extrabold mb-2 text-white">
+              Welcome, {user.name || "User"}!
+            </h1>
+            <p className="text-lg text-gray-300 max-w-xl">
+              You're logged in as{" "}
+              <span className="font-semibold text-indigo-300 capitalize">
+                {user.role || "User"}
+              </span>
+              .
+            </p>
+            <p className="text-gray-400 mt-1">
+              <strong>Email:</strong> {user.email || "N/A"}
+            </p>
+            <p className="text-gray-400">
+              <strong>Role:</strong> {user.role || "User"}
+            </p>
+          </section>
 
-            {/* User Info Panel */}
-            <section className="bg-white/10 rounded-lg p-4 text-gray-100 space-y-3 border border-white/20 shadow-inner">
-              <div className="flex justify-between border-b border-gray-500 pb-2">
-                <span className="font-medium">Email:</span>
-                <span>{user.email}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-medium">Role:</span>
-                <span className="capitalize">{user.role}</span>
-              </div>
-            </section>
+          {/* Action Cards */}
+          <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 mb-10">
+            <div className="bg-indigo-800/80 backdrop-blur-lg shadow-lg text-white p-6 rounded-xl border border-indigo-600 hover:shadow-indigo-500 transition transform hover:-translate-y-1 hover:scale-[1.02]">
+              <h3 className="text-2xl font-semibold mb-3">Explore Jobs</h3>
+              <p className="mb-5 text-indigo-300">Browse and apply for jobs.</p>
+              <button
+                onClick={() => navigate("/jobs")}
+                className="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2 px-5 rounded-md shadow-md transition"
+              >
+                Start Exploring
+              </button>
+            </div>
 
-            {/* Action Cards */}
-            <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {/* Card 1 */}
-              <div className="bg-blue-500/10 border border-white p-6 rounded-lg hover:bg-blue-500/20 transition transform hover:-translate-y-1 shadow-md">
-                <h3 className="text-xl font-semibold mb-2">Explore Jobs</h3>
-                <p>Browse the latest job opportunities and apply easily.</p>
-                <button onClick={() => navigate('/jobs')} className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow">
-                  Start Exploring
-                </button>
-              </div>
+            <div className="bg-indigo-800/80 backdrop-blur-lg shadow-lg text-white p-6 rounded-xl border border-indigo-600 hover:shadow-indigo-500 transition transform hover:-translate-y-1 hover:scale-[1.02]">
+              <h3 className="text-2xl font-semibold mb-3">My Applications</h3>
+              <p className="mb-5 text-indigo-300">View your job applications.</p>
+              <button
+                onClick={() => navigate("/myApplications")}
+                className="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2 px-5 rounded-md shadow-md transition"
+              >
+                View Applications
+              </button>
+            </div>
 
-              {/* Card 2 */}
-              <div className="bg-blue-500/10 border border-white p-6 rounded-lg hover:bg-blue-500/20 transition transform hover:-translate-y-1 shadow-md">
-                <h3 className="text-xl font-semibold mb-2">My Applications</h3>
-                <p>Track your submitted applications in one place.</p>
-                <button onClick={() => navigate('/myApplications')} className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow">
-                  View Applications
-                </button>
-              </div>
+            <div className="bg-indigo-800/80 backdrop-blur-lg shadow-lg text-white p-6 rounded-xl border border-indigo-600 hover:shadow-indigo-500 transition transform hover:-translate-y-1 hover:scale-[1.02]">
+              <h3 className="text-2xl font-semibold mb-3">Profile</h3>
+              <p className="mb-5 text-indigo-300">Manage your user profile.</p>
+              <button
+                onClick={() => navigate("/profile")}
+                className="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2 px-5 rounded-md shadow-md transition"
+              >
+                View Profile
+              </button>
+            </div>
+          </section>
 
-              {/* Card 3 */}
-              <div className="bg-blue-500/10 border border-white p-6 rounded-lg hover:bg-blue-500/20 transition transform hover:-translate-y-1 shadow-md">
-                <h3 className="text-xl font-semibold mb-2">Profile</h3>
-                <p>Update your personal info and resume.</p>
-                <button onClick={() => navigate('/profile')} className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow">
-                  Edit Profile
-                </button>
-              </div>
-            </section>
-          </div>
+          
         </main>
       </div>
     </div>

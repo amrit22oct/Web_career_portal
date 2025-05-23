@@ -33,33 +33,34 @@ const InternshipPage = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-900 p-10">
-      <h1 className="text-4xl font-bold text-center text-white mb-8">
-        Internship Opportunities
-      </h1>
+    <div className="min-h-screen bg-gray-900 px-4 sm:px-6 md:px-10 py-10">
+  <h1 className="text-3xl sm:text-4xl font-bold text-center text-white mb-8">
+    Internship Opportunities
+  </h1>
 
-      {loading && <LoadingSpinner />}
+  {loading && <LoadingSpinner />}
 
-      {error && (
-        <div className="text-center bg-red-700 text-red-100 p-4 rounded mb-6">
-          {error}
-        </div>
-      )}
-
-      {!loading && !error && internships.length === 0 && (
-        <div className="text-center bg-yellow-600 text-yellow-100 p-4 rounded mb-6">
-          No internships available at the moment.
-        </div>
-      )}
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {internships.map((job) => (
-          <div key={job._id} className="bg-gray-800 p-6 rounded shadow-md">
-            <JobCard job={job} />
-          </div>
-        ))}
-      </div>
+  {error && (
+    <div className="text-center bg-red-700 text-red-100 p-4 rounded mb-6 max-w-xl mx-auto">
+      {error}
     </div>
+  )}
+
+  {!loading && !error && internships.length === 0 && (
+    <div className="text-center bg-yellow-600 text-yellow-100 p-4 rounded mb-6 max-w-xl mx-auto">
+      No internships available at the moment.
+    </div>
+  )}
+
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    {internships.map((job) => (
+      <div key={job._id} className="bg-gray-800 p-5 rounded-lg shadow-md">
+        <JobCard job={job} />
+      </div>
+    ))}
+  </div>
+</div>
+
   );
 };
 

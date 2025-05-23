@@ -15,6 +15,10 @@ const EditJobModal = ({ job, closeModal, refreshJobDetails }) => {
   });
 
   const [skillInput, setSkillInput] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [confirmationStatus, setConfirmationStatus] = useState(null);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     if (job) {
@@ -57,182 +61,94 @@ const EditJobModal = ({ job, closeModal, refreshJobDetails }) => {
     setFormData((prev) => ({ ...prev, skills: updatedSkills }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleFormSubmit = (e) => {
     e.preventDefault();
-    const { title, company, location, salary, description, applyBy } = formData;
-    if (!title || !company || !location || !salary || !description || !applyBy) {
-      alert('Please fill in all required fields.');
-      return;
+    setShowConfirm(true);
+  };
+
+  const closeConfirm = () => {
+    setShowConfirm(false);
+    if (confirmationStatus === "success") {
+      closeModal();
     }
+  };
+
+  const handleUpdateJob = async () => {
+    setLoading(true);
+    setError('');
+    setConfirmationStatus(null);
 
     try {
       const updatedJob = await API.put(`/jobs/${job._id}`, formData);
       refreshJobDetails(updatedJob.data);
-      closeModal();
+      setConfirmationStatus("success");
     } catch (err) {
-      alert('Failed to update job details.');
+      setConfirmationStatus("error");
+      setError(err.message || "Failed to update job.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div
-      onClick={closeModal}
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
-    >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto p-8 relative
-          flex flex-col"
-      >
-        {/* Close button */}
-        <button
-          onClick={closeModal}
-          className="absolute top-5 right-5 text-gray-400 hover:text-red-600 text-3xl font-semibold transition-colors"
-          aria-label="Close modal"
-          type="button"
-        >
-          &times;
-        </button>
+    <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 px-2 text-white select-none">
+      <div className="bg-gradient-to-br from-slate-800 to-slate-700 border border-gray-300 shadow-2xl rounded-xl p-8 w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+        <h2 className="text-3xl font-bold text-center mb-6">Edit Job</h2>
 
-        {/* Header */}
-        <h2 className="text-2xl font-semibold text-gray-800 mb-6 text-center">
-          Edit Job
-        </h2>
-
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-6 flex-grow">
-          {[ 
-            { name: 'title', label: 'Job Title' },
-            { name: 'company', label: 'Company' },
-            { name: 'salary', label: 'Salary', type: 'number' },
-            { name: 'location', label: 'Location' },
-            { name: 'description', label: 'Description', textarea: true },
-          ].map(({ name, label, type = 'text', textarea }) => (
-            <div key={name}>
-              <label
-                htmlFor={name}
-                className="block mb-2 font-medium text-gray-700"
-              >
-                {label}
-              </label>
-              {textarea ? (
-                <textarea
-                  id={name}
-                  name={name}
-                  rows={4}
-                  value={formData[name]}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 rounded-md border border-gray-300 bg-gray-50 text-gray-900
-                    focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none transition"
-                  placeholder={`Enter ${label.toLowerCase()}...`}
-                />
-              ) : (
-                <input
-                  id={name}
-                  type={type}
-                  name={name}
-                  value={formData[name]}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 rounded-md border border-gray-300 bg-gray-50 text-gray-900
-                    focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
-                  placeholder={`Enter ${label.toLowerCase()}...`}
-                  min={type === 'number' ? 0 : undefined}
-                />
-              )}
+        <form onSubmit={handleFormSubmit} className="space-y-5">
+          {[
+            { label: "Job Title", name: "title", placeholder: "Enter job title" },
+            { label: "Company", name: "company", placeholder: "Enter company name" },
+            { label: "Location", name: "location", placeholder: "Enter job location" },
+            { label: "Salary (₹)", name: "salary", type: "number", placeholder: "Enter salary" },
+          ].map(({ label, name, type = "text", placeholder }, idx) => (
+            <div key={idx} className="flex flex-col">
+              <label className="font-semibold text-sm mb-1">{label}</label>
+              <input
+                type={type}
+                name={name}
+                value={formData[name]}
+                onChange={handleInputChange}
+                placeholder={placeholder}
+                required
+                className="bg-transparent border border-gray-500 rounded-md px-4 py-2 placeholder-gray-400 focus:outline-none focus:border-white"
+              />
             </div>
           ))}
 
-          <div>
-            <label
-              htmlFor="applyBy"
-              className="block mb-2 font-medium text-gray-700"
-            >
-              Apply By
-            </label>
-            <input
-              id="applyBy"
-              type="date"
-              name="applyBy"
-              value={formData.applyBy}
+          <div className="flex flex-col">
+            <label className="font-semibold text-sm mb-1">Job Description</label>
+            <textarea
+              name="description"
+              value={formData.description}
               onChange={handleInputChange}
-              className="w-full px-4 py-3 rounded-md border border-gray-300 bg-gray-50 text-gray-900
-                focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+              placeholder="Describe the job role"
+              required
+              className="bg-transparent border border-gray-500 rounded-md px-4 py-3 resize-none h-24 placeholder-gray-400 focus:outline-none focus:border-white"
             />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div>
-              <label
-                htmlFor="timePeriod"
-                className="block mb-2 font-medium text-gray-700"
-              >
-                Time Period
-              </label>
-              <select
-                id="timePeriod"
-                name="timePeriod"
-                value={formData.timePeriod}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 rounded-md border border-gray-300 bg-gray-50 text-gray-900
-                  focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
-              >
-                <option>Internship</option>
-                <option>Part-time</option>
-                <option>Full-time</option>
-              </select>
-            </div>
-
-            <div>
-              <label
-                htmlFor="jobType"
-                className="block mb-2 font-medium text-gray-700"
-              >
-                Job Type
-              </label>
-              <select
-                id="jobType"
-                name="jobType"
-                value={formData.jobType}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 rounded-md border border-gray-300 bg-gray-50 text-gray-900
-                  focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
-              >
-                <option>Job</option>
-                <option>Internship</option>
-                <option>Freelance</option>
-              </select>
-            </div>
-          </div>
-
-          <div>
-            <label
-              htmlFor="skillsInput"
-              className="block mb-2 font-medium text-gray-700"
-            >
-              Skills
-            </label>
+          <div className="flex flex-col">
+            <label className="font-semibold text-sm mb-1">Required Skills</label>
             <input
-              id="skillsInput"
               type="text"
-              placeholder="Type skill and press Enter or ,"
               value={skillInput}
               onChange={(e) => setSkillInput(e.target.value)}
               onKeyDown={handleSkillKeyDown}
-              className="w-full px-4 py-3 rounded-md border border-gray-300 bg-gray-50 text-gray-900
-                placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+              placeholder="Type a skill and press Enter or comma"
+              className="bg-transparent border border-gray-500 rounded-md px-4 py-2 placeholder-gray-400 focus:outline-none focus:border-white"
             />
-            <div className="flex flex-wrap gap-3 mt-3">
+            <div className="flex flex-wrap mt-2 gap-2">
               {formData.skills.map((skill, index) => (
                 <span
                   key={index}
-                  className="bg-indigo-200 text-indigo-800 px-3 py-1 rounded-full text-sm font-semibold flex items-center"
+                  className="bg-blue-600 text-white px-2 py-1 rounded-full text-sm flex items-center"
                 >
                   {skill}
                   <button
                     type="button"
                     onClick={() => removeSkill(index)}
-                    className="ml-2 text-indigo-600 hover:text-red-600 transition"
-                    aria-label={`Remove skill ${skill}`}
+                    className="ml-2 text-white hover:text-gray-200"
                   >
                     &times;
                   </button>
@@ -241,15 +157,110 @@ const EditJobModal = ({ job, closeModal, refreshJobDetails }) => {
             </div>
           </div>
 
-          <button
-            type="submit"
-            className="w-full mt-6 bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-md
-              font-semibold transition duration-200 shadow-md"
-          >
-            Save Changes
-          </button>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="flex flex-col">
+              <label className="font-semibold text-sm mb-1">Job Type</label>
+              <select
+                name="jobType"
+                value={formData.jobType}
+                onChange={handleInputChange}
+                required
+                className="bg-black border border-gray-500 rounded-md px-4 py-2"
+              >
+                <option value="Job">Job</option>
+                <option value="Internship">Internship</option>
+              </select>
+            </div>
+            <div className="flex flex-col">
+              <label className="font-semibold text-sm mb-1">Time Period</label>
+              <select
+                name="timePeriod"
+                value={formData.timePeriod}
+                onChange={handleInputChange}
+                required
+                className="bg-black border border-gray-500 rounded-md px-4 py-2"
+              >
+                <option value="Full-time">Full-time</option>
+                <option value="Part-time">Part-time</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="flex flex-col">
+            <label className="font-semibold text-sm mb-1">Apply By</label>
+            <input
+              type="date"
+              name="applyBy"
+              value={formData.applyBy}
+              onChange={handleInputChange}
+              required
+              className="bg-transparent border border-gray-500 rounded-md px-4 py-2 placeholder-gray-400 focus:outline-none focus:border-white"
+            />
+          </div>
+
+          <div className="flex justify-end gap-4 pt-4">
+            <button
+              type="button"
+              onClick={closeModal}
+              className="bg-red-500 hover:bg-red-600 text-white font-semibold px-6 py-2 rounded transition"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className={`px-6 py-2 rounded font-semibold transition ${
+                loading ? "bg-blue-300 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700 text-white"
+              }`}
+            >
+              {loading ? "Updating..." : "Update Job"}
+            </button>
+          </div>
         </form>
       </div>
+
+      {/* Confirmation Popup */}
+      {showConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 px-2">
+          <div className="bg-white text-black rounded-xl p-6 w-full max-w-sm text-center shadow-2xl space-y-4">
+            {!confirmationStatus ? (
+              <>
+                <h3 className="text-lg font-bold">Confirm Update</h3>
+                <p className="text-sm">Are you sure you want to update this job?</p>
+                <div className="flex justify-center gap-4 pt-2">
+                  <button
+                    onClick={closeConfirm}
+                    className="bg-gray-300 hover:bg-gray-400 text-black px-4 py-2 rounded"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleUpdateJob}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+                    disabled={loading}
+                  >
+                    {loading ? "Updating..." : "Confirm"}
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                {confirmationStatus === "success" ? (
+                  <p className="text-green-600 font-semibold">✅ Job updated successfully!</p>
+                ) : (
+                  <p className="text-red-600 font-semibold">❌ Failed to update job.<br />{error}</p>
+                )}
+                <button
+                  onClick={closeConfirm}
+                  className="bg-black text-white mt-4 px-4 py-2 rounded hover:bg-gray-800"
+                >
+                  Close
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

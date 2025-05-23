@@ -2,15 +2,18 @@ import { FaFacebook, FaTwitter, FaLinkedin, FaGithub } from 'react-icons/fa';
 
 const Footer = () => {
   return (
-    <footer className="bg-[#222222] text-[#eee] py-10 px-8 md:px-20 border-t border-gray-700 select-none">
-      <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8 md:gap-0">
-        {/* Left Text */}
-        <p className="text-lg font-semibold tracking-wide uppercase">
-          &copy; 2025 Web Career Portal. All Rights Reserved.
-        </p>
+    <footer className="bg-[#1c1c1e] text-[#eee] px-6 py-12 md:px-16 border-t border-gray-700 select-none">
+      <div className="max-w-7xl mx-auto grid gap-10 md:grid-cols-3 items-center">
+        {/* Left Section */}
+        <div className="text-center md:text-left">
+          <p className="text-xl font-bold tracking-wider uppercase">
+            &copy; 2025 Web Career Portal
+          </p>
+          <p className="text-sm text-gray-400 mt-2">All Rights Reserved.</p>
+        </div>
 
-        {/* Social Icons */}
-        <div className="flex gap-6">
+        {/* Social Media Icons */}
+        <div className="flex justify-center gap-6">
           {[
             { href: 'https://facebook.com', icon: <FaFacebook />, color: '#3b5998', label: 'Facebook' },
             { href: 'https://twitter.com', icon: <FaTwitter />, color: '#1da1f2', label: 'Twitter' },
@@ -23,17 +26,7 @@ const Footer = () => {
               target="_blank"
               rel="noopener noreferrer"
               aria-label={label}
-              className="
-                w-12 h-12
-                flex items-center justify-center
-                rounded-full
-                bg-[#333333]
-                text-[#bbb]
-                transition-colors duration-300
-                hover:text-white
-                hover:bg-[#444444]
-                hover:scale-110
-              "
+              className="w-11 h-11 flex items-center justify-center rounded-full bg-[#2a2a2d] text-white shadow-lg transition-all duration-300 hover:scale-110 hover:shadow-xl"
               style={{ color: color }}
             >
               <span className="text-2xl">{icon}</span>
@@ -42,21 +35,26 @@ const Footer = () => {
         </div>
 
         {/* Links */}
-        <div className="text-[#bbb] flex gap-6 uppercase font-semibold tracking-wide text-sm">
+        <div className="flex flex-col md:flex-row items-center justify-center md:justify-end gap-3 md:gap-6 text-sm font-semibold uppercase text-[#bbb]">
           <a
             href="/contact"
-            className="hover:text-white hover:scale-110 transition-transform duration-300"
+            className="hover:text-white transition-transform transform hover:scale-110"
           >
             Contact Us
           </a>
-          <span className="text-gray-600">|</span>
+          <span className="hidden md:inline text-gray-600">|</span>
           <a
             href="/privacy"
-            className="hover:text-white hover:scale-110 transition-transform duration-300"
+            className="hover:text-white transition-transform transform hover:scale-110"
           >
             Privacy Policy
           </a>
         </div>
+      </div>
+
+      {/* Bottom Divider */}
+      <div className="mt-10 border-t border-gray-700 pt-6 text-center text-xs text-gray-500">
+        Made with ❤️ for career aspirants.
       </div>
     </footer>
   );

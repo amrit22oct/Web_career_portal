@@ -1,13 +1,11 @@
 import axios from "axios";
 
-const BASE_URL =
-  import.meta.env.MODE === "development"
-    ? "http://localhost:5001"
-    : ""; // Assume same origin in production
+const BASE_URL = import.meta.env.MODE === "production"
+  ? "" // same origin in production
+  : "http://localhost:5001";
 
-// Axios instance
 const API = axios.create({
-  baseURL: `${BASE_URL}/api`, // Always append /api
+  baseURL: `${BASE_URL}/api`,
   withCredentials: true,
 });
 

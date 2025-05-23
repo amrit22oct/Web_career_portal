@@ -38,14 +38,14 @@ const HomePage = () => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setHeroIndex((i) => (i + 1) % images.length);
+      setHeroIndex(i => (i + 1) % images.length);
     }, 3000);
     return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setPlacementIndex((i) => (i + 1) % placements.length);
+      setPlacementIndex(i => (i + 1) % placements.length);
     }, 4000);
     return () => clearInterval(interval);
   }, []);
@@ -56,7 +56,7 @@ const HomePage = () => {
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white">
       {/* Hero Banner */}
-      <div className="relative h-96 overflow-hidden">
+      <div className="relative h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px] overflow-hidden">
         <AnimatePresence>
           <motion.div
             key={heroIndex}
@@ -68,9 +68,9 @@ const HomePage = () => {
             transition={{ duration: 1 }}
           />
         </AnimatePresence>
-        <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center items-center text-center px-6">
+        <div className="absolute inset-0 bg-black bg-opacity-60 flex flex-col justify-center items-center text-center px-4 sm:px-6 md:px-12">
           <motion.h1
-            className="text-5xl md:text-6xl font-bold mb-4 drop-shadow-lg"
+            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-3 sm:mb-4 drop-shadow-lg"
             initial={{ y: -20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.5 }}
@@ -78,7 +78,7 @@ const HomePage = () => {
             Your Dream Awaits
           </motion.h1>
           <motion.p
-            className="text-lg md:text-xl max-w-2xl"
+            className="text-sm sm:text-base md:text-lg max-w-xl"
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.8 }}
@@ -90,31 +90,28 @@ const HomePage = () => {
 
       {/* Featured Jobs */}
       {user && (
-        <section className="py-16 px-8">
-          <h2 className="text-4xl font-semibold text-center mb-12 relative after:w-32 after:h-1 after:bg-teal-400 after:block after:mx-auto after:mt-4">
+        <section className="py-10 px-4 sm:px-6 md:px-12 lg:px-20">
+          <h2 className="text-2xl sm:text-3xl font-semibold text-center mb-10 relative after:w-20 after:h-1 after:bg-teal-400 after:block after:mx-auto after:mt-3">
             Featured Jobs
           </h2>
           {loading ? (
-            <p className="text-center">Loading...</p>
+            <p className="text-center text-lg">Loading...</p>
           ) : error ? (
-            <p className="text-center text-red-500">{error}</p>
+            <p className="text-center text-red-500 text-lg">{error}</p>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
               {jobs.slice(0, 6).map(job => (
-                <div
-                  key={job._id}
-                  className="bg-gray-800 p-6 rounded shadow-md"
-                >
-                  <JobCard job={job} className="hover:shadow-2xl transition-shadow duration-300" />
+                <div key={job._id} className="bg-gray-800 p-5 rounded-lg shadow-md hover:shadow-2xl transition-shadow duration-300">
+                  <JobCard job={job} />
                 </div>
               ))}
             </div>
           )}
           {jobs.length > 6 && (
-            <div className="text-center mt-10">
+            <div className="text-center mt-8">
               <Link
                 to="/jobs"
-                className="inline-block bg-teal-500 hover:bg-teal-600 text-white font-medium py-3 px-8 rounded-full shadow-lg transition-transform transform hover:scale-105"
+                className="inline-block bg-teal-500 hover:bg-teal-600 text-white font-semibold py-3 px-8 rounded-full shadow-lg transition-transform transform hover:scale-105"
               >
                 Browse All Jobs
               </Link>
@@ -124,29 +121,39 @@ const HomePage = () => {
       )}
 
       {/* Placement Carousel */}
-      <section className="py-16 px-4 bg-gradient-to-r from-indigo-600 via-purple-700 to-pink-600">
-        <h3 className="text-3xl font-bold text-center mb-8 text-white">Recent Placements</h3>
-        <div className="relative max-w-xl mx-auto bg-white bg-opacity-10 backdrop-blur-md rounded-xl p-8 flex items-center justify-between">
-          <button onClick={prevPlacement} className="text-white text-2xl p-2 hover:text-teal-300">
+      <section className="py-12 px-4 sm:px-6 md:px-12 lg:px-20 bg-gradient-to-r from-indigo-600 via-purple-700 to-pink-600">
+        <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-center mb-6 text-white">Recent Placements</h3>
+        <div className="relative max-w-xl mx-auto bg-white bg-opacity-10 backdrop-blur-md rounded-xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <button
+            onClick={prevPlacement}
+            className="text-white text-2xl p-2 hover:text-teal-300"
+            aria-label="Previous Placement"
+          >
             <FaChevronLeft />
           </button>
-          <div className="text-center px-4">
-            <p className="text-xl">{placements[placementIndex].student}</p>
-            <p className="text-2xl font-semibold mt-2">{placements[placementIndex].job}</p>
-            <p className="mt-1 text-lg">Salary: <span className="font-bold">{placements[placementIndex].salary}</span></p>
+          <div className="text-center text-white px-2">
+            <p className="text-base sm:text-lg">{placements[placementIndex].student}</p>
+            <p className="text-lg sm:text-xl font-semibold mt-1">{placements[placementIndex].job}</p>
+            <p className="mt-1 text-sm sm:text-base">
+              Salary: <span className="font-bold">{placements[placementIndex].salary}</span>
+            </p>
           </div>
-          <button onClick={nextPlacement} className="text-white text-2xl p-2 hover:text-teal-300">
+          <button
+            onClick={nextPlacement}
+            className="text-white text-2xl p-2 hover:text-teal-300"
+            aria-label="Next Placement"
+          >
             <FaChevronRight />
           </button>
         </div>
       </section>
 
       {/* Footer CTA */}
-      <div className="mt-auto bg-gray-900 py-6 text-center">
-        <p className="mb-2">Ready to take the next step?</p>
+      <div className="mt-auto bg-gray-900 py-8 text-center px-4">
+        <p className="mb-3 text-base sm:text-lg">Ready to take the next step?</p>
         <Link
           to={user ? '/jobs' : '/register'}
-          className="inline-block bg-teal-500 hover:bg-teal-600 text-white py-2 px-6 rounded-full shadow-lg transition-transform transform hover:scale-105"
+          className="inline-block bg-teal-500 hover:bg-teal-600 text-white py-2 px-6 rounded-full shadow-lg transition-transform transform hover:scale-105 text-sm sm:text-base"
         >
           {user ? 'View Jobs' : 'Sign Up'}
         </Link>
