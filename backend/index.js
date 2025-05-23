@@ -24,12 +24,14 @@ const PORT = process.env.PORT || 5001;
 
 const app = express();
 
+// Allow these origins in development
 const allowedOrigins = ["http://localhost:5173", process.env.FRONTEND_URL];
 
 app.use(express.json());
 app.use(cookieParser());
 app.use(morgan("dev"));
 
+// CORS only needed for development
 app.use(
   cors({
     origin: (origin, callback) => {
@@ -45,6 +47,7 @@ app.use(
   })
 );
 
+// Security headers
 const connectSrc = allowedOrigins.join(" ");
 app.use((req, res, next) => {
   res.setHeader(
@@ -58,15 +61,15 @@ app.use((req, res, next) => {
       connect-src 'self' ${connectSrc};
       object-src 'none';
       frame-src 'none';
-    `
-      .replace(/\s{2,}/g, " ")
-      .trim()
+    `.replace(/\s{2,}/g, " ").trim()
   );
   next();
 });
 
+// Serve uploaded images
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
+// API routes
 app.use("/api/auth", authRoutes);
 app.use("/api/auth", profileRoutes);
 app.use("/api/student", studentRoutes);
@@ -74,8 +77,10 @@ app.use("/api/recruiter", recruiterRoutes);
 app.use("/api/jobs", jobRoutes);
 app.use("/api/admin", adminRoutes);
 
+// Error handler
 app.use(errorHandler);
 
+// Serve frontend in production
 if (process.env.NODE_ENV === "production") {
   const frontendPath = path.resolve(__dirname, "../frontend/dist");
   app.use(express.static(frontendPath));
