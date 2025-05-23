@@ -3,7 +3,7 @@ import cors from "cors";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import path from "path";
-import { fileURLToPath } from "url";
+import { fileURLToPath } from 'url';
 import dotenv from "dotenv";
 
 import authRoutes from "./routes/authRoutes.js";
@@ -20,6 +20,7 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// This is the key: process.env.NODE_ENV must be 'production' in your Render environment variables.
 const isProd = process.env.NODE_ENV === "production";
 
 // Determine frontend client URL (set on Render or fallback to localhost)
@@ -98,8 +99,7 @@ app.use("/api/jobs", jobRoutes);
 app.use("/api/admin", adminRoutes);
 
 // === Serve frontend in production ===
-// In production, the backend serves the static frontend files.
-// This ensures both are on the same origin.
+// This block will ONLY run if process.env.NODE_ENV is 'production'
 if (isProd) {
   const frontendPath = path.join(__dirname, "../frontend/dist"); // Assuming Vite builds to 'dist'
   app.use(express.static(frontendPath)); // Serve static files from the frontend build directory
