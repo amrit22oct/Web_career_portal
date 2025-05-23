@@ -103,15 +103,7 @@
 
 // // === Serve frontend in production ===
 // // This block will ONLY run if process.env.NODE_ENV is 'production'
-// if (isProd) {
-//   const frontendPath = path.join(__dirname, "../frontend/dist"); // Assuming Vite builds to 'dist'
-//   app.use(express.static(frontendPath)); // Serve static files from the frontend build directory
-//   // For any other GET request, serve the frontend's index.html
-//   // This is crucial for client-side routing (e.g., React Router)
-//   app.get("*", (req, res) => {
-//     res.sendFile(path.resolve(frontendPath, "index.html"));
-//   });
-// }
+
 
 // // === Global error handler ===
 // // Catches and processes errors that occur in the application

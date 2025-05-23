@@ -1,13 +1,13 @@
 {
-  "name": "Career_Portal",
+  "name": "web_Career_Portal",
   "version": "1.0.0",
+  "description": "",
   "main": "index.js",
   "scripts": {
     "build": "npm install --prefix backend && npm install --prefix frontend && npm run build --prefix frontend",
-    "dev": "concurrently \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\"",
-    "start": "npm run build && npm run start --prefix backend"
+    "start": "npm run dev --prefix backend"
   },
-  "devDependencies": {
-    "concurrently": "^8.2.2"
-  }
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
 }
