@@ -18,12 +18,10 @@ import recruiterRoutes from "./routes/recruiterRoutes.js";
 import jobRoutes from "./routes/jobRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 
-dotenv.config();
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const PORT = process.env.PORT || 5001;
-const FRONTEND_URL = process.env.FRONTEND_URL;
+const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
 const app = express();
 
 // Allow these origins in development
@@ -70,6 +68,11 @@ app.use((req, res, next) => {
   next();
 });
 
+// Redirect backend root URL to frontend URL
+app.get("/", (req, res) => {
+  res.redirect(FRONTEND_URL);
+});
+
 // Serve uploaded images
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
@@ -83,9 +86,6 @@ app.use("/api/admin", adminRoutes);
 
 // Error handler
 app.use(errorHandler);
-
-// Serve frontend in production
-
 
 const startServer = async () => {
   try {
@@ -109,7 +109,7 @@ const startServer = async () => {
 
     app.listen(PORT, () => {
       console.log(`🚀 Backend running on http://localhost:${PORT}`);
-      console.log(`🖥️ Frontend running on http:${FRONTEND_URL}`);
+      console.log(`🖥️ Frontend running on ${FRONTEND_URL}`);
     });
   } catch (error) {
     console.error("❌ Failed to start server:", error.message);
