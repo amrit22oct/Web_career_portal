@@ -1,9 +1,11 @@
 import express from "express";
 import dotenv from "dotenv";
 dotenv.config();
+
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import morgan from "morgan";
+import helmet from "helmet";
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -17,9 +19,9 @@ import recruiterRoutes from "./routes/recruiterRoutes.js";
 import jobRoutes from "./routes/jobRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 
+const PORT = process.env.PORT || 5001;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const PORT = process.env.PORT || 5000;
 
 const app = express();
 
@@ -27,38 +29,36 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 app.use(morgan("dev"));
+app.use(helmet());
 
-// CORS setup
-const allowedOrigins = [process.env.CLIENT_URL || "http://localhost:5173"];
-const connectSrc = allowedOrigins.join(" ");
-app.use(cors({
-  origin: allowedOrigins,
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  credentials: true
-}));
+// Allow CORS only in development
+if (process.env.NODE_ENV !== "production") {
+  app.use(cors({
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true
+  }));
+}
 
-// Security headers
+// Custom CSP (same-origin only)
 app.use((req, res, next) => {
-  res.setHeader(
-    "Content-Security-Policy",
-    `
-      default-src 'self';
-      style-src 'self' https://fonts.googleapis.com 'unsafe-inline';
-      font-src 'self' https://fonts.gstatic.com;
-      script-src 'self';
-      img-src 'self' data:;
-      connect-src 'self' ${connectSrc};
-      object-src 'none';
-      frame-src 'none';
-    `.replace(/\s{2,}/g, " ").trim()
-  );
+  res.setHeader("Content-Security-Policy", `
+    default-src 'self';
+    style-src 'self' https://fonts.googleapis.com 'unsafe-inline';
+    font-src 'self' https://fonts.gstatic.com;
+    script-src 'self';
+    img-src 'self' data:;
+    connect-src 'self';
+    object-src 'none';
+    frame-src 'none';
+  `.replace(/\s{2,}/g, " ").trim());
   next();
 });
 
-// Serve static files
+// Static file serving for uploaded files
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
-// API routes
+// API Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/student", studentRoutes);
@@ -69,13 +69,28 @@ app.use("/api/admin", adminRoutes);
 // Error handler
 app.use(errorHandler);
 
-// Serve frontend in production
+
+// ✅ NEW:
 if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "../frontend/dist")));
+  const clientPath = path.join(__dirname, "./client");
+  console.log("Serving static files from:", clientPath);
+
+  app.use(express.static(clientPath));
+
   app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "../frontend/dist/index.html"));
+    const indexFile = path.join(clientPath, "index.html");
+    console.log("Serving index.html from:", indexFile);
+    res.sendFile(indexFile, err => {
+      if (err) {
+        console.error("Error sending index.html:", err);
+        res.status(500).send("Something went wrong");
+      }
+    });
   });
 }
+
+
+
 
 // Start server
 const startServer = async () => {
