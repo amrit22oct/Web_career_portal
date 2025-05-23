@@ -5,6 +5,7 @@ import cors from "cors";
 import morgan from "morgan";
 import path from "path";
 import { fileURLToPath } from "url";
+import { exec } from "child_process";
 
 import { connectDB } from "./config/db.js";
 import { errorHandler } from "./middleware/errorHandler.js";
@@ -21,7 +22,7 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const PORT = process.env.PORT || 5001;
-
+const FRONTEND_URL = process.env.FRONTEND_URL;
 const app = express();
 
 // Allow these origins in development
@@ -61,7 +62,9 @@ app.use((req, res, next) => {
       connect-src 'self' ${connectSrc};
       object-src 'none';
       frame-src 'none';
-    `.replace(/\s{2,}/g, " ").trim()
+    `
+      .replace(/\s{2,}/g, " ")
+      .trim()
   );
   next();
 });
@@ -81,20 +84,32 @@ app.use("/api/admin", adminRoutes);
 app.use(errorHandler);
 
 // Serve frontend in production
-if (process.env.NODE_ENV === "production") {
-  const frontendPath = path.resolve(__dirname, "../frontend/dist");
-  app.use(express.static(frontendPath));
-  app.get("*", (req, res) => {
-    res.sendFile(path.resolve(frontendPath, "index.html"));
-  });
-}
+
 
 const startServer = async () => {
   try {
     await connectDB();
-    app.listen(PORT, () =>
-      console.log(`🚀 Server running on http://localhost:${PORT}`)
-    );
+
+    // Start frontend automatically
+    const frontendPath = path.resolve(__dirname, "../frontend");
+    const frontendProcess = exec("npm run dev", { cwd: frontendPath });
+
+    frontendProcess.stdout.on("data", (data) => {
+      process.stdout.write(`[FRONTEND] ${data}`);
+    });
+
+    frontendProcess.stderr.on("data", (data) => {
+      process.stderr.write(`[FRONTEND ERROR] ${data}`);
+    });
+
+    frontendProcess.on("close", (code) => {
+      console.log(`Frontend process exited with code ${code}`);
+    });
+
+    app.listen(PORT, () => {
+      console.log(`🚀 Backend running on http://localhost:${PORT}`);
+      console.log(`🖥️ Frontend running on http:${FRONTEND_URL}`);
+    });
   } catch (error) {
     console.error("❌ Failed to start server:", error.message);
     process.exit(1);
